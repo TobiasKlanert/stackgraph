@@ -1,0 +1,11 @@
+services:
+  app:
+    container_name: stackgraph
+    build: .
+    networks:
+      - web
+    restart: unless-stopped
+
+networks:
+  web:
+    external: true
