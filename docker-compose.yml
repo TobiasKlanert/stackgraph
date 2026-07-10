@@ -1,7 +1,7 @@
 services:
   app:
     container_name: stackgraph
-    build: .
+    image: ghcr.io/tobiasklanert/stackgraph:latest
     networks:
       - web
     restart: unless-stopped
