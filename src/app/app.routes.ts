@@ -4,7 +4,7 @@ import { Home } from './features/graph/home/home';
 export const routes: Routes = [
   { path: '', component: Home },
   {
-    path: '/imprint',
+    path: 'imprint',
     loadComponent: () => import('./pages/imprint/imprint').then((m) => m.Imprint),
   },
   {
