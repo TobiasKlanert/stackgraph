@@ -1,0 +1,29 @@
+# Dependencies (are installed fresh during the build via npm ci)
+node_modules
+
+# Build Artifacts
+dist
+out-tsc
+.angular
+
+# Version Control
+.git
+.gitignore
+
+# CI / GitHub
+.github
+
+# IDE / Editor
+.idea
+.vscode
+
+# Logs
+*.log
+npm-debug.log*
+
+# Tests
+coverage
+
+# Docker (not required in the build context)
+Dockerfile
+.dockerignore
