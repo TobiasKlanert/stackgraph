@@ -1,5 +1,5 @@
 import yaml from 'js-yaml';
-import { ServiceNode, PortMapping } from '../models/compose.model';
+import { ServiceNode, PortMapping, VolumeMount } from '../models/compose.model';
 
 const source = `
 services:
@@ -13,6 +13,9 @@ services:
       - web
     depends_on:
       - networks
+    volumes:
+      - "./data:/app/data"         
+      - "named-volume:/var/lib/db"              
     restart: unless-stopped
 
 networks:
@@ -57,6 +60,7 @@ export function parseCompose(source: string) {
     node.ports = parsePorts(asStringArray(serviceObj['ports']));
     node.networks = asStringArray(serviceObj['networks']);
     node.dependsOn = asStringArray(serviceObj['depends_on']);
+    node.volumes = parseVolumes(asStringArray(serviceObj['volumes']));
 
     console.log('Service Node: ', node);
   }
@@ -123,6 +127,49 @@ function createPortMapping(parts: string[]): PortMapping | undefined {
     return portMapping;
   }
   return undefined;
+}
+
+function parseVolumes(volumes: string[]): VolumeMount[] {
+  const mounts: VolumeMount[] = [];
+
+  for (const entry of volumes) {
+    const parts = entry.split(':');
+    const volumeMount = createVolumeMount(parts);
+    if (volumeMount !== undefined) {
+      mounts.push(volumeMount);
+    }
+  }
+  return mounts;
+}
+
+function createVolumeMount(parts: string[]): VolumeMount | undefined {
+  const first = parts[0];
+  const second = parts[1];
+
+  if (first !== undefined && second !== undefined) {
+    const volumeMount: VolumeMount = {
+      source: first,
+      target: second,
+      type: determineVolumeType(first)
+    };
+    return volumeMount;
+  }
+
+  if (first !== undefined) {
+    const volumeMount: VolumeMount = {
+      target: first,
+      type: 'volume'
+    };
+    return volumeMount;
+  }
+  return undefined;
+}
+
+function determineVolumeType(source: string): VolumeMount['type'] {
+  if (source.startsWith('.') || source.startsWith('/')) {
+    return 'bind';
+  }
+  return 'volume'
 }
 
 parseCompose(source);

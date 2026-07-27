@@ -18,7 +18,7 @@ export interface PortMapping {
 /** How a service mounts a volume or host path. */
 export interface VolumeMount {
   /** Named volume name (→ links to a volume node) or a host path (bind mount). */
-  source: string;
+  source?: string;
   /** Mount path inside the container, e.g. "/var/lib/data". */
   target: string;
   /** Mirrors compose's long-form `type:` key: a declared volume vs a bind mount. */
