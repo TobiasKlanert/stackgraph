@@ -57,10 +57,10 @@ export function parseCompose(source: string) {
       node.image = image;
     }
 
-    node.ports = parsePorts(asStringArray(serviceObj['ports']));
-    node.networks = asStringArray(serviceObj['networks']);
+    node.ports = parseEntries(asStringArray(serviceObj['ports']), createPortMapping);
     node.dependsOn = asStringArray(serviceObj['depends_on']);
-    node.volumes = parseVolumes(asStringArray(serviceObj['volumes']));
+    node.networks = asStringArray(serviceObj['networks']);
+    node.volumes = parseEntries(asStringArray(serviceObj['volumes']), createVolumeMount);
 
     console.log('Service Node: ', node);
   }
@@ -95,17 +95,17 @@ function asStringArray(arr: unknown): string[] {
   return [];
 }
 
-function parsePorts(ports: string[]): PortMapping[] {
-  const mappings: PortMapping[] = [];
+function parseEntries<T>(entries: string[], create: (parts: string[]) => T | undefined): T[] {
+  const result: T[] = [];
 
-  for (const entry of ports) {
+  for (const entry of entries) {
     const parts = entry.split(':');
-    const portMapping = createPortMapping(parts);
-    if (portMapping !== undefined) {
-      mappings.push(portMapping);
+    const item = create(parts);
+    if (item !== undefined) {
+      result.push(item);
     }
   }
-  return mappings;
+  return result;
 }
 
 function createPortMapping(parts: string[]): PortMapping | undefined {
@@ -129,19 +129,6 @@ function createPortMapping(parts: string[]): PortMapping | undefined {
   return undefined;
 }
 
-function parseVolumes(volumes: string[]): VolumeMount[] {
-  const mounts: VolumeMount[] = [];
-
-  for (const entry of volumes) {
-    const parts = entry.split(':');
-    const volumeMount = createVolumeMount(parts);
-    if (volumeMount !== undefined) {
-      mounts.push(volumeMount);
-    }
-  }
-  return mounts;
-}
-
 function createVolumeMount(parts: string[]): VolumeMount | undefined {
   const first = parts[0];
   const second = parts[1];
@@ -150,7 +137,7 @@ function createVolumeMount(parts: string[]): VolumeMount | undefined {
     const volumeMount: VolumeMount = {
       source: first,
       target: second,
-      type: determineVolumeType(first)
+      type: determineVolumeType(first),
     };
     return volumeMount;
   }
@@ -158,7 +145,7 @@ function createVolumeMount(parts: string[]): VolumeMount | undefined {
   if (first !== undefined) {
     const volumeMount: VolumeMount = {
       target: first,
-      type: 'volume'
+      type: 'volume',
     };
     return volumeMount;
   }
@@ -169,7 +156,7 @@ function determineVolumeType(source: string): VolumeMount['type'] {
   if (source.startsWith('.') || source.startsWith('/')) {
     return 'bind';
   }
-  return 'volume'
+  return 'volume';
 }
 
 parseCompose(source);
