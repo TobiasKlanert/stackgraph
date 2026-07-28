@@ -1,5 +1,12 @@
 import yaml from 'js-yaml';
-import { ServiceNode, PortMapping, VolumeMount } from '../models/compose.model';
+import {
+  ServiceNode,
+  PortMapping,
+  VolumeMount,
+  NetworkNode,
+  ParseResult,
+  VolumeNode,
+} from '../models/compose.model';
 
 const source = `
 services:
@@ -12,31 +19,58 @@ services:
     networks:
       - web
     depends_on:
-      - networks
+      - data
     volumes:
       - "./data:/app/data"         
       - "named-volume:/var/lib/db"              
+    restart: unless-stopped
+  data:
+    container_name: database
+    image: database:latest
+    ports:
+      - "8080:80"
+    networks:
+      - web
+    depends_on:
+      - app
+    volumes:
+      - "./data:/app/data"         
     restart: unless-stopped
 
 networks:
   web:
     external: true
+
+volumes:
+  database:
+    driver: testdriver
 `;
 
-export function parseCompose(source: string) {
+export function parseCompose(source: string): ParseResult {
   const raw = yaml.load(source);
 
   const obj = asRecord(raw);
   if (obj === undefined) {
-    console.log('obj is undefined');
-    return;
+    return {
+      ok: false,
+      errors: [{ message: 'obj is undefined' }],
+    };
   }
 
   const services = asRecord(obj['services']);
   if (services === undefined) {
-    console.log('services is undefined');
-    return;
+    return {
+      ok: false,
+      errors: [{ message: 'services is undefined' }],
+    };
   }
+
+  const networks = asRecord(obj['networks']);
+  const volumes = asRecord(obj['volumes']);
+
+  const serviceNodes: ServiceNode[] = [];
+  const networkNodes: NetworkNode[] = [];
+  const volumeNodes: VolumeNode[] = [];
 
   for (const key of Object.keys(services)) {
     const serviceObj = asRecord(services[key]);
@@ -62,8 +96,67 @@ export function parseCompose(source: string) {
     node.networks = asStringArray(serviceObj['networks']);
     node.volumes = parseEntries(asStringArray(serviceObj['volumes']), createVolumeMount);
 
-    console.log('Service Node: ', node);
+    serviceNodes.push(node);
   }
+
+  if (networks !== undefined) {
+    for (const key of Object.keys(networks)) {
+      const networkObj = asRecord(networks[key]);
+      if (networkObj === undefined) {
+        continue;
+      }
+
+      const node: NetworkNode = {
+        name: key,
+      };
+
+      const external = asBoolean(networkObj['external']);
+      if (external !== undefined) {
+        node.external = external;
+      }
+
+      const driver = asString(networkObj['driver']);
+      if (driver !== undefined) {
+        node.driver = driver;
+      }
+
+      networkNodes.push(node);
+    }
+  }
+
+  if (volumes !== undefined) {
+    for (const key of Object.keys(volumes)) {
+      const volumeObj = asRecord(volumes[key]);
+      if (volumeObj === undefined) {
+        continue;
+      }
+
+      const node: VolumeNode = {
+        name: key,
+      };
+
+      const external = asBoolean(volumeObj['external']);
+      if (external !== undefined) {
+        node.external = external;
+      }
+
+      const driver = asString(volumeObj['driver']);
+      if (driver !== undefined) {
+        node.driver = driver;
+      }
+
+      volumeNodes.push(node);
+    }
+  }
+
+  return {
+    ok: true,
+    model: {
+      services: serviceNodes,
+      networks: networkNodes,
+      volumes: volumeNodes,
+    },
+  };
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
@@ -93,6 +186,13 @@ function asStringArray(arr: unknown): string[] {
     return stringArr;
   }
   return [];
+}
+
+function asBoolean(value: unknown): boolean | undefined {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  return undefined;
 }
 
 function parseEntries<T>(entries: string[], create: (parts: string[]) => T | undefined): T[] {
@@ -159,4 +259,4 @@ function determineVolumeType(source: string): VolumeMount['type'] {
   return 'volume';
 }
 
-parseCompose(source);
+console.log(parseCompose(source));

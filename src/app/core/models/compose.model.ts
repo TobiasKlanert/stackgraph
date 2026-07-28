@@ -71,3 +71,11 @@ export interface ComposeModel {
   networks: NetworkNode[];
   volumes: VolumeNode[];
 }
+
+export interface ParseError {
+  message: string;
+  line?: number;
+  path?: string;
+}
+
+export type ParseResult = { ok: true; model: ComposeModel } | { ok: false; errors: ParseError[] };
