@@ -9,44 +9,6 @@ import {
   VolumeNode,
 } from '../models/compose.model';
 
-const source = `
-services:
-  app:
-    container_name: stackgraph
-    image: ghcr.io/tobiasklanert/stackgraph:latest
-    ports:
-      - "8080:80"
-      - "443"
-    networks:
-      - web
-    depends_on:
-      - data
-    volumes:
-      - "./data:/app/data"         
-      - "named-volume:/var/lib/db"              
-    restart: unless-stopped
-  data:
-    container_name: database
-    image: database:latest
-    ports:
-      - "8080:80"
-    networks:
-      - web
-    depends_on:
-      - app
-    volumes:
-      - "./data:/app/data"         
-    restart: unless-stopped
-
-networks:
-  web:
-    external: true
-
-volumes:
-  database:
-    driver: testdriver
-`;
-
 export function parseCompose(source: string): ParseResult {
   let raw: unknown;
   const errors: ParseError[] = [];
@@ -195,9 +157,9 @@ export function parseCompose(source: string): ParseResult {
   if (errors.length > 0) {
     return {
       ok: false,
-      errors
-    }
-  };
+      errors,
+    };
+  }
 
   return {
     ok: true,
@@ -315,5 +277,3 @@ function determineVolumeType(source: string): VolumeMount['type'] {
   }
   return 'volume';
 }
-
-console.log(parseCompose(source));
