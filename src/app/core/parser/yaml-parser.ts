@@ -49,6 +49,7 @@ volumes:
 
 export function parseCompose(source: string): ParseResult {
   let raw: unknown;
+  const errors: ParseError[] = [];
 
   try {
     raw = yaml.load(source);
@@ -83,7 +84,7 @@ export function parseCompose(source: string): ParseResult {
   if (obj === undefined) {
     return {
       ok: false,
-      errors: [{ message: 'obj is undefined' }],
+      errors: [{ message: 'The YAML does not describe a Compose file structure.' }],
     };
   }
 
@@ -91,7 +92,7 @@ export function parseCompose(source: string): ParseResult {
   if (services === undefined) {
     return {
       ok: false,
-      errors: [{ message: 'services is undefined' }],
+      errors: [{ message: 'The YAML does not contain any services. Nothing can be visualized.' }],
     };
   }
 
@@ -105,6 +106,10 @@ export function parseCompose(source: string): ParseResult {
   for (const key of Object.keys(services)) {
     const serviceObj = asRecord(services[key]);
     if (serviceObj === undefined) {
+      errors.push({
+        message: `Service "${key}" is not a valid object.`,
+        path: `services.${key}`,
+      });
       continue;
     }
 
@@ -133,6 +138,10 @@ export function parseCompose(source: string): ParseResult {
     for (const key of Object.keys(networks)) {
       const networkObj = asRecord(networks[key]);
       if (networkObj === undefined) {
+        errors.push({
+          message: `Network "${key}" is not a valid object.`,
+          path: `networks.${key}`,
+        });
         continue;
       }
 
@@ -158,6 +167,10 @@ export function parseCompose(source: string): ParseResult {
     for (const key of Object.keys(volumes)) {
       const volumeObj = asRecord(volumes[key]);
       if (volumeObj === undefined) {
+        errors.push({
+          message: `Volume "${key}" is not a valid object.`,
+          path: `volumes.${key}`,
+        });
         continue;
       }
 
@@ -178,6 +191,13 @@ export function parseCompose(source: string): ParseResult {
       volumeNodes.push(node);
     }
   }
+
+  if (errors.length > 0) {
+    return {
+      ok: false,
+      errors
+    }
+  };
 
   return {
     ok: true,
