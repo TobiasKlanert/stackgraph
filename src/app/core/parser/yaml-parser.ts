@@ -5,6 +5,7 @@ import {
   VolumeMount,
   NetworkNode,
   ParseResult,
+  ParseError,
   VolumeNode,
 } from '../models/compose.model';
 
@@ -47,7 +48,36 @@ volumes:
 `;
 
 export function parseCompose(source: string): ParseResult {
-  const raw = yaml.load(source);
+  let raw: unknown;
+
+  try {
+    raw = yaml.load(source);
+  } catch (error) {
+    const parseError: ParseError = {
+      message: 'Invalid YAML syntax',
+    };
+    const errorObj = asRecord(error);
+
+    if (errorObj !== undefined) {
+      const errorMessage = asString(errorObj['reason']);
+      const markObj = asRecord(errorObj['mark']);
+
+      if (errorMessage !== undefined) {
+        parseError.message = errorMessage;
+      }
+
+      if (markObj !== undefined) {
+        const errorLine = asNumber(markObj['line']);
+        if (errorLine !== undefined) {
+          parseError.line = errorLine;
+        }
+      }
+    }
+    return {
+      ok: false,
+      errors: [parseError],
+    };
+  }
 
   const obj = asRecord(raw);
   if (obj === undefined) {
@@ -173,6 +203,20 @@ function asString(value: unknown): string | undefined {
   return undefined;
 }
 
+function asNumber(value: unknown): number | undefined {
+  if (typeof value === 'number') {
+    return value;
+  }
+  return undefined;
+}
+
+function asBoolean(value: unknown): boolean | undefined {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  return undefined;
+}
+
 function asStringArray(arr: unknown): string[] {
   if (Array.isArray(arr)) {
     const stringArr: string[] = [];
@@ -186,13 +230,6 @@ function asStringArray(arr: unknown): string[] {
     return stringArr;
   }
   return [];
-}
-
-function asBoolean(value: unknown): boolean | undefined {
-  if (typeof value === 'boolean') {
-    return value;
-  }
-  return undefined;
 }
 
 function parseEntries<T>(entries: string[], create: (parts: string[]) => T | undefined): T[] {
