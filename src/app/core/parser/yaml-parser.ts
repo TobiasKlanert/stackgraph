@@ -9,41 +9,20 @@ import {
   ParseResult,
   ParseError,
   CollectResult,
+  LoadResult,
 } from '../models/compose.model';
 
 export function parseCompose(source: string): ParseResult {
-  let raw: unknown;
-  
-  try {
-    raw = yaml.load(source);
-  } catch (error) {
-    const parseError: ParseError = {
-      message: 'Invalid YAML syntax',
-    };
-    const errorObj = asRecord(error);
+  const loadResult = loadYaml(source);
 
-    if (errorObj !== undefined) {
-      const errorMessage = asString(errorObj['reason']);
-      const markObj = asRecord(errorObj['mark']);
-
-      if (errorMessage !== undefined) {
-        parseError.message = errorMessage;
-      }
-
-      if (markObj !== undefined) {
-        const errorLine = asNumber(markObj['line']);
-        if (errorLine !== undefined) {
-          parseError.line = errorLine;
-        }
-      }
-    }
+  if (!loadResult.ok) {
     return {
       ok: false,
-      errors: [parseError],
+      errors: [loadResult.error],
     };
   }
 
-  const obj = asRecord(raw);
+  const obj = asRecord(loadResult.raw);
   if (obj === undefined) {
     return {
       ok: false,
@@ -98,6 +77,42 @@ export function parseCompose(source: string): ParseResult {
       networks: networkNodes,
       volumes: volumeNodes,
     },
+  };
+}
+
+function loadYaml(source: string): LoadResult {
+  let raw: unknown;
+  try {
+    raw = yaml.load(source);
+  } catch (error) {
+    const parseError: ParseError = {
+      message: 'Invalid YAML syntax',
+    };
+    const errorObj = asRecord(error);
+
+    if (errorObj !== undefined) {
+      const errorMessage = asString(errorObj['reason']);
+      const markObj = asRecord(errorObj['mark']);
+
+      if (errorMessage !== undefined) {
+        parseError.message = errorMessage;
+      }
+
+      if (markObj !== undefined) {
+        const errorLine = asNumber(markObj['line']);
+        if (errorLine !== undefined) {
+          parseError.line = errorLine;
+        }
+      }
+    }
+    return {
+      ok: false,
+      error: parseError,
+    };
+  }
+  return {
+    ok: true,
+    raw,
   };
 }
 

@@ -83,6 +83,8 @@ export interface CollectResult<T> {
   errors: ParseError[];
 }
 
+export type LoadResult = { ok: true; raw: unknown } | { ok: false; error: ParseError };
+
 export type BuildResult<T> = { ok: true; node: T } | { ok: false; error: ParseError };
 
 export type ParseResult = { ok: true; model: ComposeModel } | { ok: false; errors: ParseError[] };
