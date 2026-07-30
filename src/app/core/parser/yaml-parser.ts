@@ -4,9 +4,10 @@ import {
   PortMapping,
   VolumeMount,
   NetworkNode,
+  VolumeNode,
+  BuildResult,
   ParseResult,
   ParseError,
-  VolumeNode,
 } from '../models/compose.model';
 
 export function parseCompose(source: string): ParseResult {
@@ -67,90 +68,41 @@ export function parseCompose(source: string): ParseResult {
 
   for (const key of Object.keys(services)) {
     const serviceObj = asRecord(services[key]);
-    if (serviceObj === undefined) {
-      errors.push({
-        message: `Service "${key}" is not a valid object.`,
-        path: `services.${key}`,
-      });
+    const buildResult: BuildResult<ServiceNode> = buildServiceNode(key, serviceObj);
+
+    if (!buildResult.ok) {
+      errors.push(buildResult.error);
       continue;
     }
 
-    const node: ServiceNode = {
-      name: key,
-      ports: [],
-      dependsOn: [],
-      networks: [],
-      volumes: [],
-    };
-
-    const image = asString(serviceObj['image']);
-    if (image !== undefined) {
-      node.image = image;
-    }
-
-    node.ports = parseEntries(asStringArray(serviceObj['ports']), createPortMapping);
-    node.dependsOn = asStringArray(serviceObj['depends_on']);
-    node.networks = asStringArray(serviceObj['networks']);
-    node.volumes = parseEntries(asStringArray(serviceObj['volumes']), createVolumeMount);
-
-    serviceNodes.push(node);
+    serviceNodes.push(buildResult.node);
   }
 
   if (networks !== undefined) {
     for (const key of Object.keys(networks)) {
       const networkObj = asRecord(networks[key]);
-      if (networkObj === undefined) {
-        errors.push({
-          message: `Network "${key}" is not a valid object.`,
-          path: `networks.${key}`,
-        });
+      const buildResult: BuildResult<NetworkNode> = buildNetworkNode(key, networkObj);
+
+      if (!buildResult.ok) {
+        errors.push(buildResult.error);
         continue;
       }
 
-      const node: NetworkNode = {
-        name: key,
-      };
-
-      const external = asBoolean(networkObj['external']);
-      if (external !== undefined) {
-        node.external = external;
-      }
-
-      const driver = asString(networkObj['driver']);
-      if (driver !== undefined) {
-        node.driver = driver;
-      }
-
-      networkNodes.push(node);
+      networkNodes.push(buildResult.node);
     }
   }
 
   if (volumes !== undefined) {
     for (const key of Object.keys(volumes)) {
       const volumeObj = asRecord(volumes[key]);
-      if (volumeObj === undefined) {
-        errors.push({
-          message: `Volume "${key}" is not a valid object.`,
-          path: `volumes.${key}`,
-        });
+      const buildResult: BuildResult<VolumeNode> = buildVolumeNode(key, volumeObj);
+
+      if (!buildResult.ok) {
+        errors.push(buildResult.error);
         continue;
       }
 
-      const node: VolumeNode = {
-        name: key,
-      };
-
-      const external = asBoolean(volumeObj['external']);
-      if (external !== undefined) {
-        node.external = external;
-      }
-
-      const driver = asString(volumeObj['driver']);
-      if (driver !== undefined) {
-        node.driver = driver;
-      }
-
-      volumeNodes.push(node);
+      volumeNodes.push(buildResult.node);
     }
   }
 
@@ -168,6 +120,106 @@ export function parseCompose(source: string): ParseResult {
       networks: networkNodes,
       volumes: volumeNodes,
     },
+  };
+}
+
+function buildServiceNode(
+  key: string,
+  serviceObj: Record<string, unknown> | undefined
+): BuildResult<ServiceNode> {
+  if (serviceObj === undefined) {
+    return {
+      ok: false,
+      error: { message: `Service "${key}" is not a valid object.`, path: `services.${key}` },
+    };
+  }
+
+  const node: ServiceNode = {
+    name: key,
+    ports: [],
+    dependsOn: [],
+    networks: [],
+    volumes: [],
+  };
+
+  const image = asString(serviceObj['image']);
+  if (image !== undefined) {
+    node.image = image;
+  }
+
+  node.ports = parseEntries(asStringArray(serviceObj['ports']), createPortMapping);
+  node.dependsOn = asStringArray(serviceObj['depends_on']);
+  node.networks = asStringArray(serviceObj['networks']);
+  node.volumes = parseEntries(asStringArray(serviceObj['volumes']), createVolumeMount);
+
+  return {
+    ok: true,
+    node,
+  };
+}
+
+function buildNetworkNode(
+  key: string,
+  networkObj: Record<string, unknown> | undefined
+): BuildResult<NetworkNode> {
+  if (networkObj === undefined) {
+    return {
+      ok: false,
+      error: { message: `Network "${key}" is not a valid object.`, path: `networks.${key}` },
+    };
+  }
+
+  const node: NetworkNode = {
+    name: key,
+  };
+
+  const external = asBoolean(networkObj['external']);
+  if (external !== undefined) {
+    node.external = external;
+  }
+
+  const driver = asString(networkObj['driver']);
+  if (driver !== undefined) {
+    node.driver = driver;
+  }
+
+  return {
+    ok: true,
+    node,
+  };
+}
+
+function buildVolumeNode(
+  key: string,
+  volumeObj: Record<string, unknown> | undefined
+): BuildResult<VolumeNode> {
+  if (volumeObj === undefined) {
+    return {
+      ok: false,
+      error: {
+        message: `Volume "${key}" is not a valid object.`,
+        path: `volumes.${key}`,
+      },
+    };
+  }
+
+  const node: VolumeNode = {
+    name: key,
+  };
+
+  const external = asBoolean(volumeObj['external']);
+  if (external !== undefined) {
+    node.external = external;
+  }
+
+  const driver = asString(volumeObj['driver']);
+  if (driver !== undefined) {
+    node.driver = driver;
+  }
+
+  return {
+    ok: true,
+    node,
   };
 }
 

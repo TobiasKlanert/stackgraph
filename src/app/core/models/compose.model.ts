@@ -78,4 +78,6 @@ export interface ParseError {
   path?: string;
 }
 
+export type BuildResult<T> = { ok: true; node: T } | { ok: false; error: ParseError };
+
 export type ParseResult = { ok: true; model: ComposeModel } | { ok: false; errors: ParseError[] };
