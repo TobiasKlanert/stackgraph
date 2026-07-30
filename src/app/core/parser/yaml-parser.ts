@@ -8,12 +8,12 @@ import {
   BuildResult,
   ParseResult,
   ParseError,
+  CollectResult,
 } from '../models/compose.model';
 
 export function parseCompose(source: string): ParseResult {
   let raw: unknown;
-  const errors: ParseError[] = [];
-
+  
   try {
     raw = yaml.load(source);
   } catch (error) {
@@ -66,44 +66,22 @@ export function parseCompose(source: string): ParseResult {
   const networkNodes: NetworkNode[] = [];
   const volumeNodes: VolumeNode[] = [];
 
-  for (const key of Object.keys(services)) {
-    const serviceObj = asRecord(services[key]);
-    const buildResult: BuildResult<ServiceNode> = buildServiceNode(key, serviceObj);
+  const errors: ParseError[] = [];
 
-    if (!buildResult.ok) {
-      errors.push(buildResult.error);
-      continue;
-    }
-
-    serviceNodes.push(buildResult.node);
-  }
+  const serviceResult = collectNodes(services, buildServiceNode);
+  serviceNodes.push(...serviceResult.nodes);
+  errors.push(...serviceResult.errors);
 
   if (networks !== undefined) {
-    for (const key of Object.keys(networks)) {
-      const networkObj = asRecord(networks[key]);
-      const buildResult: BuildResult<NetworkNode> = buildNetworkNode(key, networkObj);
-
-      if (!buildResult.ok) {
-        errors.push(buildResult.error);
-        continue;
-      }
-
-      networkNodes.push(buildResult.node);
-    }
+    const networkResult = collectNodes(networks, buildNetworkNode);
+    networkNodes.push(...networkResult.nodes);
+    errors.push(...networkResult.errors);
   }
 
   if (volumes !== undefined) {
-    for (const key of Object.keys(volumes)) {
-      const volumeObj = asRecord(volumes[key]);
-      const buildResult: BuildResult<VolumeNode> = buildVolumeNode(key, volumeObj);
-
-      if (!buildResult.ok) {
-        errors.push(buildResult.error);
-        continue;
-      }
-
-      volumeNodes.push(buildResult.node);
-    }
+    const volumeResult = collectNodes(volumes, buildVolumeNode);
+    volumeNodes.push(...volumeResult.nodes);
+    errors.push(...volumeResult.errors);
   }
 
   if (errors.length > 0) {
@@ -120,6 +98,31 @@ export function parseCompose(source: string): ParseResult {
       networks: networkNodes,
       volumes: volumeNodes,
     },
+  };
+}
+
+function collectNodes<T>(
+  namedObject: Record<string, unknown>,
+  build: (key: string, nodeObj: Record<string, unknown> | undefined) => BuildResult<T>
+): CollectResult<T> {
+  const nodes: T[] = [];
+  const errors: ParseError[] = [];
+
+  for (const key of Object.keys(namedObject)) {
+    const nodeObj = asRecord(namedObject[key]);
+    const buildResult: BuildResult<T> = build(key, nodeObj);
+
+    if (!buildResult.ok) {
+      errors.push(buildResult.error);
+      continue;
+    }
+
+    nodes.push(buildResult.node);
+  }
+
+  return {
+    nodes,
+    errors,
   };
 }
 

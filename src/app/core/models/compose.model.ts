@@ -78,6 +78,11 @@ export interface ParseError {
   path?: string;
 }
 
+export interface CollectResult<T> {
+  nodes: T[];
+  errors: ParseError[];
+}
+
 export type BuildResult<T> = { ok: true; node: T } | { ok: false; error: ParseError };
 
 export type ParseResult = { ok: true; model: ComposeModel } | { ok: false; errors: ParseError[] };
