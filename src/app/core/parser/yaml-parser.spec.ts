@@ -1,0 +1,121 @@
+import { parseCompose } from './yaml-parser';
+
+describe('parseCompose', () => {
+  it('parses a minimal valid compose file', () => {
+    const source = `
+    services:
+      web:
+        image: nginx
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(true);
+
+    if (result.ok) {
+      expect(result.model).toEqual({
+        services: [
+          {
+            name: 'web',
+            image: 'nginx',
+            ports: [],
+            dependsOn: [],
+            networks: [],
+            volumes: [],
+          },
+        ],
+        networks: [],
+        volumes: [],
+      });
+    }
+  });
+
+  it('parses both long and short port forms', () => {
+    const source = `
+    services:
+      web:
+        image: nginx
+        ports:
+          - '8080:80'
+          - '443'
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(true);
+
+    if (result.ok) {
+      expect(result.model.services).toHaveLength(1);
+      expect(result.model.services[0]?.ports).toEqual([
+        { host: '8080', container: '80' },
+        { container: '443' },
+      ]);
+    }
+  });
+
+  it('parses volumes', () => {
+    const source = `
+    services:
+      app:
+        volumes:
+          - './data:/app/data'  
+          - 'named-volume:/var/lib/db'
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(true);
+
+    if (result.ok) {
+      expect(result.model.services).toHaveLength(1);
+      expect(result.model.services[0]?.volumes).toEqual([
+        { source: './data', target: '/app/data', type: 'bind' },
+        { source: 'named-volume', target: '/var/lib/db', type: 'volume' },
+      ]);
+    }
+  });
+
+  it('returns an error when no services are present', () => {
+    const source = `
+    networks:
+      web:
+        external: true
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(false);
+
+    if (!result.ok) {
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]?.message).toContain('does not contain any services');
+    }
+  });
+
+  it('reports a syntax error with a line number', () => {
+    const source = `
+    services:
+      app:
+        image: "nginx
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]?.line).toBeDefined();
+    }
+  });
+
+  it('reports all errors together as a list', () => {
+    const source = `
+    services:
+      app: "kaputt"
+      db: 123
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toHaveLength(2);
+      expect(result.errors[0]?.path).toBe('services.app');
+      expect(result.errors[1]?.path).toBe('services.db');
+    }
+  });
+});
