@@ -7,7 +7,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6.svg?logo=typescript&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED.svg?logo=docker&logoColor=white)
 
-[CI](https://github.com/TobiasKlanert/stackgraph/actions/workflows/ci.yml/badge.svg) 
+![CI](https://github.com/TobiasKlanert/stackgraph/actions/workflows/ci.yml/badge.svg) 
 
 StackGraph is a **frontend-only** developer tool. You paste the contents of a `docker-compose.yml`
 and get an interactive graph that makes the structure of the file visible: services, networks,
@@ -32,8 +32,9 @@ components; the core functionality described below is being implemented incremen
 | Repo, tooling, ESLint/Prettier, CI pipeline | ✅ Done |
 | Docker multi-stage build + deployment | ✅ Done |
 | Routing (`/`, `/imprint`, `/privacy-policy`) | ✅ Scaffolded |
-| YAML parsing & validation | ⏳ Planned |
-| ELK-based layout, SVG rendering, zoom/pan | ⏳ Planned |
+| YAML parsing & validation | ✅ Done |
+| ELK-based layout (compose → positioned graph) | ✅ Done |
+| SVG rendering, zoom/pan | ⏳ Planned |
 | Detail panel, SVG/PNG export | ⏳ Planned |
 
 The feature list below describes the **target MVP**, not the current build.
@@ -96,8 +97,6 @@ The feature list below describes the **target MVP**, not the current build.
 git clone https://github.com/TobiasKlanert/stackgraph.git
 cd stackgraph
 ```
-
-*(Replace `OWNER` with the actual GitHub owner once the repo URL is known.)*
 
 ### 2. Install dependencies
 
@@ -218,16 +217,16 @@ The layering follows the data flow: **parser → model → layout → rendering 
 Development follows a phased plan:
 
 1. **Phase 0 — Foundation:** repo, tooling, CI/CD, Docker, deployment. ✅
-2. **Phase 1 — Data model & parser:** typed compose model, YAML parsing + validation.
-3. **Phase 2 — Layout:** ELK-based layout service (async, Web Worker).
+2. **Phase 1 — Data model & parser:** typed compose model, YAML parsing + validation. ✅
+3. **Phase 2 — Layout:** ELK-based layout service (async; real Web Worker deferred to v1.1). ✅
 4. **Phase 3 — Rendering:** SVG rendering component + detail panel.
 5. **Phase 4 — Interaction:** pan/zoom and node selection.
 6. **Phase 5 — Split view:** editable YAML panel with debounced live re-parse.
 7. **Phase 6 — Onboarding & export:** "Try it" sample, error UI, SVG export.
 8. **Phase 7 — Polish & go-live:** styling, legal pages, responsive layout, screenshots.
 
-Planned for a later release (v1.1): filter toggles, file upload, node drag & drop, PNG export, and
-shareable permalinks.
+Planned for a later release (v1.1): filter toggles, file upload, node drag & drop, PNG export,
+shareable permalinks, moving ELK layout into a real Web Worker, and bind-mount nodes in the volume mapping.
 
 ---
 
