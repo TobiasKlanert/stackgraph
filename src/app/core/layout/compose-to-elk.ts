@@ -1,60 +1,43 @@
 import type { ElkNode } from 'elkjs/lib/elk.bundled.js';
 import { ComposeModel } from '../models/compose.model';
-import { StackGraphNode, StackGraphEdge } from '../models/layout.model';
+import { StackGraphNode, StackGraphEdge, NodeType, EdgeType } from '../models/layout.model';
+
+const nodeWidth = 160;
+const nodeHeight = 64;
+
+const nodeIdPrefixes: Record<NodeType, string> = {
+  service: '',
+  network: 'net:',
+  volume: 'vol:',
+};
+
+const edgeIdSeparators: Record<EdgeType, string> = {
+  dependsOn: '->',
+  network: '--',
+  volume: '--',
+};
 
 export function toElkGraph(model: ComposeModel): ElkNode {
-  const serviceNodes: StackGraphNode[] = model.services.map((service) => ({
-    id: service.name,
-    width: 160,
-    height: 64,
-    nodeType: 'service',
-  }));
-
-  const networkNodes: StackGraphNode[] = model.networks.map((network) => ({
-    id: `net:${network.name}`,
-    width: 160,
-    height: 64,
-    nodeType: 'network',
-  }));
-
-  const volumeNodes: StackGraphNode[] = model.volumes.map((volume) => ({
-    id: `vol:${volume.name}`,
-    width: 160,
-    height: 64,
-    nodeType: 'volume',
-  }));
+  const serviceNodes: StackGraphNode[] = model.services.map((s) => toNode(s.name, 'service'));
+  const networkNodes: StackGraphNode[] = model.networks.map((n) => toNode(n.name, 'network'));
+  const volumeNodes: StackGraphNode[] = model.volumes.map((v) => toNode(v.name, 'volume'));
 
   const children = [...serviceNodes, ...networkNodes, ...volumeNodes];
 
   const knownIds = new Set(children.map((c) => c.id));
 
   const dependencyEdges: StackGraphEdge[] = model.services.flatMap((service) =>
-    service.dependsOn.map((dp) => ({
-      id: `${service.name}->${dp}`,
-      sources: [service.name],
-      targets: [dp],
-      edgeType: 'dependsOn',
-    }))
+    service.dependsOn.map((dp) => makeEdge(service.name, dp, 'dependsOn'))
   );
 
   const networkEdges: StackGraphEdge[] = model.services.flatMap((service) =>
-    service.networks.map((n) => ({
-      id: `${service.name}--net:${n}`,
-      sources: [service.name],
-      targets: [`net:${n}`],
-      edgeType: 'network',
-    }))
+    service.networks.map((n) => makeEdge(service.name, `net:${n}`, 'network'))
   );
 
   const volumeEdges: StackGraphEdge[] = model.services.flatMap((service) =>
     service.volumes
       .filter((vm) => vm.type === 'volume' && vm.source)
-      .map((vm) => ({
-        id: `${service.name}--vol:${vm.source}`,
-        sources: [service.name],
-        targets: [`vol:${vm.source}`],
-        edgeType: 'volume',
-      }))
+      .map((vm) => makeEdge(service.name, `vol:${vm.source}`, 'volume'))
   );
 
   const edges = [...dependencyEdges, ...networkEdges, ...volumeEdges].filter(
@@ -62,7 +45,7 @@ export function toElkGraph(model: ComposeModel): ElkNode {
       edge.sources.every((id) => knownIds.has(id)) && edge.targets.every((id) => knownIds.has(id))
   );
 
-  const graph = {
+  return {
     id: 'root',
     layoutOptions: {
       'elk.algorithm': 'layered',
@@ -73,6 +56,22 @@ export function toElkGraph(model: ComposeModel): ElkNode {
     children,
     edges,
   };
+}
 
-  return graph;
+function toNode(name: string, nodeType: NodeType): StackGraphNode {
+  return {
+    id: `${nodeIdPrefixes[nodeType]}${name}`,
+    width: nodeWidth,
+    height: nodeHeight,
+    nodeType: nodeType,
+  };
+}
+
+function makeEdge(from: string, to: string, edgeType: EdgeType): StackGraphEdge {
+  return {
+    id: `${from}${edgeIdSeparators[edgeType]}${to}`,
+    sources: [from],
+    targets: [to],
+    edgeType,
+  };
 }
