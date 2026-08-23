@@ -219,7 +219,7 @@ Development follows a phased plan:
 1. **Phase 0 — Foundation:** repo, tooling, CI/CD, Docker, deployment. ✅
 2. **Phase 1 — Data model & parser:** typed compose model, YAML parsing + validation. ✅
 3. **Phase 2 — Layout:** ELK-based layout service (async; real Web Worker deferred to v1.1). ✅
-4. **Phase 3 — Rendering:** SVG rendering component + detail panel.
+4. **Phase 3 — Rendering:** SVG rendering component + detail panel.✅
 5. **Phase 4 — Interaction:** pan/zoom and node selection.
 6. **Phase 5 — Split view:** editable YAML panel with debounced live re-parse.
 7. **Phase 6 — Onboarding & export:** "Try it" sample, error UI, SVG export.

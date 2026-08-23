@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, input, computed } from '@angular/core';
+import { PositionedGraph, StackGraphEdge } from '../../../core/models/layout.model';
 
 @Component({
   selector: 'app-rendering',
@@ -6,4 +7,27 @@ import { Component } from '@angular/core';
   templateUrl: './rendering.html',
   styleUrl: './rendering.scss',
 })
-export class Rendering {}
+export class Rendering {
+  readonly graph = input.required<PositionedGraph>();
+
+  protected readonly viewBox = computed(() => {
+    const g = this.graph();
+    return `0 0 ${g.width ?? 0} ${g.height ?? 0}`;
+  });
+
+  edgePath(edge: StackGraphEdge): string {
+    if (!edge.sections?.[0]) {
+      return '';
+    }
+
+    const section = edge.sections[0];
+    const list = [section.startPoint, ...(section.bendPoints ?? []), section.endPoint];
+
+    return list
+      .map((point, index) => {
+        const prefix = index === 0 ? 'M' : 'L';
+        return `${prefix} ${point.x} ${point.y}`;
+      })
+      .join(' ');
+  }
+}

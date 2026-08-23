@@ -11,3 +11,8 @@ export interface StackGraphNode extends ElkNode {
 export interface StackGraphEdge extends ElkExtendedEdge {
   edgeType: EdgeType;
 }
+
+export interface PositionedGraph extends ElkNode {
+  children?: StackGraphNode[];
+  edges?: StackGraphEdge[];
+}
