@@ -1,1 +1,24 @@
-<p>detail-panel works!</p>
+<aside>
+  {{ service().name }}
+  {{ service().image ?? '—' }}
+
+  @for (port of service().ports; track $index) {
+    {{ formatPort(port) }}
+  }
+
+  @for (network of service().networks; track network) {
+    {{ network }}
+  } @empty {
+    <p>No networks</p>
+  }
+
+  @for (volume of service().volumes; track $index) {
+    {{ formatVolume(volume) }}
+  }
+
+  @for (dependency of service().dependsOn; track dependency) {
+    {{ dependency }}
+  } @empty {
+    <p>No dependencies</p>
+  }
+</aside>
