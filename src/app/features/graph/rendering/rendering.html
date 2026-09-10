@@ -5,7 +5,14 @@
     }
 
     @for (node of graph().children ?? []; track node.id) {
-      <g>
+      <g
+        [class.selectable]="node.nodeType === 'service'"
+        [class.selected]="node.id === selectedId()"
+        (click)="onNodeClick(node)"
+        (keydown.enter)="onNodeClick(node)"
+        [attr.tabindex]="node.nodeType === 'service' ? 0 : null"
+        [attr.role]="node.nodeType === 'service' ? 'button' : null"
+      >
         <rect
           [attr.x]="node.x"
           [attr.y]="node.y"
