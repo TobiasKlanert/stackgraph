@@ -1,0 +1,40 @@
+:host {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  touch-action: none;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+//TODO: Placeholder to make the selection visible. Proper styling will follow in Phase 7
+.selectable {
+  cursor: pointer;
+}
+
+rect {
+  fill: #1e293b;
+  stroke: #334155;
+  stroke-width: 1;
+}
+
+.selected rect {
+  stroke: #2dd4bf;
+  stroke-width: 2;
+}
+
+text {
+  fill: #e2e8f0;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  pointer-events: none;
+}

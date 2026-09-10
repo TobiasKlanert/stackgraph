@@ -1,1 +1,9 @@
-<p>graph-page works!</p>
+<app-rendering
+  [graph]="graph"
+  [selectedId]="selectedId()"
+  (nodeSelected)="onNodeSelected($event)"
+/>
+
+@if (selectedService(); as service) {
+  <app-detail-panel [service]="service" />
+}

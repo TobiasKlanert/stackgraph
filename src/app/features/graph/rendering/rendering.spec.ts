@@ -79,4 +79,67 @@ describe('Rendering', () => {
       expect(component.edgePath(edge)).toBe('M 0 0 L 5 5 L 15 5 L 20 10');
     });
   });
+
+  const graphWithNodes: PositionedGraph = {
+    id: 'root',
+    children: [
+      { id: 'web', nodeType: 'service', x: 0, y: 0, width: 160, height: 64 },
+      { id: 'net:web', nodeType: 'network', x: 0, y: 100, width: 160, height: 64 },
+    ],
+    edges: [],
+  };
+
+  function nodeEl(id: string): SVGGElement {
+    const el = fixture.nativeElement.querySelector(`[data-node-id="${id}"]`);
+    expect(el).not.toBeNull();
+    return el as SVGGElement;
+  }
+
+  describe('node selection', () => {
+    beforeEach(async () => {
+      fixture.componentRef.setInput('graph', graphWithNodes);
+      await fixture.whenStable();
+    });
+
+    it('emits the node id when a service node is clicked', () => {
+      let emitted: string | null = null;
+      component.nodeSelected.subscribe((id) => (emitted = id));
+
+      nodeEl('web').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      expect(emitted).toBe('web');
+    });
+
+    it('does not emit when a non-service node is clicked', () => {
+      let emitted: string | null = null;
+      component.nodeSelected.subscribe((id) => (emitted = id));
+
+      nodeEl('net:web').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      expect(emitted).toBeNull();
+    });
+
+    it('emits when a click originates on a child element of the node', () => {
+      let emitted: string | null = null;
+      component.nodeSelected.subscribe((id) => (emitted = id));
+
+      const rect = nodeEl('web').querySelector('rect');
+      rect?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      expect(emitted).toBe('web');
+    });
+
+    it('marks only the selected node', async () => {
+      fixture.componentRef.setInput('selectedId', 'web');
+      await fixture.whenStable();
+
+      expect(nodeEl('web').classList.contains('selected')).toBe(true);
+      expect(nodeEl('net:web').classList.contains('selected')).toBe(false);
+    });
+
+    it('makes only service nodes focusable', () => {
+      expect(nodeEl('web').getAttribute('tabindex')).toBe('0');
+      expect(nodeEl('net:web').getAttribute('tabindex')).toBeNull();
+    });
+  });
 });

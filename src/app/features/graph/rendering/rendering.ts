@@ -1,14 +1,26 @@
-import { Component, input, computed } from '@angular/core';
-import { PositionedGraph, StackGraphEdge } from '../../../core/models/layout.model';
+import { Component, input, output, computed } from '@angular/core';
+import { PositionedGraph, StackGraphEdge, StackGraphNode } from '../../../core/models/layout.model';
+import { Zoomable } from '../../../shared/directives/zoomable';
 
 @Component({
   selector: 'app-rendering',
-  imports: [],
+  imports: [Zoomable],
   templateUrl: './rendering.html',
   styleUrl: './rendering.scss',
 })
 export class Rendering {
   readonly graph = input.required<PositionedGraph>();
+
+  readonly nodeSelected = output<string>();
+
+  readonly selectedId = input<string | null>(null);
+
+  protected onNodeClick(node: StackGraphNode): void {
+    if (node.nodeType !== 'service') {
+      return;
+    }
+    this.nodeSelected.emit(node.id);
+  }
 
   protected readonly viewBox = computed(() => {
     const g = this.graph();
