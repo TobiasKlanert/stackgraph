@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  touch-action: none;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}

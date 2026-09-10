@@ -1,9 +1,10 @@
 import { Component, input, computed } from '@angular/core';
 import { PositionedGraph, StackGraphEdge } from '../../../core/models/layout.model';
+import { Zoomable } from '../../../shared/directives/zoomable';
 
 @Component({
   selector: 'app-rendering',
-  imports: [],
+  imports: [Zoomable],
   templateUrl: './rendering.html',
   styleUrl: './rendering.scss',
 })
