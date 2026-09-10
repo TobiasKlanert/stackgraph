@@ -34,7 +34,7 @@ components; the core functionality described below is being implemented incremen
 | Routing (`/`, `/imprint`, `/privacy-policy`) | ✅ Scaffolded |
 | YAML parsing & validation | ✅ Done |
 | ELK-based layout (compose → positioned graph) | ✅ Done |
-| SVG rendering, zoom/pan | ⏳ Planned |
+| SVG rendering, zoom/pan | ✅ Done |
 | Detail panel, SVG/PNG export | ⏳ Planned |
 
 The feature list below describes the **target MVP**, not the current build.
@@ -219,8 +219,8 @@ Development follows a phased plan:
 1. **Phase 0 — Foundation:** repo, tooling, CI/CD, Docker, deployment. ✅
 2. **Phase 1 — Data model & parser:** typed compose model, YAML parsing + validation. ✅
 3. **Phase 2 — Layout:** ELK-based layout service (async; real Web Worker deferred to v1.1). ✅
-4. **Phase 3 — Rendering:** SVG rendering component + detail panel.✅
-5. **Phase 4 — Interaction:** pan/zoom and node selection.
+4. **Phase 3 — Rendering:** SVG rendering component + detail panel. ✅
+5. **Phase 4 — Interaction:** pan/zoom and node selection. ✅
 6. **Phase 5 — Split view:** editable YAML panel with debounced live re-parse.
 7. **Phase 6 — Onboarding & export:** "Try it" sample, error UI, SVG export.
 8. **Phase 7 — Polish & go-live:** styling, legal pages, responsive layout, screenshots.

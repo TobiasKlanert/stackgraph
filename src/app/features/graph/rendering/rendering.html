@@ -6,6 +6,7 @@
 
     @for (node of graph().children ?? []; track node.id) {
       <g
+        [attr.data-node-id]="node.id"
         [class.selectable]="node.nodeType === 'service'"
         [class.selected]="node.id === selectedId()"
         (click)="onNodeClick(node)"
