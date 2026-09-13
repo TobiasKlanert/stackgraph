@@ -24,24 +24,37 @@ describe('GraphPage', () => {
     return fixture.nativeElement.querySelector('app-detail-panel');
   }
 
+  function homeButton(): HTMLButtonElement | null {
+    return fixture.nativeElement.querySelector('app-home button');
+  }
+
   function clickNode(id: string): void {
     const el = fixture.nativeElement.querySelector(`[data-node-id="${id}"]`);
     expect(el).not.toBeNull();
     el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
   }
 
-  async function settle(): Promise<void> {
-    await fixture.whenStable(); // flush: observable emits
-    await new Promise((resolve) => setTimeout(resolve, 400)); // debounce + ELK
-    await fixture.whenStable(); // render the result
+  /** Renders and polls until the pipeline produced the expected result. */
+  async function settleUntil(predicate: () => boolean, timeoutMs = 10_000): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    for (;;) {
+      await fixture.whenStable();
+      if (predicate()) {
+        return;
+      }
+      if (Date.now() > deadline) {
+        throw new Error('Timed out waiting for the pipeline to settle');
+      }
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
   }
 
   /** Brings the page into the graph view with a laid out graph. */
   async function openGraph(): Promise<void> {
     state.source.set(yaml);
-    await settle();
-    fixture.nativeElement.querySelector('app-home button').click();
-    await fixture.whenStable();
+    await settleUntil(() => homeButton()?.disabled === false);
+    homeButton()?.click();
+    await settleUntil(() => fixture.nativeElement.querySelector('app-rendering') !== null);
   }
 
   beforeEach(async () => {
@@ -100,7 +113,7 @@ describe('GraphPage', () => {
   it('returns to home when the source is emptied', async () => {
     await openGraph();
     state.source.set('');
-    await settle();
+    await settleUntil(() => fixture.nativeElement.querySelector('app-home') !== null);
 
     expect(fixture.nativeElement.querySelector('app-home')).not.toBeNull();
   });

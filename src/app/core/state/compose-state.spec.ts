@@ -26,10 +26,19 @@ services:
 describe('ComposeState', () => {
   let state: ComposeState;
 
-  /** Waits out the debounce and lets the ELK promise resolve. */
-  async function settle(): Promise<void> {
-    TestBed.tick();
-    await new Promise((resolve) => setTimeout(resolve, 400));
+  /** Flushes effects and polls until the pipeline reached the expected state. */
+  async function settleUntil(predicate: () => boolean, timeoutMs = 10_000): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    for (;;) {
+      TestBed.tick();
+      if (predicate()) {
+        return;
+      }
+      if (Date.now() > deadline) {
+        throw new Error('Timed out waiting for the pipeline to settle');
+      }
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
   }
 
   beforeEach(() => {
@@ -44,7 +53,7 @@ describe('ComposeState', () => {
 
   it('lays out a valid compose file', async () => {
     state.source.set(validYaml);
-    await settle();
+    await settleUntil(() => state.state().status === 'ready');
 
     const current = state.state();
     expect(current.status).toBe('ready');
@@ -65,11 +74,11 @@ describe('ComposeState', () => {
 
   it('keeps the last good graph while the input is broken', async () => {
     state.source.set(validYaml);
-    await settle();
+    await settleUntil(() => state.state().status === 'ready');
     const good = state.displayed();
 
     state.source.set(brokenYaml);
-    await settle();
+    await settleUntil(() => state.state().status === 'error');
 
     expect(state.state().status).toBe('error');
     expect(state.errors().length).toBeGreaterThan(0);
@@ -78,10 +87,10 @@ describe('ComposeState', () => {
 
   it('clears the displayed graph when the input is emptied', async () => {
     state.source.set(validYaml);
-    await settle();
+    await settleUntil(() => state.state().status === 'ready');
 
     state.source.set('   ');
-    await settle();
+    await settleUntil(() => state.displayed() === null);
 
     expect(state.state().status).toBe('empty');
     expect(state.displayed()).toBeNull();
@@ -89,10 +98,10 @@ describe('ComposeState', () => {
 
   it('replaces the displayed graph when a new valid file arrives', async () => {
     state.source.set(validYaml);
-    await settle();
+    await settleUntil(() => state.state().status === 'ready');
 
     state.source.set(otherYaml);
-    await settle();
+    await settleUntil(() => state.displayed()?.model.services[0]?.name === 'solo');
 
     expect(state.displayed()?.model.services.map((s) => s.name)).toEqual(['solo']);
   });

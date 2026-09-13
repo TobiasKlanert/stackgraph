@@ -22,10 +22,19 @@ describe('Home', () => {
     return fixture.nativeElement.querySelector('button');
   }
 
-  async function settle(): Promise<void> {
-    await fixture.whenStable(); // flush: observable emits
-    await new Promise((resolve) => setTimeout(resolve, 400)); // debounce + ELK
-    await fixture.whenStable(); // render the result
+  /** Renders and polls until the pipeline produced the expected result. */
+  async function settleUntil(predicate: () => boolean, timeoutMs = 10_000): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    for (;;) {
+      await fixture.whenStable();
+      if (predicate()) {
+        return;
+      }
+      if (Date.now() > deadline) {
+        throw new Error('Timed out waiting for the pipeline to settle');
+      }
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
   }
 
   beforeEach(async () => {
@@ -42,21 +51,21 @@ describe('Home', () => {
 
   it('keeps the button disabled for invalid yaml', async () => {
     state.source.set(brokenYaml);
-    await settle();
+    await settleUntil(() => state.errors().length > 0);
 
     expect(button().disabled).toBe(true);
   });
 
   it('enables the button once the yaml is valid', async () => {
     state.source.set(validYaml);
-    await settle();
+    await settleUntil(() => !button().disabled);
 
     expect(button().disabled).toBe(false);
   });
 
   it('emits when the button is clicked', async () => {
     state.source.set(validYaml);
-    await settle();
+    await settleUntil(() => !button().disabled);
 
     let emitted = false;
     fixture.componentInstance.submitted.subscribe(() => (emitted = true));
