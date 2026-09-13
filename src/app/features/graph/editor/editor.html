@@ -1,1 +1,6 @@
-<p>editor works!</p>
+<textarea
+  aria-label="Docker Compose YAML"
+  [value]="state.source()"
+  (input)="onInput($event)"
+  spellcheck="false"
+></textarea>
