@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { Home } from './features/graph/home/home';
+import { GraphPage } from './features/graph/graph-page/graph-page';
 
 export const routes: Routes = [
-  { path: '', component: Home },
+  { path: '', component: GraphPage },
   {
     path: 'imprint',
     loadComponent: () => import('./pages/imprint/imprint').then((m) => m.Imprint),

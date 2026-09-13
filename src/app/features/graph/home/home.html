@@ -1,1 +1,15 @@
-<p>home works!</p>
+<section>
+  <h1>StackGraph</h1>
+  <p>Paste a <code>docker-compose.yml</code> to see it as an interactive graph.</p>
+
+  <label for="compose-input">Docker Compose YAML</label>
+  <textarea
+    id="compose-input"
+    [value]="state.source()"
+    (input)="onInput($event)"
+    spellcheck="false"
+    rows="16"
+  ></textarea>
+
+  <button type="button" [disabled]="!canOpen()" (click)="onSubmit()">Show graph</button>
+</section>

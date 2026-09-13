@@ -1,9 +1,13 @@
-<app-rendering
-  [graph]="graph"
-  [selectedId]="selectedId()"
-  (nodeSelected)="onNodeSelected($event)"
-/>
-
-@if (selectedService(); as service) {
-  <app-detail-panel [service]="service" />
+@if (graphView(); as view) {
+  <app-editor />
+  <app-rendering
+    [graph]="view.graph"
+    [selectedId]="selectedId()"
+    (nodeSelected)="onNodeSelected($event)"
+  />
+  @if (selectedService(); as service) {
+    <app-detail-panel [service]="service" />
+  }
+} @else {
+  <app-home (submitted)="openGraph()" />
 }
