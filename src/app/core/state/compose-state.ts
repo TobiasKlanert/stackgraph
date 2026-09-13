@@ -32,11 +32,21 @@ export class ComposeState {
     { initialValue: { status: 'empty' } as ParseState }
   );
 
-  /** Last successful result, kept while the input is broken. */
+  /**
+   * Last successful result, kept while the input is temporarily invalid.
+   * An empty input is not an error but an intent, so it clears the view.
+   */
   readonly displayed = linkedSignal<ParseState, ReadyState | null>({
     source: this.state,
-    computation: (state, previous) =>
-      state.status === 'ready' ? state : (previous?.value ?? null),
+    computation: (state, previous) => {
+      if (state.status === 'ready') {
+        return state;
+      }
+      if (state.status === 'empty') {
+        return null;
+      }
+      return previous?.value ?? null;
+    },
   });
 
   readonly errors = computed(() => {
