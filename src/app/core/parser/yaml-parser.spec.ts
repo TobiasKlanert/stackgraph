@@ -72,6 +72,25 @@ describe('parseCompose', () => {
     }
   });
 
+  it('accepts networks and volumes declared without a value', () => {
+    const source = `
+    services: 
+      app:
+        image: nginx
+    networks:
+      backend:
+    volumes:
+      db_data:
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.model.networks).toEqual([{ name: 'backend' }]);
+      expect(result.model.volumes).toEqual([{ name: 'db_data' }]);
+    }
+  });
+
   it('returns an error when no services are present', () => {
     const source = `
     networks:
@@ -116,6 +135,54 @@ describe('parseCompose', () => {
       expect(result.errors).toHaveLength(2);
       expect(result.errors[0]?.path).toBe('services.app');
       expect(result.errors[1]?.path).toBe('services.db');
+    }
+  });
+
+  it('reports networks with incorrect values', () => {
+    const source = `
+    services: 
+      app:
+        image: nginx
+    networks:
+      backend: "kaputt"
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]?.path).toBe('networks.backend');
+    }
+  });
+
+  it('reports volumes with incorrect values', () => {
+    const source = `
+    services: 
+      app:
+        image: nginx
+    volumes:
+      db_data: "kaputt"
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]?.path).toBe('volumes.db_data');
+    }
+  });
+
+  it('reports services declared without a value', () => {
+    const source = `
+    services:
+      app:
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]?.path).toBe('services.app');
     }
   });
 });
