@@ -1,5 +1,6 @@
 import { Component, computed, inject, output } from '@angular/core';
 import { ComposeState } from '../../../core/state/compose-state';
+import { sampleCompose } from '../../../core/samples/sample-compose';
 
 @Component({
   selector: 'app-home',
@@ -22,6 +23,11 @@ export class Home {
   }
 
   protected onSubmit(): void {
+    this.submitted.emit();
+  }
+
+  protected onTryIt(): void {
+    this.state.source.set(sampleCompose);
     this.submitted.emit();
   }
 }

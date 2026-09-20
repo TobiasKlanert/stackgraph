@@ -11,5 +11,8 @@
     rows="16"
   ></textarea>
 
-  <button type="button" [disabled]="!canOpen()" (click)="onSubmit()">Show graph</button>
+  <button type="button" (click)="onTryIt()" data-testid="try-it">Try it with an example</button>
+  <button type="button" [disabled]="!canOpen()" (click)="onSubmit()" data-testid="show-graph">
+    Show graph
+  </button>
 </section>

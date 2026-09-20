@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Home } from './home';
 import { ComposeState } from '../../../core/state/compose-state';
+import { sampleCompose } from '../../../core/samples/sample-compose';
 
 const validYaml = `
 services:
@@ -18,8 +19,18 @@ describe('Home', () => {
   let fixture: ComponentFixture<Home>;
   let state: ComposeState;
 
-  function button(): HTMLButtonElement {
-    return fixture.nativeElement.querySelector('button');
+  function button(testId: string): HTMLButtonElement {
+    const el = fixture.nativeElement.querySelector(`[data-testid="${testId}"]`);
+    expect(el).not.toBeNull();
+    return el as HTMLButtonElement;
+  }
+
+  function showButton(): HTMLButtonElement {
+    return button('show-graph');
+  }
+
+  function tryItButton(): HTMLButtonElement {
+    return button('try-it');
   }
 
   /** Renders and polls until the pipeline produced the expected result. */
@@ -46,30 +57,45 @@ describe('Home', () => {
   });
 
   it('disables the button while nothing has been entered', () => {
-    expect(button().disabled).toBe(true);
+    expect(showButton().disabled).toBe(true);
   });
 
   it('keeps the button disabled for invalid yaml', async () => {
     state.source.set(brokenYaml);
     await settleUntil(() => state.errors().length > 0);
 
-    expect(button().disabled).toBe(true);
+    expect(showButton().disabled).toBe(true);
   });
 
   it('enables the button once the yaml is valid', async () => {
     state.source.set(validYaml);
-    await settleUntil(() => !button().disabled);
+    await settleUntil(() => !showButton().disabled);
 
-    expect(button().disabled).toBe(false);
+    expect(showButton().disabled).toBe(false);
   });
 
   it('emits when the button is clicked', async () => {
     state.source.set(validYaml);
-    await settleUntil(() => !button().disabled);
+    await settleUntil(() => !showButton().disabled);
 
     let emitted = false;
     fixture.componentInstance.submitted.subscribe(() => (emitted = true));
-    button().click();
+    showButton().click();
+
+    expect(emitted).toBe(true);
+  });
+
+  it('fills the source with the sample compose file', () => {
+    tryItButton().click();
+
+    expect(state.source()).toBe(sampleCompose);
+  });
+
+  it('opens the graph view directly', () => {
+    let emitted = false;
+    fixture.componentInstance.submitted.subscribe(() => (emitted = true));
+
+    tryItButton().click();
 
     expect(emitted).toBe(true);
   });

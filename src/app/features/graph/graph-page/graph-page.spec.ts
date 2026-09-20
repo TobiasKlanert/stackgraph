@@ -24,8 +24,16 @@ describe('GraphPage', () => {
     return fixture.nativeElement.querySelector('app-detail-panel');
   }
 
-  function homeButton(): HTMLButtonElement | null {
-    return fixture.nativeElement.querySelector('app-home button');
+  function homeButton(testId: string): HTMLButtonElement | null {
+    return fixture.nativeElement.querySelector(`app-home [data-testid="${testId}"]`);
+  }
+
+  function showButton(): HTMLButtonElement | null {
+    return homeButton('show-graph');
+  }
+
+  function tryItButton(): HTMLButtonElement | null {
+    return homeButton('try-it');
   }
 
   function clickNode(id: string): void {
@@ -52,8 +60,8 @@ describe('GraphPage', () => {
   /** Brings the page into the graph view with a laid out graph. */
   async function openGraph(): Promise<void> {
     state.source.set(yaml);
-    await settleUntil(() => homeButton()?.disabled === false);
-    homeButton()?.click();
+    await settleUntil(() => showButton()?.disabled === false);
+    showButton()?.click();
     await settleUntil(() => fixture.nativeElement.querySelector('app-rendering') !== null);
   }
 
@@ -116,5 +124,13 @@ describe('GraphPage', () => {
     await settleUntil(() => fixture.nativeElement.querySelector('app-home') !== null);
 
     expect(fixture.nativeElement.querySelector('app-home')).not.toBeNull();
+  });
+
+  it('renders the sample graph when "Try it" is clicked', async () => {
+    tryItButton()?.click();
+    await settleUntil(() => fixture.nativeElement.querySelector('[data-node-id="api"]') !== null);
+
+    expect(fixture.nativeElement.querySelector('[data-node-id="db"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-node-id="net:internal"]')).not.toBeNull();
   });
 });
