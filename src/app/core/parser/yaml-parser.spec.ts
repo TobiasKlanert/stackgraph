@@ -91,6 +91,85 @@ describe('parseCompose', () => {
     }
   });
 
+  it('accepts networks in map format on the service', () => {
+    const source = `
+    services:
+      web:
+        image: nginx
+        networks:
+          backend:
+            aliases:
+              - api
+          frontend:
+    networks:
+      backend:
+      frontend:
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.model.services[0]?.networks).toEqual(['backend', 'frontend']);
+    }
+  });
+
+  it('accepts dependencies in map format on the service', () => {
+    const source = `
+    services:
+      web:
+        image: nginx
+        depends_on:
+          db:
+            condition: service_healthy
+          cache:
+            condition: service_started
+      db:
+        image: postgres:16
+      cache:
+        image: redis:7
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.model.services[0]?.dependsOn).toEqual(['db', 'cache']);
+    }
+  });
+
+  it('treats list and map form alike', () => {
+    const source = `
+    services:
+      web:
+        image: nginx
+        networks:
+          - backend
+          - frontend
+        depends_on:
+          - api
+      api:
+        image: node:22-alpine
+        networks:
+          backend:
+        depends_on:
+          db:
+            condition: service_healthy
+      db:
+        image: postgres:16
+    networks:
+      backend:
+      frontend:
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.model.services[0]?.networks).toEqual(['backend', 'frontend']);
+      expect(result.model.services[0]?.dependsOn).toEqual(['api']);
+      expect(result.model.services[1]?.networks).toEqual(['backend']);
+      expect(result.model.services[1]?.dependsOn).toEqual(['db']);
+    }
+  });
+
   it('returns an error when no services are present', () => {
     const source = `
     networks:

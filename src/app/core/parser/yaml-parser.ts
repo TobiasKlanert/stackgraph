@@ -164,8 +164,8 @@ function buildServiceNode(key: string, raw: unknown): BuildResult<ServiceNode> {
   }
 
   node.ports = parseEntries(asStringArray(serviceObj['ports']), createPortMapping);
-  node.dependsOn = asStringArray(serviceObj['depends_on']);
-  node.networks = asStringArray(serviceObj['networks']);
+  node.dependsOn = asStringArrayOrKeys(serviceObj['depends_on']);
+  node.networks = asStringArrayOrKeys(serviceObj['networks']);
   node.volumes = parseEntries(asStringArray(serviceObj['volumes']), createVolumeMount);
 
   return {
@@ -293,6 +293,19 @@ function asStringArray(arr: unknown): string[] {
     }
     return stringArr;
   }
+  return [];
+}
+
+function asStringArrayOrKeys(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return asStringArray(value);
+  }
+
+  const obj = asRecord(value);
+  if (obj !== undefined) {
+    return Object.keys(obj);
+  }
+
   return [];
 }
 
