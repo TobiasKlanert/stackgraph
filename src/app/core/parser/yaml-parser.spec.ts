@@ -215,7 +215,7 @@ describe('parseCompose', () => {
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0]?.line).toEqual(5);
     }
-  })
+  });
 
   it('reports all errors together as a list', () => {
     const source = `

@@ -1,0 +1,22 @@
+@let currentState = status();
+
+@switch (currentState.status) {
+  @case ('error') {
+    <ul>
+      @for (error of currentState.errors; track $index) {
+        <li>
+          Error: {{ error.message }}<br />
+          @if (error.line !== undefined) {
+            Line: {{ error.line }}<br />
+          }
+          @if (error.path !== undefined) {
+            Path: {{ error.path }}
+          }
+        </li>
+      }
+    </ul>
+  }
+  @case ('pending') {
+    <div>Updating…</div>
+  }
+}
