@@ -10,6 +10,7 @@
     spellcheck="false"
     rows="16"
   ></textarea>
+  <app-status-panel [status]="state.state()" />
 
   <button type="button" (click)="onTryIt()" data-testid="try-it">Try it with an example</button>
   <button type="button" [disabled]="!canOpen()" (click)="onSubmit()" data-testid="show-graph">

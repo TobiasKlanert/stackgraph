@@ -1,5 +1,6 @@
 @if (graphView(); as view) {
   <app-editor />
+  <app-status-panel [status]="state.state()" />
   <app-rendering
     [graph]="view.graph"
     [selectedId]="selectedId()"

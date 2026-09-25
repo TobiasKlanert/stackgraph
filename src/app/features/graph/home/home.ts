@@ -1,10 +1,11 @@
 import { Component, computed, inject, output } from '@angular/core';
 import { ComposeState } from '../../../core/state/compose-state';
 import { sampleCompose } from '../../../core/samples/sample-compose';
+import { StatusPanel } from '../../../shared/status-panel/status-panel';
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [StatusPanel],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
