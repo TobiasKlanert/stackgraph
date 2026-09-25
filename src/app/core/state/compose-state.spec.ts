@@ -65,11 +65,24 @@ describe('ComposeState', () => {
     expect(state.displayed()?.graph).toBeDefined();
   });
 
-  it('does not react before the debounce has elapsed', () => {
+  it('reports pending before the debounce has elapsed', () => {
     state.source.set(validYaml);
     TestBed.tick();
 
-    expect(state.state().status).toBe('empty');
+    expect(state.state().status).toBe('pending');
+  });
+
+  it('keeps the displayed graph while a change is pending', async () => {
+    state.source.set(validYaml);
+    await settleUntil(() => state.state().status === 'ready');
+    const good = state.displayed();
+    expect(good).not.toBeNull();
+
+    state.source.set(otherYaml);
+    TestBed.tick();
+
+    expect(state.state().status).toBe('pending');
+    expect(state.displayed()).toBe(good);
   });
 
   it('keeps the last good graph while the input is broken', async () => {
@@ -88,10 +101,10 @@ describe('ComposeState', () => {
   it('clears the displayed graph when the input is emptied', async () => {
     state.source.set(validYaml);
     await settleUntil(() => state.state().status === 'ready');
+    expect(state.displayed()).not.toBeNull();
 
     state.source.set('   ');
-    await settleUntil(() => state.displayed() === null);
-
+    await settleUntil(() => state.state().status === 'empty');
     expect(state.state().status).toBe('empty');
     expect(state.displayed()).toBeNull();
   });
