@@ -101,7 +101,8 @@ function loadYaml(source: string): LoadResult {
       if (markObj !== undefined) {
         const errorLine = asNumber(markObj['line']);
         if (errorLine !== undefined) {
-          parseError.line = errorLine;
+          // js-yaml counts lines from zero; users count from one.
+          parseError.line = errorLine + 1;
         }
       }
     }

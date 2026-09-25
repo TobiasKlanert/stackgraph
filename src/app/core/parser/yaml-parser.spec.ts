@@ -186,7 +186,7 @@ describe('parseCompose', () => {
     }
   });
 
-  it('reports a syntax error with a line number', () => {
+  it('reports the line where the scanner gives up on an unterminated string', () => {
     const source = `
     services:
       app:
@@ -197,9 +197,25 @@ describe('parseCompose', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.errors).toHaveLength(1);
-      expect(result.errors[0]?.line).toBeDefined();
+      expect(result.errors[0]?.line).toEqual(6);
     }
   });
+
+  it('reports the line of a bad indentation', () => {
+    const source = `
+    services:
+      app:
+        image: nginx
+       ports:
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]?.line).toEqual(5);
+    }
+  })
 
   it('reports all errors together as a list', () => {
     const source = `
