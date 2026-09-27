@@ -36,7 +36,7 @@ components; the core functionality described below is being implemented incremen
 | ELK-based layout (compose → positioned graph) | ✅ Done |
 | SVG rendering, zoom/pan | ✅ Done |
 | Detail panel | ✅ Done |
-| SVG/PNG export | ⏳ Planned |
+| SVG/PNG export | ✅ Done |
 
 The feature list below describes the **target MVP**, not the current build.
 
@@ -223,7 +223,7 @@ Development follows a phased plan:
 4. **Phase 3 — Rendering:** SVG rendering component + detail panel. ✅
 5. **Phase 4 — Interaction:** pan/zoom and node selection. ✅
 6. **Phase 5 — Split view:** editable YAML panel with debounced live re-parse. ✅
-7. **Phase 6 — Onboarding & export:** "Try it" sample, error UI, SVG export.
+7. **Phase 6 — Onboarding & export:** "Try it" sample, error UI, SVG export. ✅
 8. **Phase 7 — Polish & go-live:** styling, legal pages, responsive layout, screenshots.
 
 Planned for a later release (v1.1): filter toggles, file upload, node drag & drop, PNG export,

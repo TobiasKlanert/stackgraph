@@ -1,6 +1,7 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, inject, viewChild, ElementRef } from '@angular/core';
 import { PositionedGraph, StackGraphEdge, StackGraphNode } from '../../../core/models/layout.model';
 import { Zoomable } from '../../../shared/directives/zoomable';
+import { SvgExport } from '../../../core/export/svg-export';
 
 @Component({
   selector: 'app-rendering',
@@ -14,6 +15,9 @@ export class Rendering {
   readonly nodeSelected = output<string>();
 
   readonly selectedId = input<string | null>(null);
+
+  private readonly svgRoot = viewChild.required<ElementRef<SVGSVGElement>>('svgRoot');
+  private readonly svgExport = inject(SvgExport);
 
   protected onNodeClick(node: StackGraphNode): void {
     if (node.nodeType !== 'service') {
@@ -41,5 +45,10 @@ export class Rendering {
         return `${prefix} ${point.x} ${point.y}`;
       })
       .join(' ');
+  }
+
+  /** Entry point for GraphPage; Rendering owns the element, the page decides when. */
+  exportSvg(fileName: string): void {
+    this.svgExport.download(this.svgRoot().nativeElement, fileName);
   }
 }

@@ -1,6 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GraphPage } from './graph-page';
 import { ComposeState } from '../../../core/state/compose-state';
+import { SvgExport } from '../../../core/export/svg-export';
+
+interface DownloadCall {
+  svg: SVGSVGElement;
+  fileName: string;
+}
 
 const yaml = `
 services:
@@ -19,6 +25,7 @@ networks:
 describe('GraphPage', () => {
   let fixture: ComponentFixture<GraphPage>;
   let state: ComposeState;
+  let downloads: DownloadCall[];
 
   function panel(): HTMLElement | null {
     return fixture.nativeElement.querySelector('app-detail-panel');
@@ -66,7 +73,19 @@ describe('GraphPage', () => {
   }
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [GraphPage] }).compileComponents();
+    downloads = [];
+
+    const svgExportStub: Pick<SvgExport, 'download'> = {
+      download: (svg, fileName) => {
+        downloads.push({ svg, fileName });
+      },
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [GraphPage],
+      providers: [{ provide: SvgExport, useValue: svgExportStub }],
+    }).compileComponents();
+
     state = TestBed.inject(ComposeState);
     fixture = TestBed.createComponent(GraphPage);
     fixture.detectChanges();
@@ -132,5 +151,24 @@ describe('GraphPage', () => {
 
     expect(fixture.nativeElement.querySelector('[data-node-id="db"]')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('[data-node-id="net:internal"]')).not.toBeNull();
+  });
+
+  function exportButton(): HTMLButtonElement | null {
+    return fixture.nativeElement.querySelector('[data-testid="export-svg"]');
+  }
+
+  describe('svg export', () => {
+    it('offers no export before the graph is open', () => {
+      expect(exportButton()).toBeNull();
+    });
+
+    it('hands the rendered svg to the export service', async () => {
+      await openGraph();
+      exportButton()?.click();
+
+      expect(downloads).toHaveLength(1);
+      expect(downloads[0]?.svg).toBe(fixture.nativeElement.querySelector('app-rendering svg'));
+      expect(downloads[0]?.fileName).toMatch(/\.svg$/);
+    });
   });
 });
