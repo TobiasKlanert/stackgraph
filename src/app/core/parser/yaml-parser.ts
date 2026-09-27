@@ -101,7 +101,8 @@ function loadYaml(source: string): LoadResult {
       if (markObj !== undefined) {
         const errorLine = asNumber(markObj['line']);
         if (errorLine !== undefined) {
-          parseError.line = errorLine;
+          // js-yaml counts lines from zero; users count from one.
+          parseError.line = errorLine + 1;
         }
       }
     }
@@ -118,13 +119,13 @@ function loadYaml(source: string): LoadResult {
 
 function collectNodes<T>(
   namedObject: Record<string, unknown>,
-  build: (key: string, nodeObj: Record<string, unknown> | undefined) => BuildResult<T>
+  build: (key: string, nodeObj: unknown) => BuildResult<T>
 ): CollectResult<T> {
   const nodes: T[] = [];
   const errors: ParseError[] = [];
 
   for (const key of Object.keys(namedObject)) {
-    const nodeObj = asRecord(namedObject[key]);
+    const nodeObj = namedObject[key];
     const buildResult: BuildResult<T> = build(key, nodeObj);
 
     if (!buildResult.ok) {
@@ -141,10 +142,8 @@ function collectNodes<T>(
   };
 }
 
-function buildServiceNode(
-  key: string,
-  serviceObj: Record<string, unknown> | undefined
-): BuildResult<ServiceNode> {
+function buildServiceNode(key: string, raw: unknown): BuildResult<ServiceNode> {
+  const serviceObj = asRecord(raw);
   if (serviceObj === undefined) {
     return {
       ok: false,
@@ -166,8 +165,8 @@ function buildServiceNode(
   }
 
   node.ports = parseEntries(asStringArray(serviceObj['ports']), createPortMapping);
-  node.dependsOn = asStringArray(serviceObj['depends_on']);
-  node.networks = asStringArray(serviceObj['networks']);
+  node.dependsOn = asStringArrayOrKeys(serviceObj['depends_on']);
+  node.networks = asStringArrayOrKeys(serviceObj['networks']);
   node.volumes = parseEntries(asStringArray(serviceObj['volumes']), createVolumeMount);
 
   return {
@@ -176,10 +175,17 @@ function buildServiceNode(
   };
 }
 
-function buildNetworkNode(
-  key: string,
-  networkObj: Record<string, unknown> | undefined
-): BuildResult<NetworkNode> {
+function buildNetworkNode(key: string, raw: unknown): BuildResult<NetworkNode> {
+  // An empty value ("backend:") is idiomatic compose and means "use defaults".
+  if (raw == null) {
+    return {
+      ok: true,
+      node: { name: key },
+    };
+  }
+
+  const networkObj = asRecord(raw);
+
   if (networkObj === undefined) {
     return {
       ok: false,
@@ -207,10 +213,17 @@ function buildNetworkNode(
   };
 }
 
-function buildVolumeNode(
-  key: string,
-  volumeObj: Record<string, unknown> | undefined
-): BuildResult<VolumeNode> {
+function buildVolumeNode(key: string, raw: unknown): BuildResult<VolumeNode> {
+  // An empty value ("db_data:") is idiomatic compose and means "use defaults".
+  if (raw == null) {
+    return {
+      ok: true,
+      node: { name: key },
+    };
+  }
+
+  const volumeObj = asRecord(raw);
+
   if (volumeObj === undefined) {
     return {
       ok: false,
@@ -281,6 +294,19 @@ function asStringArray(arr: unknown): string[] {
     }
     return stringArr;
   }
+  return [];
+}
+
+function asStringArrayOrKeys(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return asStringArray(value);
+  }
+
+  const obj = asRecord(value);
+  if (obj !== undefined) {
+    return Object.keys(obj);
+  }
+
   return [];
 }
 

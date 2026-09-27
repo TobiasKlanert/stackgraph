@@ -72,6 +72,104 @@ describe('parseCompose', () => {
     }
   });
 
+  it('accepts networks and volumes declared without a value', () => {
+    const source = `
+    services: 
+      app:
+        image: nginx
+    networks:
+      backend:
+    volumes:
+      db_data:
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.model.networks).toEqual([{ name: 'backend' }]);
+      expect(result.model.volumes).toEqual([{ name: 'db_data' }]);
+    }
+  });
+
+  it('accepts networks in map format on the service', () => {
+    const source = `
+    services:
+      web:
+        image: nginx
+        networks:
+          backend:
+            aliases:
+              - api
+          frontend:
+    networks:
+      backend:
+      frontend:
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.model.services[0]?.networks).toEqual(['backend', 'frontend']);
+    }
+  });
+
+  it('accepts dependencies in map format on the service', () => {
+    const source = `
+    services:
+      web:
+        image: nginx
+        depends_on:
+          db:
+            condition: service_healthy
+          cache:
+            condition: service_started
+      db:
+        image: postgres:16
+      cache:
+        image: redis:7
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.model.services[0]?.dependsOn).toEqual(['db', 'cache']);
+    }
+  });
+
+  it('treats list and map form alike', () => {
+    const source = `
+    services:
+      web:
+        image: nginx
+        networks:
+          - backend
+          - frontend
+        depends_on:
+          - api
+      api:
+        image: node:22-alpine
+        networks:
+          backend:
+        depends_on:
+          db:
+            condition: service_healthy
+      db:
+        image: postgres:16
+    networks:
+      backend:
+      frontend:
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.model.services[0]?.networks).toEqual(['backend', 'frontend']);
+      expect(result.model.services[0]?.dependsOn).toEqual(['api']);
+      expect(result.model.services[1]?.networks).toEqual(['backend']);
+      expect(result.model.services[1]?.dependsOn).toEqual(['db']);
+    }
+  });
+
   it('returns an error when no services are present', () => {
     const source = `
     networks:
@@ -88,7 +186,7 @@ describe('parseCompose', () => {
     }
   });
 
-  it('reports a syntax error with a line number', () => {
+  it('reports the line where the scanner gives up on an unterminated string', () => {
     const source = `
     services:
       app:
@@ -99,7 +197,23 @@ describe('parseCompose', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.errors).toHaveLength(1);
-      expect(result.errors[0]?.line).toBeDefined();
+      expect(result.errors[0]?.line).toEqual(6);
+    }
+  });
+
+  it('reports the line of a bad indentation', () => {
+    const source = `
+    services:
+      app:
+        image: nginx
+       ports:
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]?.line).toEqual(5);
     }
   });
 
@@ -116,6 +230,54 @@ describe('parseCompose', () => {
       expect(result.errors).toHaveLength(2);
       expect(result.errors[0]?.path).toBe('services.app');
       expect(result.errors[1]?.path).toBe('services.db');
+    }
+  });
+
+  it('reports networks with incorrect values', () => {
+    const source = `
+    services: 
+      app:
+        image: nginx
+    networks:
+      backend: "kaputt"
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]?.path).toBe('networks.backend');
+    }
+  });
+
+  it('reports volumes with incorrect values', () => {
+    const source = `
+    services: 
+      app:
+        image: nginx
+    volumes:
+      db_data: "kaputt"
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]?.path).toBe('volumes.db_data');
+    }
+  });
+
+  it('reports services declared without a value', () => {
+    const source = `
+    services:
+      app:
+    `;
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]?.path).toBe('services.app');
     }
   });
 });

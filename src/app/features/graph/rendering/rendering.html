@@ -1,4 +1,4 @@
-<svg [attr.viewBox]="viewBox()" appZoomable #zoom="appZoomable">
+<svg [attr.viewBox]="viewBox()" appZoomable #svgRoot #zoom="appZoomable">
   <g [attr.transform]="zoom.transform()">
     @for (edge of graph().edges ?? []; track edge.id) {
       <path [attr.d]="edgePath(edge)" fill="none" stroke="black" />

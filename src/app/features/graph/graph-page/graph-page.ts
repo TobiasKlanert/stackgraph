@@ -1,13 +1,14 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, viewChild } from '@angular/core';
 import { ComposeState, type ReadyState } from '../../../core/state/compose-state';
 import { Editor } from '../editor/editor';
 import { Rendering } from '../rendering/rendering';
 import { DetailPanel } from '../detail-panel/detail-panel';
 import { Home } from '../home/home';
+import { StatusPanel } from '../../../shared/status-panel/status-panel';
 
 @Component({
   selector: 'app-graph-page',
-  imports: [Editor, Rendering, DetailPanel, Home],
+  imports: [Editor, Rendering, DetailPanel, Home, StatusPanel],
   templateUrl: './graph-page.html',
   styleUrl: './graph-page.scss',
 })
@@ -38,4 +39,10 @@ export class GraphPage {
   protected readonly graphView = computed<ReadyState | null>(() =>
     this.showGraph() ? this.state.displayed() : null
   );
+
+  private readonly rendering = viewChild(Rendering);
+
+  protected onExport(): void {
+    this.rendering()?.exportSvg('stackgraph.svg');
+  }
 }

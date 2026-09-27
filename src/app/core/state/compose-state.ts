@@ -1,7 +1,7 @@
 import { Injectable, inject, computed, signal, linkedSignal } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, debounceTime, from, of, switchMap } from 'rxjs';
+import { catchError, timer, from, of, switchMap, startWith } from 'rxjs';
 import { ComposeModel, ParseError } from '../models/compose.model';
 import { PositionedGraph } from '../models/layout.model';
 import { parseCompose } from '../parser/yaml-parser';
@@ -9,6 +9,7 @@ import { Layout } from '../layout/layout';
 
 export type ParseState =
   | { status: 'empty' }
+  | { status: 'pending' }
   | { status: 'error'; errors: ParseError[] }
   | { status: 'ready'; model: ComposeModel; graph: PositionedGraph };
 
@@ -26,8 +27,12 @@ export class ComposeState {
   /** Honest result of the current input. Errors replace the graph. */
   readonly state = toSignal(
     toObservable(this.source).pipe(
-      debounceTime(debounceMs),
-      switchMap((text) => this.run(text))
+      switchMap((text) =>
+        timer(debounceMs).pipe(
+          switchMap(() => this.run(text)),
+          startWith({ status: 'pending' } as ParseState)
+        )
+      )
     ),
     { initialValue: { status: 'empty' } as ParseState }
   );
@@ -35,6 +40,12 @@ export class ComposeState {
   /**
    * Last successful result, kept while the input is temporarily invalid.
    * An empty input is not an error but an intent, so it clears the view.
+   *
+   * Caveat: linkedSignal computes lazily, so `previous` only holds a value
+   * if something read this signal during the preceding ready state. Nobody
+   * reading it means nothing to fall back on. The bridging silently does
+   * not happen. Currently safe because the graph view reads it on every
+   * change detection while it is open.
    */
   readonly displayed = linkedSignal<ParseState, ReadyState | null>({
     source: this.state,
