@@ -34,7 +34,7 @@ rect {
 
 text {
   fill: #e2e8f0;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--sg-font-sans);
   font-size: 13px;
   pointer-events: none;
 }
