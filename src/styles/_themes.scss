@@ -20,6 +20,7 @@ $dark: (
   // Accent & Focus
   accent: #2dd4bf,
   on-accent: #042f2a,
+  accent-glow: 0 0 18px -6px rgb(45 212 191 / 0.5),
   focus: #e6eaf0,
   // Status
   danger: #f87171,
@@ -57,6 +58,7 @@ $light: (
   text-line-number: #5f6672,
   accent: #0f766e,
   on-accent: #ffffff,
+  accent-glow: none,
   focus: #14171c,
   danger: #b91c1c,
   danger-bg: rgb(185 28 28 / 0.06),
