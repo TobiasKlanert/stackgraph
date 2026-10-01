@@ -1,20 +1,35 @@
 import { Component, inject, signal, computed, viewChild } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ComposeState, type ReadyState } from '../../../core/state/compose-state';
+import { WorkspaceView } from '../../../core/state/workspace-view';
 import { Editor } from '../editor/editor';
 import { Rendering } from '../rendering/rendering';
 import { DetailPanel } from '../detail-panel/detail-panel';
 import { Home } from '../home/home';
 import { StatusPanel } from '../../../shared/status-panel/status-panel';
+import { SiteHeader } from '../../../shared/site-header/site-header';
+import { SiteFooter, privacyNote } from '../../../shared/site-footer/site-footer';
+import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
 
 @Component({
   selector: 'app-graph-page',
-  imports: [Editor, Rendering, DetailPanel, Home, StatusPanel],
+  imports: [
+    RouterLink,
+    Editor,
+    Rendering,
+    DetailPanel,
+    Home,
+    StatusPanel,
+    SiteHeader,
+    SiteFooter,
+    ThemeToggle,
+  ],
   templateUrl: './graph-page.html',
   styleUrl: './graph-page.scss',
 })
 export class GraphPage {
   protected readonly state = inject(ComposeState);
-  protected readonly showGraph = signal(false);
+  private readonly workspace = inject(WorkspaceView);
   protected readonly selectedId = signal<string | null>(null);
 
   protected readonly selectedService = computed(() => {
@@ -27,17 +42,22 @@ export class GraphPage {
     return view.model.services.find((s) => s.name === id) ?? null;
   });
 
+  /** The start page credits the author; every other view repeats the privacy note. */
+  protected readonly footerText = computed(() =>
+    this.graphView() === null ? 'A portfolio project by Tobias Klanert' : privacyNote
+  );
+
   protected onNodeSelected(id: string): void {
     this.selectedId.set(id);
   }
 
   protected openGraph(): void {
-    this.showGraph.set(true);
+    this.workspace.open();
   }
 
   /** The graph view is only shown once the user opened it and a good layout exists. */
   protected readonly graphView = computed<ReadyState | null>(() =>
-    this.showGraph() ? this.state.displayed() : null
+    this.workspace.isOpen() ? this.state.displayed() : null
   );
 
   private readonly rendering = viewChild(Rendering);

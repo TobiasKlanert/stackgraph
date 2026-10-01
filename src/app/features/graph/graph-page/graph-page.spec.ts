@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { GraphPage } from './graph-page';
 import { ComposeState } from '../../../core/state/compose-state';
 import { SvgExport } from '../../../core/export/svg-export';
@@ -83,7 +84,7 @@ describe('GraphPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [GraphPage],
-      providers: [{ provide: SvgExport, useValue: svgExportStub }],
+      providers: [provideRouter([]), { provide: SvgExport, useValue: svgExportStub }],
     }).compileComponents();
 
     state = TestBed.inject(ComposeState);
@@ -143,6 +144,35 @@ describe('GraphPage', () => {
     await settleUntil(() => fixture.nativeElement.querySelector('app-home') !== null);
 
     expect(fixture.nativeElement.querySelector('app-home')).not.toBeNull();
+  });
+
+  it('returns to home when the brand is clicked', async () => {
+    await openGraph();
+    fixture.nativeElement.querySelector('app-site-header a.brand').click();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('app-home')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('app-rendering')).toBeNull();
+  });
+
+  it('reopens the graph view after the page was recreated', async () => {
+    await openGraph();
+    fixture.destroy();
+
+    // A detour to another route destroys the page; coming back creates a new one.
+    fixture = TestBed.createComponent(GraphPage);
+    await settleUntil(() => fixture.nativeElement.querySelector('app-rendering') !== null);
+
+    expect(fixture.nativeElement.querySelector('app-home')).toBeNull();
+  });
+
+  it('credits the author on the home screen only', async () => {
+    const tagline = () => fixture.nativeElement.querySelector('app-site-footer .tagline');
+    expect(tagline()?.textContent).toContain('Tobias Klanert');
+
+    await openGraph();
+
+    expect(tagline()?.textContent).toBe('Runs in your browser. Nothing is uploaded.');
   });
 
   it('renders the sample graph when "Try it" is clicked', async () => {
