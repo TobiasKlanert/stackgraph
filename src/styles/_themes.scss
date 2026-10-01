@@ -1,0 +1,112 @@
+@use 'sass:map';
+
+$dark: (
+  // Surfaces
+  bg-app: #0a0d12,
+  bg-panel: #0f131a,
+  bg-editor: #0f131a,
+  bg-raised: #151a23,
+  bg-chip: #1c222d,
+  bg-line-active: #161c26,
+  // Lines
+  border-subtle: #232a36,
+  border: #303949,
+  border-strong: #3a4456,
+  // Text
+  text: #e6eaf0,
+  text-secondary: #aeb7c5,
+  text-muted: #8b95a7,
+  text-line-number: #7d879a,
+  // Accent & Focus
+  accent: #2dd4bf,
+  on-accent: #042f2a,
+  focus: #e6eaf0,
+  // Status
+  danger: #f87171,
+  danger-bg: rgb(248 113 113 / 0.07),
+  // Type Colors (Graph, Legend, Detail Panel)
+  network: #7dd99a,
+  network-text: #7dd99a,
+  network-bg: #0f1f17,
+  volume: #e8b04e,
+  volume-text: #e8b04e,
+  volume-bg: #211a0e,
+  // Graph
+  node-bg: #151a23,
+  node-border: rgb(45 212 191 / 0.55),
+  node-selected-bg: #12302d,
+  edge: #8b95a7,
+  // YAML Syntax
+  syntax-string: #9ccfc7
+);
+
+$light: (
+  bg-app: #ebebe8,
+  bg-panel: #fbfbfa,
+  bg-editor: #f4f4f2,
+  bg-raised: #f4f4f2,
+  bg-chip: #e2e3df,
+  // TODO: Not clear in the mockup; check the details panel
+  bg-line-active: #e9eae6,
+  border-subtle: #d0d2cd,
+  border: #b5b8b2,
+  border-strong: #9ea39c,
+  text: #14171c,
+  text-secondary: #3e4550,
+  text-muted: #59616e,
+  text-line-number: #5f6672,
+  accent: #0f766e,
+  on-accent: #ffffff,
+  focus: #14171c,
+  danger: #b91c1c,
+  danger-bg: rgb(185 28 28 / 0.06),
+  network: #2e7d4f,
+  network-text: #266b43,
+  network-bg: #e4efe7,
+  volume: #9a6212,
+  volume-text: #855410,
+  volume-bg: #f4ebdb,
+  node-bg: #fbfbfa,
+  node-border: #0d9488,
+  node-selected-bg: #d7eeea,
+  edge: #59616e,
+  syntax-string: #2f5f59,
+);
+
+// Build aborts if a theme omits a token
+@each $key in map.keys($dark) {
+  @if not map.has-key($light, $key) {
+    @error 'Light Theme is missing a token "#{$key}"';
+  }
+}
+@each $key in map.keys($light) {
+  @if not map.has-key($dark, $key) {
+    @error 'Dark Theme is missing a token "#{$key}"';
+  }
+}
+
+@mixin apply($tokens) {
+  @each $name, $value in $tokens {
+    --sg-#{$name}: #{$value};
+  }
+}
+
+// 1. Default: Dark (even if the browser does not specify a preference)
+:root {
+  color-scheme: dark;
+  @include apply($dark);
+}
+
+// 2. System setting: Light, unless someone has manually selected Dark
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+    @include apply($light);
+  }
+}
+
+// 3. Manual selection using the switch
+:root[data-theme='light'] {
+  color-scheme: light;
+  @include apply($light);
+}
