@@ -1,0 +1,53 @@
+<footer class="footer">
+  <span class="tagline">{{ tagline() }}</span>
+  <nav class="links" aria-label="Footer">
+    <a routerLink="/about" routerLinkActive="active" ariaCurrentWhenActive="page">About</a>
+    <a [href]="links.github" target="_blank" rel="noopener">
+      GitHub
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M7 17 17 7M7 7h10v10" />
+      </svg>
+      <span class="sr-only"> (opens in a new tab)</span>
+    </a>
+    <a [href]="links.linkedIn" target="_blank" rel="noopener">
+      LinkedIn
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M7 17 17 7M7 7h10v10" />
+      </svg>
+      <span class="sr-only"> (opens in a new tab)</span>
+    </a>
+    <a routerLink="/imprint" routerLinkActive="active" ariaCurrentWhenActive="page" lang="de">
+      Impressum
+    </a>
+    <a
+      routerLink="/privacy-policy"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      lang="de"
+    >
+      Datenschutz
+    </a>
+  </nav>
+</footer>

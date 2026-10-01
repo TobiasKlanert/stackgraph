@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-block-size: 44px;
+  padding: 0 10px 0 16px;
+  background: var(--sg-bg-panel);
+  border-block-start: 1px solid var(--sg-border-subtle);
+  color: var(--sg-text-muted);
+  font-size: var(--sg-font-size-sm);
+  line-height: 1;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    // 32 px targets, above the 24 px minimum of WCAG 2.5.8
+    block-size: 32px;
+    padding: 0 8px;
+    border-radius: var(--sg-radius-sm);
+    color: var(--sg-text-secondary);
+    // Navigation: context makes the links recognisable, unlike links in running text
+    text-decoration: none;
+
+    &:hover {
+      color: var(--sg-text);
+    }
+  }
+
+  // Current page: underline as a cue that does not rely on colour alone
+  a.active {
+    color: var(--sg-text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}

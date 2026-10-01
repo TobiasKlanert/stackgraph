@@ -1,0 +1,12 @@
+<header class="header">
+  <div class="start">
+    <a class="brand" routerLink="/" (click)="onBrandClick($event)">
+      <span class="mark" aria-hidden="true"></span>
+      <span class="name">StackGraph</span>
+    </a>
+    <ng-content select="[siteHeaderStart]" />
+  </div>
+  <div class="end">
+    <ng-content />
+  </div>
+</header>
