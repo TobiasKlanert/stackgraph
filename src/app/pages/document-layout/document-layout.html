@@ -1,0 +1,28 @@
+<app-site-header>
+  <nav aria-label="Main">
+    <a class="sg-header-link" routerLink="/">
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+      Back to the app
+    </a>
+  </nav>
+  <app-theme-toggle />
+</app-site-header>
+
+<main class="main">
+  <router-outlet />
+</main>
+
+<app-site-footer />
