@@ -8,7 +8,7 @@ describe('toElkGraph', () => {
       {
         name: 'web',
         image: 'nginx:latest',
-        ports: [],
+        ports: [{ host: '8080', container: '80' }],
         dependsOn: ['api', 'db'],
         networks: ['web'],
         volumes: [{ source: 'db_data', target: '/var/lib/...', type: 'volume' }],
@@ -23,7 +23,6 @@ describe('toElkGraph', () => {
       },
       {
         name: 'db',
-        image: 'postgres:16',
         ports: [],
         dependsOn: [],
         networks: [],
@@ -58,6 +57,39 @@ describe('toElkGraph', () => {
       'network',
       'volume',
     ]);
+  });
+
+  it('attaches display data without id prefixes', () => {
+    const nodes = result.children as StackGraphNode[];
+
+    expect(nodes.map((n) => n.display.name)).toEqual(['web', 'api', 'db', 'web', 'db_data']);
+  });
+
+  it('formats ports and keeps the image for services', () => {
+    const [web] = result.children as StackGraphNode[];
+
+    expect(web?.nodeType === 'service' && web.display).toEqual({
+      name: 'web',
+      image: 'nginx:latest',
+      ports: ['8080:80'],
+    });
+  });
+
+  it('leaves the image out for services built from source', () => {
+    const db = (result.children as StackGraphNode[]).find((n) => n.id === 'db');
+
+    expect(db?.display).not.toHaveProperty('image');
+  });
+
+  it('sizes nodes by their content', () => {
+    const [web, api] = result.children ?? [];
+
+    expect(web).toMatchObject({ width: 196, height: 76 });
+    expect(api).toMatchObject({ width: 196, height: 58 });
+  });
+
+  it('does not set ELK ports, which would change the layout', () => {
+    expect(result.children?.every((n) => n.ports === undefined)).toBe(true);
   });
 
   it('determines the edges correctly', () => {

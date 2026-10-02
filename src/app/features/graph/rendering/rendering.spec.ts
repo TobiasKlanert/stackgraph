@@ -83,8 +83,24 @@ describe('Rendering', () => {
   const graphWithNodes: PositionedGraph = {
     id: 'root',
     children: [
-      { id: 'web', nodeType: 'service', x: 0, y: 0, width: 160, height: 64 },
-      { id: 'net:web', nodeType: 'network', x: 0, y: 100, width: 160, height: 64 },
+      {
+        id: 'web',
+        nodeType: 'service',
+        display: { name: 'web', ports: [] },
+        x: 0,
+        y: 0,
+        width: 196,
+        height: 58,
+      },
+      {
+        id: 'net:web',
+        nodeType: 'network',
+        display: { name: 'web' },
+        x: 0,
+        y: 100,
+        width: 96,
+        height: 52,
+      },
     ],
     edges: [],
   };

@@ -1,9 +1,17 @@
 import type { ElkNode } from 'elkjs/lib/elk.bundled.js';
-import { ComposeModel } from '../models/compose.model';
-import { StackGraphNode, StackGraphEdge, NodeType, EdgeType } from '../models/layout.model';
-
-const nodeWidth = 160;
-const nodeHeight = 64;
+import { ComposeModel, NetworkNode, ServiceNode, VolumeNode } from '../models/compose.model';
+import {
+  EdgeType,
+  NetworkGraphNode,
+  NodeType,
+  ServiceDisplay,
+  ServiceGraphNode,
+  StackGraphEdge,
+  StackGraphNode,
+  VolumeGraphNode,
+} from '../models/layout.model';
+import { formatPort } from '../format/format-port';
+import { networkSize, serviceSize, volumeSize } from './node-geometry';
 
 const nodeIdPrefixes: Record<NodeType, string> = {
   service: '',
@@ -18,11 +26,11 @@ const edgeIdSeparators: Record<EdgeType, string> = {
 };
 
 export function toElkGraph(model: ComposeModel): ElkNode {
-  const serviceNodes: StackGraphNode[] = model.services.map((s) => toNode(s.name, 'service'));
-  const networkNodes: StackGraphNode[] = model.networks.map((n) => toNode(n.name, 'network'));
-  const volumeNodes: StackGraphNode[] = model.volumes.map((v) => toNode(v.name, 'volume'));
-
-  const children = [...serviceNodes, ...networkNodes, ...volumeNodes];
+  const children: StackGraphNode[] = [
+    ...model.services.map(toServiceNode),
+    ...model.networks.map(toNetworkNode),
+    ...model.volumes.map(toVolumeNode),
+  ];
 
   const knownIds = new Set(children.map((c) => c.id));
 
@@ -58,13 +66,41 @@ export function toElkGraph(model: ComposeModel): ElkNode {
   };
 }
 
-function toNode(name: string, nodeType: NodeType): StackGraphNode {
-  return {
-    id: `${nodeIdPrefixes[nodeType]}${name}`,
-    width: nodeWidth,
-    height: nodeHeight,
-    nodeType: nodeType,
+function toServiceNode(service: ServiceNode): ServiceGraphNode {
+  const display: ServiceDisplay = {
+    name: service.name,
+    ports: service.ports.map(formatPort),
+    // exactOptionalPropertyTypes: leave the key out instead of setting undefined
+    ...(service.image !== undefined && { image: service.image }),
   };
+  return {
+    id: nodeId(service.name, 'service'),
+    nodeType: 'service',
+    display,
+    ...serviceSize(display.ports),
+  };
+}
+
+function toNetworkNode(network: NetworkNode): NetworkGraphNode {
+  return {
+    id: nodeId(network.name, 'network'),
+    nodeType: 'network',
+    display: { name: network.name },
+    ...networkSize(network.name),
+  };
+}
+
+function toVolumeNode(volume: VolumeNode): VolumeGraphNode {
+  return {
+    id: nodeId(volume.name, 'volume'),
+    nodeType: 'volume',
+    display: { name: volume.name },
+    ...volumeSize(volume.name),
+  };
+}
+
+function nodeId(name: string, nodeType: NodeType): string {
+  return `${nodeIdPrefixes[nodeType]}${name}`;
 }
 
 function makeEdge(from: string, to: string, edgeType: EdgeType): StackGraphEdge {
