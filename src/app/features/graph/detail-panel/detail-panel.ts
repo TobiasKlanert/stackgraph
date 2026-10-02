@@ -1,5 +1,6 @@
 import { Component, input } from '@angular/core';
 import { ServiceNode, PortMapping, VolumeMount } from '../../../core/models/compose.model';
+import { formatPort } from '../../../core/format/format-port';
 
 @Component({
   selector: 'app-detail-panel',
@@ -11,15 +12,7 @@ export class DetailPanel {
   readonly service = input.required<ServiceNode>();
 
   formatPort(port: PortMapping): string {
-    if (!port.host) {
-      return port.container;
-    }
-
-    if (!port.protocol) {
-      return `${port.host}:${port.container}`;
-    }
-
-    return `${port.host}:${port.container}/${port.protocol}`;
+    return formatPort(port);
   }
 
   formatVolume(volume: VolumeMount): string {
