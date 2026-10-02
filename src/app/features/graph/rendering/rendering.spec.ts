@@ -60,7 +60,7 @@ describe('Rendering', () => {
       expect(component.edgePath(edge)).toBe('M 0 0 L 10 20');
     });
 
-    it('should build a chained path through the bend points when present', () => {
+    it('should round the corners at the bend points', () => {
       const edge: StackGraphEdge = {
         ...baseEdge,
         sections: [
@@ -68,15 +68,81 @@ describe('Rendering', () => {
             id: 'section1',
             startPoint: { x: 0, y: 0 },
             bendPoints: [
-              { x: 5, y: 5 },
-              { x: 15, y: 5 },
+              { x: 0, y: 20 },
+              { x: 30, y: 20 },
             ],
-            endPoint: { x: 20, y: 10 },
+            endPoint: { x: 30, y: 40 },
           },
         ],
       };
 
-      expect(component.edgePath(edge)).toBe('M 0 0 L 5 5 L 15 5 L 20 10');
+      expect(component.edgePath(edge)).toBe(
+        'M 0 0 L 0 12 Q 0 20 8 20 L 22 20 Q 30 20 30 28 L 30 40'
+      );
+    });
+  });
+
+  describe('edges', () => {
+    const section = { id: 's', startPoint: { x: 0, y: 0 }, endPoint: { x: 0, y: 40 } };
+    const graphWithEdges: PositionedGraph = {
+      id: 'root',
+      children: [],
+      edges: [
+        {
+          id: 'web->api',
+          edgeType: 'dependsOn',
+          sources: ['web'],
+          targets: ['api'],
+          sections: [section],
+        },
+        {
+          id: 'web--net:edge',
+          edgeType: 'network',
+          sources: ['web'],
+          targets: ['net:edge'],
+          sections: [section],
+        },
+        {
+          id: 'db--vol:data',
+          edgeType: 'volume',
+          sources: ['db'],
+          targets: ['vol:data'],
+          sections: [section],
+        },
+      ],
+    };
+
+    function edgePaths(): SVGPathElement[] {
+      return Array.from(fixture.nativeElement.querySelectorAll('g.edges path'));
+    }
+
+    beforeEach(async () => {
+      fixture.componentRef.setInput('graph', graphWithEdges);
+      await fixture.whenStable();
+    });
+
+    it('styles each edge by its type', () => {
+      expect(edgePaths().map((p) => p.getAttribute('class'))).toEqual([
+        'edge edge--network',
+        'edge edge--volume',
+        'edge edge--dependsOn',
+      ]);
+    });
+
+    it('draws dependencies last, so their arrows stay on top', () => {
+      expect(edgePaths().at(-1)?.classList.contains('edge--dependsOn')).toBe(true);
+    });
+
+    it('puts an arrow only on dependencies', () => {
+      const markers = edgePaths().map((p) => p.getAttribute('marker-end'));
+
+      expect(markers).toEqual([null, null, 'url(#sg-arrow)']);
+    });
+
+    it('hides the edges from assistive technology', () => {
+      expect(fixture.nativeElement.querySelector('g.edges')?.getAttribute('aria-hidden')).toBe(
+        'true'
+      );
     });
   });
 

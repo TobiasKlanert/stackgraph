@@ -19,3 +19,30 @@ svg {
 .selectable {
   cursor: pointer;
 }
+
+// Edges: one line style per relationship, so the type reads without colour.
+.edge {
+  fill: none;
+  stroke-width: 1.4;
+}
+
+.edge--dependsOn {
+  stroke: var(--sg-edge);
+}
+
+.edge--network {
+  stroke: var(--sg-network);
+  stroke-dasharray: 6 4;
+  opacity: 0.9;
+}
+
+.edge--volume {
+  stroke: var(--sg-volume);
+  stroke-width: 1.8;
+  stroke-dasharray: 0.1 4.5;
+  stroke-linecap: round;
+}
+
+.arrow-head {
+  fill: var(--sg-edge);
+}

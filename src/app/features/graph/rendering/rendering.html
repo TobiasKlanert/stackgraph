@@ -1,8 +1,31 @@
 <svg [attr.viewBox]="viewBox()" appZoomable #svgRoot #zoom="appZoomable">
   <g [attr.transform]="zoom.transform()">
-    @for (edge of graph().edges ?? []; track edge.id) {
-      <path [attr.d]="edgePath(edge)" fill="none" stroke="black" />
-    }
+    <defs>
+      <!-- userSpaceOnUse keeps the arrow the same size on every edge, whatever its stroke width. -->
+      <marker
+        id="sg-arrow"
+        viewBox="0 0 8 8"
+        markerWidth="8"
+        markerHeight="8"
+        refX="7.5"
+        refY="4"
+        orient="auto"
+        markerUnits="userSpaceOnUse"
+      >
+        <path class="arrow-head" d="M0 0.5 L8 4 L0 7.5 Z" />
+      </marker>
+    </defs>
+
+    <!-- Relationships are spelled out in the detail panel; for screen readers the lines would only be noise. -->
+    <g class="edges" aria-hidden="true">
+      @for (edge of edges(); track edge.id) {
+        <path
+          [class]="'edge edge--' + edge.edgeType"
+          [attr.d]="edgePath(edge)"
+          [attr.marker-end]="edge.edgeType === 'dependsOn' ? 'url(#sg-arrow)' : null"
+        />
+      }
+    </g>
 
     @for (node of graph().children ?? []; track node.id) {
       <!-- Position and interaction live here; the shape components only draw. -->

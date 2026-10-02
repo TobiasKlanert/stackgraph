@@ -1,10 +1,18 @@
 import { Component, input, output, computed, inject, viewChild, ElementRef } from '@angular/core';
-import { PositionedGraph, StackGraphEdge, StackGraphNode } from '../../../core/models/layout.model';
+import {
+  EdgeType,
+  PositionedGraph,
+  StackGraphEdge,
+  StackGraphNode,
+} from '../../../core/models/layout.model';
 import { SvgExport } from '../../../core/export/svg-export';
 import { Zoomable } from '../../../shared/directives/zoomable';
 import { ServiceShape } from './shapes/service-shape/service-shape';
 import { NetworkShape } from './shapes/network-shape/network-shape';
 import { VolumeShape } from './shapes/volume-shape/volume-shape';
+import { roundedPath } from './edge-path';
+
+const edgeOrder: Record<EdgeType, number> = { network: 0, volume: 1, dependsOn: 2 };
 
 @Component({
   selector: 'app-rendering',
@@ -34,20 +42,20 @@ export class Rendering {
     return `0 0 ${g.width ?? 0} ${g.height ?? 0}`;
   });
 
+  /**
+   * Network and volume edges first, dependencies last: SVG paints in
+   * document order, and the arrows carry the most meaning.
+   */
+  protected readonly edges = computed(() =>
+    [...(this.graph().edges ?? [])].sort((a, b) => edgeOrder[a.edgeType] - edgeOrder[b.edgeType])
+  );
+
   edgePath(edge: StackGraphEdge): string {
-    if (!edge.sections?.[0]) {
+    const section = edge.sections?.[0];
+    if (section === undefined) {
       return '';
     }
-
-    const section = edge.sections[0];
-    const list = [section.startPoint, ...(section.bendPoints ?? []), section.endPoint];
-
-    return list
-      .map((point, index) => {
-        const prefix = index === 0 ? 'M' : 'L';
-        return `${prefix} ${point.x} ${point.y}`;
-      })
-      .join(' ');
+    return roundedPath([section.startPoint, ...(section.bendPoints ?? []), section.endPoint]);
   }
 
   /** Entry point for GraphPage; Rendering owns the element, the page decides when. */
