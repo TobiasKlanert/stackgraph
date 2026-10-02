@@ -20,6 +20,11 @@ describe('node geometry', () => {
     it('cuts text that does not fit and marks the cut', () => {
       expect(truncate('ghcr.io/acme/api', 60, 10)).toBe('ghcr.…');
     });
+
+    it('keeps text that fits exactly despite floating point noise', () => {
+      // 9 chars at 6.3 px = 56.7 px, but 56.7 / 6.3 evaluates to 8.999…
+      expect(truncate('8080:8080', 56.7, 6.3)).toBe('8080:8080');
+    });
   });
 
   describe('monoCharWidth', () => {

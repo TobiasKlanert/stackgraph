@@ -71,7 +71,9 @@ export function sansCharWidth(fontSize: number): number {
 
 /** Shortens text to fit maxWidth and marks the cut with an ellipsis. */
 export function truncate(text: string, maxWidth: number, charWidth: number): string {
-  const maxChars = Math.floor(maxWidth / charWidth);
+  // The epsilon absorbs float noise: 56.7 / 6.3 is 8.999…, which would
+  // otherwise cut a text that fits exactly.
+  const maxChars = Math.floor(maxWidth / charWidth + 1e-9);
   if (text.length <= maxChars) {
     return text;
   }
