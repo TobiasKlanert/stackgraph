@@ -146,6 +146,45 @@ describe('GraphPage', () => {
     expect(fixture.nativeElement.querySelector('app-home')).not.toBeNull();
   });
 
+  describe('split view layout', () => {
+    it('names the file and summarises the stack in the header', async () => {
+      await openGraph();
+      const header: HTMLElement = fixture.nativeElement.querySelector('app-site-header');
+
+      expect(header.querySelector('h1')?.textContent).toBe('docker-compose.yml');
+      expect(header.querySelector('.summary')?.textContent).toBe(
+        '2 services, 1 network, 0 volumes'
+      );
+    });
+
+    it('shows neither file name nor summary on the home screen', () => {
+      const header: HTMLElement = fixture.nativeElement.querySelector('app-site-header');
+
+      expect(header.querySelector('h1')).toBeNull();
+      expect(header.querySelector('.summary')).toBeNull();
+    });
+
+    it('offers a skip link to the graph, which can take focus', async () => {
+      await openGraph();
+      const skip: HTMLAnchorElement | null = fixture.nativeElement.querySelector('.skip-link');
+      const graph: HTMLElement | null = fixture.nativeElement.querySelector('#graph');
+
+      expect(skip?.getAttribute('href')).toBe('#graph');
+      expect(graph?.getAttribute('tabindex')).toBe('-1');
+    });
+
+    it('explains the empty detail column until a service is selected', async () => {
+      await openGraph();
+
+      expect(fixture.nativeElement.querySelector('.detail-empty')).not.toBeNull();
+
+      clickNode('web');
+      await fixture.whenStable();
+
+      expect(fixture.nativeElement.querySelector('.detail-empty')).toBeNull();
+    });
+  });
+
   it('returns to home when the brand is clicked', async () => {
     await openGraph();
     fixture.nativeElement.querySelector('app-site-header a.brand').click();

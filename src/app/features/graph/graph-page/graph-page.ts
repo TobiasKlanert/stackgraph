@@ -11,6 +11,10 @@ import { SiteHeader } from '../../../shared/site-header/site-header';
 import { SiteFooter, privacyNote } from '../../../shared/site-footer/site-footer';
 import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
 
+function count(n: number, noun: string): string {
+  return `${n} ${noun}${n === 1 ? '' : 's'}`;
+}
+
 @Component({
   selector: 'app-graph-page',
   imports: [
@@ -26,6 +30,9 @@ import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
   ],
   templateUrl: './graph-page.html',
   styleUrl: './graph-page.scss',
+  host: {
+    '[class.workspace]': 'graphView() !== null',
+  },
 })
 export class GraphPage {
   protected readonly state = inject(ComposeState);
@@ -46,6 +53,19 @@ export class GraphPage {
   protected readonly footerText = computed(() =>
     this.graphView() === null ? 'A portfolio project by Tobias Klanert' : privacyNote
   );
+
+  /** "5 services, 2 networks, 2 volumes" for the header. */
+  protected readonly summary = computed(() => {
+    const model = this.graphView()?.model;
+    if (model === undefined) {
+      return '';
+    }
+    return [
+      count(model.services.length, 'service'),
+      count(model.networks.length, 'network'),
+      count(model.volumes.length, 'volume'),
+    ].join(', ');
+  });
 
   protected onNodeSelected(id: string): void {
     this.selectedId.set(id);

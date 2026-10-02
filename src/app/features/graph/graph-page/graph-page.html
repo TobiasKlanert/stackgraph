@@ -1,6 +1,16 @@
+@if (graphView()) {
+  <!-- Fragment link: the graph column takes focus via tabindex="-1". -->
+  <a class="skip-link" href="#graph">Skip to graph</a>
+}
+
 <!-- Header and footer sit outside the view switch, so they survive it and keyboard focus on the brand is not lost. -->
 <app-site-header>
   @if (graphView()) {
+    <h1 siteHeaderStart class="file-name">docker-compose.yml</h1>
+  }
+
+  @if (graphView(); as view) {
+    <p class="summary">{{ summary() }}</p>
     <button
       type="button"
       class="sg-button sg-button--primary"
@@ -33,16 +43,27 @@
 
 <main class="main">
   @if (graphView(); as view) {
-    <app-editor />
-    <app-status-panel [status]="state.state()" />
-    <app-rendering
-      [graph]="view.graph"
-      [selectedId]="selectedId()"
-      (nodeSelected)="onNodeSelected($event)"
-    />
-    @if (selectedService(); as service) {
-      <app-detail-panel [service]="service" />
-    }
+    <section class="column editor-column" aria-label="Compose file">
+      <app-editor />
+      <app-status-panel [status]="state.state()" />
+    </section>
+
+    <section id="graph" class="column graph-column" tabindex="-1" aria-labelledby="graph-title">
+      <h2 id="graph-title" class="sr-only">Service graph</h2>
+      <app-rendering
+        [graph]="view.graph"
+        [selectedId]="selectedId()"
+        (nodeSelected)="onNodeSelected($event)"
+      />
+    </section>
+
+    <div class="column detail-column">
+      @if (selectedService(); as service) {
+        <app-detail-panel [service]="service" />
+      } @else {
+        <p class="detail-empty">Select a service in the graph to see its details.</p>
+      }
+    </div>
   } @else {
     <app-home (submitted)="openGraph()" />
   }
