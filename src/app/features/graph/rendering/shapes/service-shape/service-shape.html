@@ -1,3 +1,14 @@
+@if (selected()) {
+  <!-- The halo filter is defined once in Rendering's <defs>. -->
+  <svg:rect
+    class="glow"
+    [attr.width]="width()"
+    [attr.height]="height()"
+    rx="8"
+    filter="url(#sg-glow)"
+  />
+}
+
 <!-- Root elements carry the svg: prefix, otherwise Angular creates them in the HTML namespace and nothing is drawn. -->
 <svg:rect class="body" [attr.width]="width()" [attr.height]="height()" rx="8" />
 
@@ -46,4 +57,16 @@
       }
     </svg:text>
   </svg:g>
+}
+
+@if (focused()) {
+  <!-- Neutral ring, set apart from the teal selection, 5 px outside the card. -->
+  <svg:rect
+    class="focus-ring"
+    x="-5"
+    y="-5"
+    [attr.width]="width() + 10"
+    [attr.height]="height() + 10"
+    rx="12"
+  />
 }

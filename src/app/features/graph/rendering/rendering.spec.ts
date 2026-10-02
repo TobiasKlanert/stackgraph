@@ -211,6 +211,81 @@ describe('Rendering', () => {
       expect(emitted).toBe('web');
     });
 
+    it('selects a service with the space key and keeps the page from scrolling', () => {
+      let emitted: string | null = null;
+      component.nodeSelected.subscribe((id) => (emitted = id));
+      const event = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true });
+
+      nodeEl('web').dispatchEvent(event);
+
+      expect(emitted).toBe('web');
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('describes services as toggle buttons with name and image', async () => {
+      fixture.componentRef.setInput('selectedId', 'web');
+      await fixture.whenStable();
+
+      expect(nodeEl('web').getAttribute('aria-pressed')).toBe('true');
+      expect(nodeEl('web').getAttribute('aria-label')).toBe('web, local build');
+      expect(nodeEl('net:web').hasAttribute('aria-pressed')).toBe(false);
+    });
+
+    /** Simulates focus as the browser classifies it: keyboard (visible) or pointer. */
+    function focusNode(id: string, visible: boolean): void {
+      const el = nodeEl(id);
+      // jsdom does not apply :focus-visible while the focus event is dispatched.
+      // defineProperty instead of an assignment: newer DOM typings declare
+      // matches() with type-predicate overloads that a plain function cannot satisfy.
+      Object.defineProperty(el, 'matches', {
+        value: (selector: string) => selector === ':focus-visible' && visible,
+      });
+      el.dispatchEvent(new FocusEvent('focus'));
+    }
+
+    it('draws a focus ring for keyboard focus and removes it on blur', async () => {
+      focusNode('web', true);
+      await fixture.whenStable();
+
+      expect(nodeEl('web').querySelector('.focus-ring')).not.toBeNull();
+
+      nodeEl('web').dispatchEvent(new FocusEvent('blur'));
+      await fixture.whenStable();
+
+      expect(nodeEl('web').querySelector('.focus-ring')).toBeNull();
+    });
+
+    it('draws no focus ring when a click focused the node', async () => {
+      focusNode('web', false);
+      await fixture.whenStable();
+
+      expect(nodeEl('web').querySelector('.focus-ring')).toBeNull();
+    });
+
+    it('clears the selection on Escape', () => {
+      let cleared = 0;
+      component.selectionCleared.subscribe(() => cleared++);
+
+      fixture.nativeElement.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
+      );
+
+      expect(cleared).toBe(1);
+    });
+
+    it('clears the selection on a click on the background, not on a node', () => {
+      let cleared = 0;
+      component.selectionCleared.subscribe(() => cleared++);
+
+      nodeEl('web').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      expect(cleared).toBe(0);
+
+      fixture.nativeElement
+        .querySelector('svg')
+        .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      expect(cleared).toBe(1);
+    });
+
     it('marks only the selected node', async () => {
       fixture.componentRef.setInput('selectedId', 'web');
       await fixture.whenStable();

@@ -6,22 +6,25 @@ import { ServiceShape } from './service-shape';
 
 @Component({
   imports: [ServiceShape],
-  template: `<svg><g app-service-shape [node]="node()" [selected]="selected()"></g></svg>`,
+  template: `<svg>
+    <g app-service-shape [node]="node()" [selected]="selected()" [focused]="focused()"></g>
+  </svg>`,
 })
 class Host {
   readonly node = input.required<ServiceGraphNode>();
   readonly selected = input(false);
+  readonly focused = input(false);
 }
-
 function serviceNode(display: ServiceGraphNode['display']): ServiceGraphNode {
   return { id: display.name, nodeType: 'service', display, ...serviceSize(display.ports) };
 }
 
 describe('ServiceShape', () => {
-  function render(node: ServiceGraphNode, selected = false): SVGGElement {
+  function render(node: ServiceGraphNode, selected = false, focused = false): SVGGElement {
     const fixture = TestBed.createComponent(Host);
     fixture.componentRef.setInput('node', node);
     fixture.componentRef.setInput('selected', selected);
+    fixture.componentRef.setInput('focused', focused);
     fixture.detectChanges();
     return fixture.nativeElement.querySelector('g[app-service-shape]');
   }
@@ -77,5 +80,22 @@ describe('ServiceShape', () => {
     const shape = render(serviceNode({ name: 'api', ports: [] }), true);
 
     expect(shape.classList.contains('selected')).toBe(true);
+  });
+
+  it('glows only while selected', () => {
+    expect(render(serviceNode({ name: 'api', ports: [] })).querySelector('.glow')).toBeNull();
+    expect(
+      render(serviceNode({ name: 'api', ports: [] }), true)
+        .querySelector('.glow')
+        ?.getAttribute('filter')
+    ).toBe('url(#sg-glow)');
+  });
+
+  it('draws the focus ring outside the card', () => {
+    const node = serviceNode({ name: 'api', ports: [] });
+    const ring = render(node, false, true).querySelector('.focus-ring');
+
+    expect(ring?.getAttribute('x')).toBe('-5');
+    expect(ring?.getAttribute('width')).toBe(String((node.width ?? 0) + 10));
   });
 });

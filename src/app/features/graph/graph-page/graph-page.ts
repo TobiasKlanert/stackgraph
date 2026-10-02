@@ -67,8 +67,9 @@ export class GraphPage {
     ].join(', ');
   });
 
+  /** Selecting the selected service again deselects it, as aria-pressed promises. */
   protected onNodeSelected(id: string): void {
-    this.selectedId.set(id);
+    this.selectedId.update((current) => (current === id ? null : id));
   }
 
   protected openGraph(): void {

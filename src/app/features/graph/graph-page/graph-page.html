@@ -54,6 +54,7 @@
         [graph]="view.graph"
         [selectedId]="selectedId()"
         (nodeSelected)="onNodeSelected($event)"
+        (selectionCleared)="selectedId.set(null)"
       />
     </section>
 

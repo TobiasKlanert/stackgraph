@@ -119,6 +119,29 @@ describe('GraphPage', () => {
     expect(panel()?.textContent).toContain('web');
   });
 
+  it('deselects a service that is clicked again', async () => {
+    await openGraph();
+    clickNode('web');
+    await fixture.whenStable();
+    clickNode('web');
+    await fixture.whenStable();
+
+    expect(panel()).toBeNull();
+  });
+
+  it('closes the panel when the graph clears the selection', async () => {
+    await openGraph();
+    clickNode('web');
+    await fixture.whenStable();
+
+    fixture.nativeElement
+      .querySelector('app-rendering')
+      .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await fixture.whenStable();
+
+    expect(panel()).toBeNull();
+  });
+
   it('keeps the panel closed when a non-service node is clicked', async () => {
     await openGraph();
     clickNode('net:web');

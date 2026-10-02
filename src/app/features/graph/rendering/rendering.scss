@@ -46,3 +46,9 @@ svg {
 .arrow-head {
   fill: var(--sg-edge);
 }
+
+// The service shape draws its own focus ring; the browser outline would be
+// a sharp rectangle around the group's bounding box.
+.node:focus {
+  outline: none;
+}

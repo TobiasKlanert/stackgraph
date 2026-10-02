@@ -38,6 +38,7 @@ function fit(full: string, maxWidth: number, charWidth: number): FittedText {
 export class ServiceShape {
   readonly node = input.required<ServiceGraphNode>();
   readonly selected = input(false);
+  readonly focused = input(false);
 
   protected readonly g = serviceGeometry;
 

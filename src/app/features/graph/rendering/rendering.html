@@ -12,6 +12,10 @@
         orient="auto"
         markerUnits="userSpaceOnUse"
       >
+        <!-- Soft halo behind the selected service; the region leaves room for the blur. -->
+        <filter id="sg-glow" x="-20%" y="-40%" width="140%" height="180%">
+          <feGaussianBlur stdDeviation="6" />
+        </filter>
         <path class="arrow-head" d="M0 0.5 L8 4 L0 7.5 Z" />
       </marker>
     </defs>
@@ -30,18 +34,29 @@
     @for (node of graph().children ?? []; track node.id) {
       <!-- Position and interaction live here; the shape components only draw. -->
       <g
+        class="node"
         [attr.data-node-id]="node.id"
         [attr.transform]="'translate(' + (node.x ?? 0) + ' ' + (node.y ?? 0) + ')'"
         [class.selectable]="node.nodeType === 'service'"
         [class.selected]="node.id === selectedId()"
-        (click)="onNodeClick(node)"
-        (keydown.enter)="onNodeClick(node)"
         [attr.tabindex]="node.nodeType === 'service' ? 0 : null"
         [attr.role]="node.nodeType === 'service' ? 'button' : null"
+        [attr.aria-pressed]="node.nodeType === 'service' ? node.id === selectedId() : null"
+        [attr.aria-label]="ariaLabel(node)"
+        (click)="onNodeClick(node)"
+        (keydown.enter)="onNodeClick(node)"
+        (keydown.space)="$event.preventDefault(); onNodeClick(node)"
+        (focus)="onNodeFocus($event, node)"
+        (blur)="focusedId.set(null)"
       >
         @switch (node.nodeType) {
           @case ('service') {
-            <g app-service-shape [node]="node" [selected]="node.id === selectedId()"></g>
+            <g
+              app-service-shape
+              [node]="node"
+              [selected]="node.id === selectedId()"
+              [focused]="node.id === focusedId()"
+            ></g>
           }
           @case ('network') {
             <g app-network-shape [node]="node"></g>
