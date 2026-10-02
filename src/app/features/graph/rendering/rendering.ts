@@ -1,11 +1,14 @@
 import { Component, input, output, computed, inject, viewChild, ElementRef } from '@angular/core';
 import { PositionedGraph, StackGraphEdge, StackGraphNode } from '../../../core/models/layout.model';
-import { Zoomable } from '../../../shared/directives/zoomable';
 import { SvgExport } from '../../../core/export/svg-export';
+import { Zoomable } from '../../../shared/directives/zoomable';
+import { ServiceShape } from './shapes/service-shape/service-shape';
+import { NetworkShape } from './shapes/network-shape/network-shape';
+import { VolumeShape } from './shapes/volume-shape/volume-shape';
 
 @Component({
   selector: 'app-rendering',
-  imports: [Zoomable],
+  imports: [Zoomable, ServiceShape, NetworkShape, VolumeShape],
   templateUrl: './rendering.html',
   styleUrl: './rendering.scss',
 })

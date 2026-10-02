@@ -5,8 +5,10 @@
     }
 
     @for (node of graph().children ?? []; track node.id) {
+      <!-- Position and interaction live here; the shape components only draw. -->
       <g
         [attr.data-node-id]="node.id"
+        [attr.transform]="'translate(' + (node.x ?? 0) + ' ' + (node.y ?? 0) + ')'"
         [class.selectable]="node.nodeType === 'service'"
         [class.selected]="node.id === selectedId()"
         (click)="onNodeClick(node)"
@@ -14,20 +16,17 @@
         [attr.tabindex]="node.nodeType === 'service' ? 0 : null"
         [attr.role]="node.nodeType === 'service' ? 'button' : null"
       >
-        <rect
-          [attr.x]="node.x"
-          [attr.y]="node.y"
-          [attr.width]="node.width"
-          [attr.height]="node.height"
-        />
-        <text
-          [attr.x]="(node.x ?? 0) + (node.width ?? 0) / 2"
-          [attr.y]="(node.y ?? 0) + (node.height ?? 0) / 2"
-          text-anchor="middle"
-          dominant-baseline="middle"
-        >
-          {{ node.display.name }}
-        </text>
+        @switch (node.nodeType) {
+          @case ('service') {
+            <g app-service-shape [node]="node" [selected]="node.id === selectedId()"></g>
+          }
+          @case ('network') {
+            <g app-network-shape [node]="node"></g>
+          }
+          @case ('volume') {
+            <g app-volume-shape [node]="node"></g>
+          }
+        }
       </g>
     }
   </g>

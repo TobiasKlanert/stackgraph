@@ -157,5 +157,14 @@ describe('Rendering', () => {
       expect(nodeEl('web').getAttribute('tabindex')).toBe('0');
       expect(nodeEl('net:web').getAttribute('tabindex')).toBeNull();
     });
+
+    it('positions each node at its layout coordinates', () => {
+      expect(nodeEl('net:web').getAttribute('transform')).toBe('translate(0 100)');
+    });
+
+    it('draws each node type with its own shape', () => {
+      expect(nodeEl('web').querySelector('[app-service-shape]')).not.toBeNull();
+      expect(nodeEl('net:web').querySelector('[app-network-shape]')).not.toBeNull();
+    });
   });
 });

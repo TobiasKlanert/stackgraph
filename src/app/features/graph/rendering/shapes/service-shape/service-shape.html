@@ -1,0 +1,49 @@
+<!-- Root elements carry the svg: prefix, otherwise Angular creates them in the HTML namespace and nothing is drawn. -->
+<svg:rect class="body" [attr.width]="width()" [attr.height]="height()" rx="8" />
+
+<svg:text
+  class="name"
+  [attr.x]="g.paddingX"
+  [attr.y]="g.nameBaseline"
+  [attr.font-size]="g.nameFontSize"
+>
+  {{ name().shown }}
+  @if (name().truncated) {
+    <svg:title>{{ name().full }}</svg:title>
+  }
+</svg:text>
+
+<svg:text
+  class="image"
+  [class.missing]="!hasImage()"
+  [attr.x]="g.paddingX"
+  [attr.y]="g.imageBaseline"
+  [attr.font-size]="g.imageFontSize"
+>
+  {{ image().shown }}
+  @if (image().truncated) {
+    <svg:title>{{ image().full }}</svg:title>
+  }
+</svg:text>
+
+@for (chip of chips(); track $index) {
+  <svg:g class="chip">
+    <svg:rect
+      [attr.x]="chip.x"
+      [attr.y]="chip.y"
+      [attr.width]="chip.width"
+      [attr.height]="g.chipHeight"
+      rx="4"
+    />
+    <svg:text
+      [attr.x]="chip.x + g.chipPaddingX"
+      [attr.y]="chip.y + g.chipHeight - 4.5"
+      [attr.font-size]="g.chipFontSize"
+    >
+      {{ chip.label.shown }}
+      @if (chip.label.truncated) {
+        <svg:title>{{ chip.label.full }}</svg:title>
+      }
+    </svg:text>
+  </svg:g>
+}

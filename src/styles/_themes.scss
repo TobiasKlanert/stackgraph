@@ -36,6 +36,8 @@ $dark: (
   node-bg: #151a23,
   node-border: rgb(45 212 191 / 0.55),
   node-selected-bg: #12302d,
+  node-chip-bg: #1c222d,
+  node-chip-border: #303949,
   edge: #8b95a7,
   // YAML Syntax
   syntax-string: #9ccfc7
@@ -71,6 +73,8 @@ $light: (
   node-bg: #fbfbfa,
   node-border: #0d9488,
   node-selected-bg: #d7eeea,
+  node-chip-bg: #efefec,
+  node-chip-border: #c4c7c1,
   edge: #59616e,
   syntax-string: #2f5f59,
 );
