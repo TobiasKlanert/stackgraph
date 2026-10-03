@@ -74,7 +74,11 @@ export interface ComposeModel {
 
 export interface ParseError {
   message: string;
+  /** 1-based line where the YAML parser noticed the problem (syntax errors only). */
   line?: number;
+  /** 1-based column on that line. */
+  column?: number;
+  /** Dotted path of the offending entry, e.g. "services.app" (structure errors only). */
   path?: string;
 }
 

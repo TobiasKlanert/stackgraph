@@ -101,8 +101,12 @@ function loadYaml(source: string): LoadResult {
       if (markObj !== undefined) {
         const errorLine = asNumber(markObj['line']);
         if (errorLine !== undefined) {
-          // js-yaml counts lines from zero; users count from one.
+          // js-yaml counts lines and columns from zero; users count from one.
           parseError.line = errorLine + 1;
+        }
+        const errorColumn = asNumber(markObj['column']);
+        if (errorColumn !== undefined) {
+          parseError.column = errorColumn + 1;
         }
       }
     }
