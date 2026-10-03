@@ -206,6 +206,15 @@ describe('GraphPage', () => {
 
       expect(fixture.nativeElement.querySelector('.detail-empty')).toBeNull();
     });
+
+    it('shows the legend in a toolbar below the canvas', async () => {
+      await openGraph();
+      const toolbar: HTMLElement | null =
+        fixture.nativeElement.querySelector('#graph .graph-toolbar');
+
+      expect(toolbar?.querySelector('app-legend')).not.toBeNull();
+      expect(toolbar?.previousElementSibling?.tagName.toLowerCase()).toBe('app-rendering');
+    });
   });
 
   it('returns to home when the brand is clicked', async () => {

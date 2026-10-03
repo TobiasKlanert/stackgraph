@@ -49,7 +49,9 @@
 }
 
 .graph-column {
-  position: relative;
+  display: grid;
+  // Canvas takes the rest, the toolbar its own height.
+  grid-template-rows: minmax(0, 1fr) auto;
   overflow: hidden;
   background: var(--sg-bg-app);
 
@@ -58,6 +60,18 @@
   &:focus {
     outline: none;
   }
+}
+
+.graph-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  min-block-size: 52px;
+  padding: 8px 14px;
+  border-block-start: 1px solid var(--sg-border-subtle);
+  background: var(--sg-bg-panel);
 }
 
 .detail-column {

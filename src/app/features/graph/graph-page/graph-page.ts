@@ -6,6 +6,7 @@ import { Editor } from '../editor/editor';
 import { Rendering } from '../rendering/rendering';
 import { DetailPanel } from '../detail-panel/detail-panel';
 import { Home } from '../home/home';
+import { Legend } from '../legend/legend';
 import { StatusPanel } from '../../../shared/status-panel/status-panel';
 import { SiteHeader } from '../../../shared/site-header/site-header';
 import { SiteFooter, privacyNote } from '../../../shared/site-footer/site-footer';
@@ -27,6 +28,7 @@ function count(n: number, noun: string): string {
     SiteHeader,
     SiteFooter,
     ThemeToggle,
+    Legend,
   ],
   templateUrl: './graph-page.html',
   styleUrl: './graph-page.scss',
