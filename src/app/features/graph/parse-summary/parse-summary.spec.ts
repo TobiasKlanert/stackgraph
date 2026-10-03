@@ -70,4 +70,26 @@ describe('ParseSummary', () => {
 
     expect(fixture.nativeElement.querySelector('[role="status"]')).toBe(region);
   });
+
+  describe('while updating', () => {
+    beforeEach(async () => {
+      fixture.componentRef.setInput('updating', true);
+      await render(ready);
+    });
+
+    it('says so instead of the last result, without the timing', () => {
+      expect(text()).toBe('Updating…');
+    });
+
+    it('announces it in the same live region', () => {
+      expect(text('[role="status"]')).toBe('Updating…');
+    });
+
+    it('returns to the result afterwards', async () => {
+      fixture.componentRef.setInput('updating', false);
+      await fixture.whenStable();
+
+      expect(text()).toBe('Valid YAML · parsed in 4 ms');
+    });
+  });
 });

@@ -1,7 +1,17 @@
 import { Injectable, inject, computed, signal, linkedSignal } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, filter, timer, from, of, share, switchMap, startWith } from 'rxjs';
+import {
+  catchError,
+  distinctUntilChanged,
+  filter,
+  timer,
+  from,
+  of,
+  share,
+  switchMap,
+  startWith,
+} from 'rxjs';
 import { ComposeModel, ParseError } from '../models/compose.model';
 import { PositionedGraph } from '../models/layout.model';
 import { parseCompose } from '../parser/yaml-parser';
@@ -22,6 +32,12 @@ export type ParseState =
 export type ReadyState = Extract<ParseState, { status: 'ready' }>;
 
 const debounceMs = 300;
+
+/**
+ * How long a change may be pending before "Updating…" appears. Shorter
+ * updates finish unnoticed; showing them would flicker on every keystroke.
+ */
+export const updatingDelayMs = 400;
 
 @Injectable({ providedIn: 'root' })
 export class ComposeState {
@@ -55,6 +71,20 @@ export class ComposeState {
     // results without "pending", and the initial value has to fit that type.
     initialValue: { status: 'empty' } as const,
   });
+
+  /**
+   * True once a change has been pending for `updatingDelayMs`. Measured from
+   * the first pending moment: typing on keeps the state pending, and the
+   * clock does not restart with every keystroke.
+   */
+  readonly updating = toSignal(
+    this.state$.pipe(
+      map((s) => s.status === 'pending'),
+      distinctUntilChanged(),
+      switchMap((pending) => (pending ? timer(updatingDelayMs).pipe(map(() => true)) : of(false)))
+    ),
+    { initialValue: false }
+  );
 
   /**
    * Last successful result, kept while the input is temporarily invalid.

@@ -17,6 +17,8 @@ import { formatDuration } from '../../../core/format/format-duration';
 })
 export class ParseSummary {
   readonly status = input.required<ParseState>();
+  /** A change has been pending for a while (`ComposeState.updating`). */
+  readonly updating = input(false);
 
   protected readonly errorLabel = computed(() => {
     const state = this.status();
@@ -26,6 +28,6 @@ export class ParseSummary {
 
   protected readonly duration = computed(() => {
     const state = this.status();
-    return state.status === 'ready' ? formatDuration(state.parseMs) : '';
+    return state.status === 'ready' && !this.updating() ? formatDuration(state.parseMs) : '';
   });
 }

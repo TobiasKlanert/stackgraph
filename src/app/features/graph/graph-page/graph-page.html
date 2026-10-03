@@ -52,7 +52,7 @@
       <!-- Status bar. Only the parse result is a live region; Ln/Col changes
            with every caret move and would otherwise be announced each time. -->
       <div class="editor-status">
-        <app-parse-summary [status]="settled" />
+        <app-parse-summary [status]="settled" [updating]="state.updating()" />
         <span class="caret" data-testid="caret-position">
           Ln {{ editor.caret().line }}, Col {{ editor.caret().column }}
         </span>
