@@ -65,6 +65,14 @@ describe('ComposeState', () => {
     expect(state.displayed()?.graph).toBeDefined();
   });
 
+  it('measures how long parsing took', async () => {
+    state.source.set(validYaml);
+    await settleUntil(() => state.state().status === 'ready');
+
+    const current = state.state();
+    expect(current.status === 'ready' && current.parseMs).toBeGreaterThanOrEqual(0);
+  });
+
   it('reports pending before the debounce has elapsed', () => {
     state.source.set(validYaml);
     TestBed.tick();

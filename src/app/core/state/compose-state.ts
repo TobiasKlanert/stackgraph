@@ -11,7 +11,13 @@ export type ParseState =
   | { status: 'empty' }
   | { status: 'pending' }
   | { status: 'error'; errors: ParseError[] }
-  | { status: 'ready'; model: ComposeModel; graph: PositionedGraph };
+  | {
+      status: 'ready';
+      model: ComposeModel;
+      graph: PositionedGraph;
+      /** Time spent parsing and validating the YAML, without the layout. */
+      parseMs: number;
+    };
 
 export type ReadyState = Extract<ParseState, { status: 'ready' }>;
 
@@ -70,7 +76,9 @@ export class ComposeState {
       return of({ status: 'empty' });
     }
 
+    const start = performance.now();
     const result = parseCompose(text);
+    const parseMs = performance.now() - start;
     if (!result.ok) {
       return of({ status: 'error', errors: result.errors });
     }
@@ -78,7 +86,7 @@ export class ComposeState {
     // catchError sits inside the switchMap: a rejected layout must not
     // terminate the outer stream, or the editor would stop reacting.
     return from(this.layout.layout(result.model)).pipe(
-      map((graph): ParseState => ({ status: 'ready', model: result.model, graph })),
+      map((graph): ParseState => ({ status: 'ready', model: result.model, graph, parseMs })),
       catchError((error: unknown) =>
         of<ParseState>({
           status: 'error',

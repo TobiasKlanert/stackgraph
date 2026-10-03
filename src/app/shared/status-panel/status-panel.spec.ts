@@ -7,6 +7,7 @@ const readyState: ParseState = {
   status: 'ready',
   model: { services: [], networks: [], volumes: [] },
   graph: { id: 'root' },
+  parseMs: 2,
 };
 
 const errorState: ParseState = {
