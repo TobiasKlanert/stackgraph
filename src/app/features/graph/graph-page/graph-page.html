@@ -51,13 +51,24 @@
     <section id="graph" class="column graph-column" tabindex="-1" aria-labelledby="graph-title">
       <h2 id="graph-title" class="sr-only">Service graph</h2>
       <app-rendering
+        #canvas
         [graph]="view.graph"
         [selectedId]="selectedId()"
         (nodeSelected)="onNodeSelected($event)"
         (selectionCleared)="selectedId.set(null)"
       />
+      <!-- Below the canvas, not over it, so it never hides a node. -->
       <div class="graph-toolbar">
         <app-legend />
+        <app-zoom-controls
+          [percent]="canvas.zoomPercent()"
+          [canZoomIn]="canvas.canZoomIn()"
+          [canZoomOut]="canvas.canZoomOut()"
+          (zoomIn)="canvas.zoomIn()"
+          (zoomOut)="canvas.zoomOut()"
+          (actualSize)="canvas.zoomToActualSize()"
+          (fit)="canvas.fitToView()"
+        />
       </div>
     </section>
 

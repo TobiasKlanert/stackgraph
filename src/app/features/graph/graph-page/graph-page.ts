@@ -7,6 +7,7 @@ import { Rendering } from '../rendering/rendering';
 import { DetailPanel } from '../detail-panel/detail-panel';
 import { Home } from '../home/home';
 import { Legend } from '../legend/legend';
+import { ZoomControls } from '../zoom-controls/zoom-controls';
 import { StatusPanel } from '../../../shared/status-panel/status-panel';
 import { SiteHeader } from '../../../shared/site-header/site-header';
 import { SiteFooter, privacyNote } from '../../../shared/site-footer/site-footer';
@@ -29,6 +30,7 @@ function count(n: number, noun: string): string {
     SiteFooter,
     ThemeToggle,
     Legend,
+    ZoomControls,
   ],
   templateUrl: './graph-page.html',
   styleUrl: './graph-page.scss',

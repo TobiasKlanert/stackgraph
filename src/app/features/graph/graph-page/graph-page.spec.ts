@@ -207,13 +207,28 @@ describe('GraphPage', () => {
       expect(fixture.nativeElement.querySelector('.detail-empty')).toBeNull();
     });
 
-    it('shows the legend in a toolbar below the canvas', async () => {
+    it('shows legend and zoom controls in a toolbar below the canvas', async () => {
       await openGraph();
       const toolbar: HTMLElement | null =
         fixture.nativeElement.querySelector('#graph .graph-toolbar');
 
       expect(toolbar?.querySelector('app-legend')).not.toBeNull();
+      expect(toolbar?.querySelector('app-zoom-controls')).not.toBeNull();
       expect(toolbar?.previousElementSibling?.tagName.toLowerCase()).toBe('app-rendering');
+    });
+
+    it('zooms the canvas from the toolbar', async () => {
+      await openGraph();
+      const group = () =>
+        fixture.nativeElement.querySelector('app-rendering svg > g')?.getAttribute('transform');
+
+      fixture.nativeElement.querySelector('app-zoom-controls [aria-label="Zoom in"]').click();
+      await fixture.whenStable();
+      expect(group()).not.toBe('translate(0,0) scale(1)');
+
+      fixture.nativeElement.querySelector('app-zoom-controls .fit').click();
+      await fixture.whenStable();
+      expect(group()).toBe('translate(0,0) scale(1)');
     });
   });
 

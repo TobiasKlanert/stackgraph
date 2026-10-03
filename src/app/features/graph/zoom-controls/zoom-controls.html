@@ -1,0 +1,74 @@
+<div class="controls" role="group" aria-label="Zoom">
+  <button
+    type="button"
+    class="icon"
+    aria-label="Zoom out"
+    [disabled]="!canZoomOut()"
+    (click)="zoomOut.emit()"
+  >
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M5 12h14" />
+    </svg>
+  </button>
+
+  <button
+    type="button"
+    class="percent"
+    [attr.aria-label]="actualSizeLabel()"
+    (click)="actualSize.emit()"
+  >
+    {{ percentLabel() }}
+  </button>
+
+  <button
+    type="button"
+    class="icon"
+    aria-label="Zoom in"
+    [disabled]="!canZoomIn()"
+    (click)="zoomIn.emit()"
+  >
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M5 12h14M12 5v14" />
+    </svg>
+  </button>
+
+  <button type="button" class="fit" (click)="fit.emit()">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"
+      />
+    </svg>
+    Fit
+  </button>
+</div>

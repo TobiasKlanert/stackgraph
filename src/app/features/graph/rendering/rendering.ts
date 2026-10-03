@@ -30,6 +30,8 @@ function isFocusVisible(target: EventTarget | null): boolean {
   }
 }
 
+/** Factor per click: four clicks double the size, zooming out retraces them exactly. */
+const zoomStep = 2 ** 0.25;
 const edgeOrder: Record<EdgeType, number> = { network: 0, volume: 1, dependsOn: 2 };
 
 @Component({
@@ -53,6 +55,7 @@ export class Rendering {
   readonly selectedId = input<string | null>(null);
 
   private readonly svgRoot = viewChild.required<ElementRef<SVGSVGElement>>('svgRoot');
+  private readonly zoomable = viewChild.required(Zoomable);
   private readonly svgExport = inject(SvgExport);
 
   /**
@@ -89,10 +92,37 @@ export class Rendering {
     this.nodeSelected.emit(node.id);
   }
 
+  /** Same numbers as the viewBox; the zoom needs them to compute the real size. */
+  protected readonly contentSize = computed(() => ({
+    width: this.graph().width ?? 0,
+    height: this.graph().height ?? 0,
+  }));
+
   protected readonly viewBox = computed(() => {
-    const g = this.graph();
-    return `0 0 ${g.width ?? 0} ${g.height ?? 0}`;
+    const { width, height } = this.contentSize();
+    return `0 0 ${width} ${height}`;
   });
+
+  // Zoom API for the page's controls; Rendering stays the only owner of the canvas.
+  readonly zoomPercent = computed(() => this.zoomable().percent());
+  readonly canZoomIn = computed(() => this.zoomable().canZoomIn());
+  readonly canZoomOut = computed(() => this.zoomable().canZoomOut());
+
+  zoomIn(): void {
+    this.zoomable().zoomBy(zoomStep);
+  }
+
+  zoomOut(): void {
+    this.zoomable().zoomBy(1 / zoomStep);
+  }
+
+  zoomToActualSize(): void {
+    this.zoomable().zoomToActualSize();
+  }
+
+  fitToView(): void {
+    this.zoomable().fitToView();
+  }
 
   /**
    * Network and volume edges first, dependencies last: SVG paints in

@@ -1,4 +1,10 @@
-<svg [attr.viewBox]="viewBox()" appZoomable #svgRoot #zoom="appZoomable">
+<svg
+  [attr.viewBox]="viewBox()"
+  appZoomable
+  [contentSize]="contentSize()"
+  #svgRoot
+  #zoom="appZoomable"
+>
   <g [attr.transform]="zoom.transform()">
     <defs>
       <!-- userSpaceOnUse keeps the arrow the same size on every edge, whatever its stroke width. -->
