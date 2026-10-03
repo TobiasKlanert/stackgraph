@@ -1,24 +1,179 @@
-<aside>
-  {{ service().name }}
-  {{ service().image ?? '—' }}
+<section class="panel" aria-labelledby="detail-title">
+  <header class="panel-header">
+    <div class="title">
+      <p class="kind">Service</p>
+      <h2 id="detail-title" #heading tabindex="-1">{{ service().name }}</h2>
+    </div>
+    <button type="button" class="close" aria-label="Close details" (click)="closed.emit()">
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M18 6 6 18M6 6l12 12" />
+      </svg>
+    </button>
+  </header>
 
-  @for (port of service().ports; track $index) {
-    {{ formatPort(port) }}
-  }
+  <dl class="facts">
+    <div class="fact">
+      <dt>Image</dt>
+      <dd class="image">
+        @if (service().image; as image) {
+          {{ image }}
+        } @else {
+          <span class="muted">local build</span>
+        }
+      </dd>
+    </div>
 
-  @for (network of service().networks; track network) {
-    {{ network }}
-  } @empty {
-    <p>No networks</p>
-  }
+    <div class="fact">
+      <dt>
+        Ports
+        @if (service().ports.length) {
+          <span class="count">{{ service().ports.length }}</span>
+        }
+      </dt>
+      <dd>
+        @if (service().ports.length) {
+          <ul class="chips stacked">
+            @for (port of service().ports; track $index) {
+              <li class="chip">
+                <span aria-hidden="true">
+                  @if (port.host) {
+                    {{ port.host }} <span class="muted">→</span>
+                  }
+                  {{ port.container }}
+                  @if (port.protocol === 'udp') {
+                    <span class="muted">/udp</span>
+                  }
+                </span>
+                <span class="sr-only">{{ describePort(port) }}</span>
+              </li>
+            }
+          </ul>
+          <p class="hint" aria-hidden="true">host → container</p>
+        } @else {
+          <span class="muted">None</span>
+        }
+      </dd>
+    </div>
 
-  @for (volume of service().volumes; track $index) {
-    {{ formatVolume(volume) }}
-  }
+    <div class="fact">
+      <dt>
+        Networks
+        @if (service().networks.length) {
+          <span class="count">{{ service().networks.length }}</span>
+        }
+      </dt>
+      <dd>
+        @if (service().networks.length) {
+          <ul class="chips">
+            @for (network of service().networks; track network) {
+              <li class="chip"><app-type-icon kind="network" />{{ network }}</li>
+            }
+          </ul>
+        } @else {
+          <span class="muted">Default network</span>
+        }
+      </dd>
+    </div>
 
-  @for (dependency of service().dependsOn; track dependency) {
-    {{ dependency }}
-  } @empty {
-    <p>No dependencies</p>
-  }
-</aside>
+    <div class="fact">
+      <dt>
+        Volumes
+        @if (service().volumes.length) {
+          <span class="count">{{ service().volumes.length }}</span>
+        }
+      </dt>
+      <dd>
+        @if (service().volumes.length) {
+          <ul class="mounts">
+            @for (mount of service().volumes; track $index) {
+              <li>
+                <app-type-icon [kind]="mount.type" />
+                <span class="mount-source">
+                  @if (mount.source) {
+                    {{ mount.source }}
+                  } @else {
+                    <span class="muted">anonymous</span>
+                  }
+                </span>
+                <span class="muted">
+                  <span class="sr-only"> mounted at </span>
+                  <span aria-hidden="true">→ </span>{{ mount.target }}
+                </span>
+                @if (mount.type === 'bind') {
+                  <span class="tag">bind</span>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <span class="muted">None</span>
+        }
+      </dd>
+    </div>
+
+    <div class="fact">
+      <dt>
+        Depends on
+        @if (service().dependsOn.length) {
+          <span class="count">{{ service().dependsOn.length }}</span>
+        }
+      </dt>
+      <dd>
+        @if (service().dependsOn.length) {
+          <ul class="chips">
+            @for (name of service().dependsOn; track name) {
+              <li>
+                @if (isDefined(name)) {
+                  <button type="button" class="chip-button" (click)="serviceSelected.emit(name)">
+                    <app-type-icon kind="service" />{{ name }}
+                  </button>
+                } @else {
+                  <span class="chip">
+                    {{ name }}
+                    <span class="muted">(not defined)</span>
+                  </span>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <span class="muted">None</span>
+        }
+      </dd>
+    </div>
+
+    <div class="fact">
+      <dt>
+        Required by
+        @if (requiredBy().length) {
+          <span class="count">{{ requiredBy().length }}</span>
+        }
+      </dt>
+      <dd>
+        @if (requiredBy().length) {
+          <ul class="chips">
+            @for (name of requiredBy(); track name) {
+              <li>
+                <button type="button" class="chip-button" (click)="serviceSelected.emit(name)">
+                  <app-type-icon kind="service" />{{ name }}
+                </button>
+              </li>
+            }
+          </ul>
+        } @else {
+          <span class="muted">None</span>
+        }
+      </dd>
+    </div>
+  </dl>
+</section>

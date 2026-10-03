@@ -1,0 +1,34 @@
+:host {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  // Same box for every kind, so names next to icons line up in lists.
+  inline-size: 12px;
+}
+
+svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+}
+
+:host([data-kind='service']) {
+  color: var(--sg-accent);
+
+  svg {
+    stroke-width: 1.5;
+  }
+}
+
+:host([data-kind='network']) {
+  color: var(--sg-network);
+}
+
+:host([data-kind='volume']) {
+  color: var(--sg-volume);
+}
+
+:host([data-kind='bind']) {
+  color: var(--sg-text-secondary);
+}

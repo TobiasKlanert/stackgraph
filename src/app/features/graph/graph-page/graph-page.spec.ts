@@ -161,6 +161,68 @@ describe('GraphPage', () => {
     expect(panel()?.textContent).toContain('node:22-alpine');
   });
 
+  describe('detail column', () => {
+    function buttonIn(container: HTMLElement | null, name: string): HTMLButtonElement {
+      const button = Array.from(container?.querySelectorAll('button') ?? []).find((b) =>
+        b.textContent?.trim().startsWith(name)
+      );
+      if (!button) {
+        throw new Error(`No button "${name}"`);
+      }
+      return button;
+    }
+
+    function heading(container: HTMLElement | null): HTMLElement | null {
+      return container?.querySelector('h2') ?? null;
+    }
+
+    it('switches to a dependency from the panel, keeping focus in the panel', async () => {
+      await openGraph();
+      clickNode('web');
+      await fixture.whenStable();
+
+      buttonIn(panel(), 'api').click();
+      await fixture.whenStable();
+
+      expect(heading(panel())?.textContent?.trim()).toBe('api');
+      expect(document.activeElement).toBe(heading(panel()));
+      expect(
+        fixture.nativeElement.querySelector('[data-node-id="api"]')?.getAttribute('aria-pressed')
+      ).toBe('true');
+    });
+
+    it('selects rather than toggles when the panel names the selected service', async () => {
+      await openGraph();
+      clickNode('web');
+      await fixture.whenStable();
+      buttonIn(panel(), 'api').click();
+      await fixture.whenStable();
+      buttonIn(panel(), 'web').click();
+      await fixture.whenStable();
+
+      expect(heading(panel())?.textContent?.trim()).toBe('web');
+    });
+
+    it('closes the details from the close button', async () => {
+      await openGraph();
+      clickNode('web');
+      await fixture.whenStable();
+
+      panel()?.querySelector<HTMLButtonElement>('button[aria-label="Close details"]')?.click();
+      await fixture.whenStable();
+
+      expect(panel()).toBeNull();
+    });
+
+    it('does not move focus when a service is selected in the graph', async () => {
+      await openGraph();
+      clickNode('web');
+      await fixture.whenStable();
+
+      expect(document.activeElement).not.toBe(heading(panel()));
+    });
+  });
+
   it('returns to home when the source is emptied', async () => {
     await openGraph();
     state.source.set('');

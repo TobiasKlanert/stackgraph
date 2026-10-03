@@ -1,0 +1,54 @@
+// Shared look of the two panels in the detail column (DetailPanel and
+// StackOverview). Mixins instead of global classes: only these two
+// components use them, and the styles stay encapsulated.
+
+// "Ports", "Networks" … above each group
+@mixin label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--sg-text-muted);
+  font-size: var(--sg-font-size-xs);
+  font-weight: 500;
+  line-height: 1;
+}
+
+// Number next to a label
+@mixin count {
+  padding: 2px 6px;
+  border-radius: 9px;
+  background: var(--sg-bg-chip);
+  color: var(--sg-text-secondary);
+  font-family: var(--sg-font-mono);
+  font-size: 0.71875rem; // 11.5px
+  font-weight: 500;
+  line-height: 1;
+}
+
+// Compact value: port, network, service reference
+@mixin chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-block-size: 28px;
+  padding: 0 9px;
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-sm);
+  background: var(--sg-bg-chip);
+  color: var(--sg-text);
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-sm);
+  line-height: 1;
+}
+
+// Chip that selects a service: stronger border, so it reads as a control
+@mixin chip-button {
+  @include chip;
+  border-color: var(--sg-border-strong);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--sg-accent);
+  }
+}

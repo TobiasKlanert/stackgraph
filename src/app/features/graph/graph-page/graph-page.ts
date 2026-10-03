@@ -1,4 +1,12 @@
-import { Component, inject, signal, computed, viewChild } from '@angular/core';
+import {
+  Component,
+  Injector,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ComposeState, type ReadyState } from '../../../core/state/compose-state';
 import { WorkspaceView } from '../../../core/state/workspace-view';
@@ -41,6 +49,7 @@ function count(n: number, noun: string): string {
 export class GraphPage {
   protected readonly state = inject(ComposeState);
   private readonly workspace = inject(WorkspaceView);
+  private readonly injector = inject(Injector);
   protected readonly selectedId = signal<string | null>(null);
 
   protected readonly selectedService = computed(() => {
@@ -76,6 +85,25 @@ export class GraphPage {
     this.selectedId.update((current) => (current === id ? null : id));
   }
 
+  /** The panel's buttons name a target, they are no switches: select, never toggle. */
+  protected selectFromPanel(name: string): void {
+    this.selectedId.set(name);
+    this.focusPanelHeading();
+  }
+
+  protected closeDetails(): void {
+    this.selectedId.set(null);
+  }
+
+  /**
+   * The button that had focus disappears with the switch. Focus goes to the
+   * panel's heading, so keyboard and screen reader users stay in the column.
+   * Selections from the graph do not move focus: the user is working there.
+   */
+  private focusPanelHeading(): void {
+    afterNextRender(() => this.detailPanel()?.focusHeading(), { injector: this.injector });
+  }
+
   protected openGraph(): void {
     this.workspace.open();
   }
@@ -86,6 +114,7 @@ export class GraphPage {
   );
 
   private readonly rendering = viewChild(Rendering);
+  private readonly detailPanel = viewChild(DetailPanel);
 
   protected onExport(): void {
     this.rendering()?.exportSvg('stackgraph.svg');
