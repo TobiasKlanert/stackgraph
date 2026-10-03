@@ -13,6 +13,7 @@ import { WorkspaceView } from '../../../core/state/workspace-view';
 import { Editor } from '../editor/editor';
 import { Rendering } from '../rendering/rendering';
 import { DetailPanel } from '../detail-panel/detail-panel';
+import { StackOverview } from '../stack-overview/stack-overview';
 import { Home } from '../home/home';
 import { Legend } from '../legend/legend';
 import { ZoomControls } from '../zoom-controls/zoom-controls';
@@ -32,6 +33,7 @@ function count(n: number, noun: string): string {
     Editor,
     Rendering,
     DetailPanel,
+    StackOverview,
     Home,
     StatusPanel,
     SiteHeader,
@@ -93,15 +95,19 @@ export class GraphPage {
 
   protected closeDetails(): void {
     this.selectedId.set(null);
+    this.focusPanelHeading();
   }
 
   /**
-   * The button that had focus disappears with the switch. Focus goes to the
-   * panel's heading, so keyboard and screen reader users stay in the column.
+   * The control that had focus disappears with the switch (the overview, the
+   * close button, a related-service button). Focus goes to the heading of
+   * what replaced it, so keyboard and screen reader users stay in the column.
    * Selections from the graph do not move focus: the user is working there.
    */
   private focusPanelHeading(): void {
-    afterNextRender(() => this.detailPanel()?.focusHeading(), { injector: this.injector });
+    afterNextRender(() => (this.detailPanel() ?? this.stackOverview())?.focusHeading(), {
+      injector: this.injector,
+    });
   }
 
   protected openGraph(): void {
@@ -115,6 +121,7 @@ export class GraphPage {
 
   private readonly rendering = viewChild(Rendering);
   private readonly detailPanel = viewChild(DetailPanel);
+  private readonly stackOverview = viewChild(StackOverview);
 
   protected onExport(): void {
     this.rendering()?.exportSvg('stackgraph.svg');

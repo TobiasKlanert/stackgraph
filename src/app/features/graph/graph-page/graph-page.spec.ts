@@ -162,6 +162,10 @@ describe('GraphPage', () => {
   });
 
   describe('detail column', () => {
+    function overview(): HTMLElement | null {
+      return fixture.nativeElement.querySelector('app-stack-overview');
+    }
+
     function buttonIn(container: HTMLElement | null, name: string): HTMLButtonElement {
       const button = Array.from(container?.querySelectorAll('button') ?? []).find((b) =>
         b.textContent?.trim().startsWith(name)
@@ -176,6 +180,30 @@ describe('GraphPage', () => {
       return container?.querySelector('h2') ?? null;
     }
 
+    it('shows the stack overview until a service is selected', async () => {
+      await openGraph();
+
+      expect(overview()).not.toBeNull();
+
+      clickNode('web');
+      await fixture.whenStable();
+
+      expect(overview()).toBeNull();
+      expect(panel()).not.toBeNull();
+    });
+
+    it('selects a service from the overview and moves focus to its details', async () => {
+      await openGraph();
+      buttonIn(overview(), 'api').click();
+      await fixture.whenStable();
+
+      expect(heading(panel())?.textContent?.trim()).toBe('api');
+      expect(document.activeElement).toBe(heading(panel()));
+      expect(
+        fixture.nativeElement.querySelector('[data-node-id="api"]')?.getAttribute('aria-pressed')
+      ).toBe('true');
+    });
+
     it('switches to a dependency from the panel, keeping focus in the panel', async () => {
       await openGraph();
       clickNode('web');
@@ -186,14 +214,11 @@ describe('GraphPage', () => {
 
       expect(heading(panel())?.textContent?.trim()).toBe('api');
       expect(document.activeElement).toBe(heading(panel()));
-      expect(
-        fixture.nativeElement.querySelector('[data-node-id="api"]')?.getAttribute('aria-pressed')
-      ).toBe('true');
     });
 
     it('selects rather than toggles when the panel names the selected service', async () => {
       await openGraph();
-      clickNode('web');
+      buttonIn(overview(), 'web').click();
       await fixture.whenStable();
       buttonIn(panel(), 'api').click();
       await fixture.whenStable();
@@ -203,7 +228,7 @@ describe('GraphPage', () => {
       expect(heading(panel())?.textContent?.trim()).toBe('web');
     });
 
-    it('closes the details from the close button', async () => {
+    it('closes the details and lands focus on the overview heading', async () => {
       await openGraph();
       clickNode('web');
       await fixture.whenStable();
@@ -212,6 +237,7 @@ describe('GraphPage', () => {
       await fixture.whenStable();
 
       expect(panel()).toBeNull();
+      expect(document.activeElement).toBe(heading(overview()));
     });
 
     it('does not move focus when a service is selected in the graph', async () => {
@@ -256,17 +282,6 @@ describe('GraphPage', () => {
 
       expect(skip?.getAttribute('href')).toBe('#graph');
       expect(graph?.getAttribute('tabindex')).toBe('-1');
-    });
-
-    it('explains the empty detail column until a service is selected', async () => {
-      await openGraph();
-
-      expect(fixture.nativeElement.querySelector('.detail-empty')).not.toBeNull();
-
-      clickNode('web');
-      await fixture.whenStable();
-
-      expect(fixture.nativeElement.querySelector('.detail-empty')).toBeNull();
     });
 
     it('shows legend and zoom controls in a toolbar below the canvas', async () => {

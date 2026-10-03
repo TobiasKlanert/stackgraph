@@ -1,5 +1,5 @@
 import { ComposeModel, ServiceNode } from '../models/compose.model';
-import { requiredBy } from './relations';
+import { requiredBy, servicesOnNetwork, servicesUsingVolume } from './relations';
 
 function service(name: string, overrides: Partial<ServiceNode> = {}): ServiceNode {
   return { name, ports: [], dependsOn: [], networks: [], volumes: [], ...overrides };
@@ -30,5 +30,29 @@ describe('requiredBy', () => {
 
   it('is empty for a service nothing depends on', () => {
     expect(requiredBy(model, 'web')).toEqual([]);
+  });
+});
+
+describe('servicesOnNetwork', () => {
+  it('lists the services attached to a network', () => {
+    expect(servicesOnNetwork(model, 'backend')).toEqual(['api', 'worker', 'db']);
+  });
+
+  it('is empty for an unknown network', () => {
+    expect(servicesOnNetwork(model, 'nope')).toEqual([]);
+  });
+});
+
+describe('servicesUsingVolume', () => {
+  it('lists the services mounting a named volume', () => {
+    expect(servicesUsingVolume(model, 'pgdata')).toEqual(['db']);
+  });
+
+  it('is empty for a declared but unused volume', () => {
+    expect(servicesUsingVolume(model, 'unused')).toEqual([]);
+  });
+
+  it('never matches a bind mount, even with the same source', () => {
+    expect(servicesUsingVolume(model, './uploads')).toEqual([]);
   });
 });

@@ -81,7 +81,7 @@
           (closed)="closeDetails()"
         />
       } @else {
-        <p class="detail-empty">Select a service in the graph to see its details.</p>
+        <app-stack-overview [model]="view.model" (serviceSelected)="selectFromPanel($event)" />
       }
     </div>
   } @else {
