@@ -284,6 +284,27 @@ describe('GraphPage', () => {
       expect(graph?.getAttribute('tabindex')).toBe('-1');
     });
 
+    it('shows the caret position of the editor below it', async () => {
+      await openGraph();
+      const caret = (): string =>
+        fixture.nativeElement
+          .querySelector('[data-testid="caret-position"]')
+          ?.textContent?.replace(/\s+/g, ' ')
+          .trim();
+
+      expect(caret()).toBe('Ln 1, Col 1');
+
+      const textarea: HTMLTextAreaElement =
+        fixture.nativeElement.querySelector('app-editor textarea');
+      const offset = textarea.value.indexOf('web:');
+      textarea.setSelectionRange(offset, offset);
+      textarea.dispatchEvent(new Event('keyup'));
+      await fixture.whenStable();
+
+      expect(caret()).toBe('Ln 3, Col 3');
+      expect(fixture.nativeElement.querySelector('.editor-status [aria-live]')).toBeNull();
+    });
+
     it('shows legend and zoom controls in a toolbar below the canvas', async () => {
       await openGraph();
       const toolbar: HTMLElement | null =

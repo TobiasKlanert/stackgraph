@@ -10,6 +10,20 @@ describe('Editor', () => {
     return fixture.nativeElement.querySelector('textarea');
   }
 
+  function lineNumbers(): HTMLElement[] {
+    return Array.from(fixture.nativeElement.querySelectorAll('.line-numbers span'));
+  }
+
+  async function moveCaret(
+    start: number,
+    end = start,
+    direction: 'forward' | 'backward' = 'forward'
+  ) {
+    textarea().setSelectionRange(start, end, direction);
+    textarea().dispatchEvent(new Event('selectionchange'));
+    await fixture.whenStable();
+  }
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({ imports: [Editor] }).compileComponents();
     state = TestBed.inject(ComposeState);
@@ -35,5 +49,63 @@ describe('Editor', () => {
     el.dispatchEvent(new Event('input'));
 
     expect(state.source()).toBe('services:\n  web:\n');
+  });
+
+  it('numbers every line, including the one after a trailing line break', async () => {
+    state.source.set('services:\n  web:\n');
+    await fixture.whenStable();
+
+    expect(lineNumbers().map((n) => n.textContent?.trim())).toEqual(['1', '2', '3']);
+  });
+
+  it('hides the line numbers from screen readers', () => {
+    expect(fixture.nativeElement.querySelector('.gutter')?.getAttribute('aria-hidden')).toBe(
+      'true'
+    );
+  });
+
+  it('does not wrap lines, so every number belongs to one line', () => {
+    expect(textarea().getAttribute('wrap')).toBe('off');
+  });
+
+  it('reports the caret position and marks its line number', async () => {
+    state.source.set('services:\n  web:\n    image: nginx');
+    await fixture.whenStable();
+    await moveCaret(14);
+
+    expect(fixture.componentInstance.caret()).toEqual({ line: 2, column: 5 });
+    expect(lineNumbers()[1]?.classList).toContain('current');
+    expect(lineNumbers()[0]?.classList).not.toContain('current');
+  });
+
+  it('follows the moving end of a selection', async () => {
+    state.source.set('services:\n  web:\n');
+    await fixture.whenStable();
+
+    await moveCaret(2, 12, 'forward');
+    expect(fixture.componentInstance.caret()).toEqual({ line: 2, column: 3 });
+
+    await moveCaret(2, 12, 'backward');
+    expect(fixture.componentInstance.caret()).toEqual({ line: 1, column: 3 });
+  });
+
+  it('updates the caret while typing', async () => {
+    const el = textarea();
+    el.value = 'services:\n  ';
+    el.setSelectionRange(el.value.length, el.value.length);
+    el.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.caret()).toEqual({ line: 2, column: 3 });
+  });
+
+  it('moves the line numbers along when the text scrolls', async () => {
+    const el = textarea();
+    Object.defineProperty(el, 'scrollTop', { value: 60, configurable: true });
+    el.dispatchEvent(new Event('scroll'));
+    await fixture.whenStable();
+
+    const numbers: HTMLElement = fixture.nativeElement.querySelector('.line-numbers');
+    expect(numbers.style.transform).toBe('translateY(-60px)');
   });
 });

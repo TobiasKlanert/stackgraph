@@ -48,6 +48,24 @@
   }
 }
 
+.editor-status {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  block-size: 32px;
+  padding: 0 14px;
+  border-block-start: 1px solid var(--sg-border-subtle);
+  color: var(--sg-text-muted);
+  font-size: var(--sg-font-size-xs);
+  line-height: 1;
+}
+
+.caret {
+  font-family: var(--sg-font-mono);
+  white-space: nowrap;
+}
+
 .graph-column {
   display: grid;
   // Canvas takes the rest, the toolbar its own height.

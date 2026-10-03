@@ -1,6 +1,33 @@
-<textarea
-  aria-label="Docker Compose YAML"
-  [value]="state.source()"
-  (input)="onInput($event)"
-  spellcheck="false"
-></textarea>
+<div class="tab-bar">
+  <h2 class="tab">docker-compose.yml</h2>
+  <span class="language">YAML</span>
+</div>
+
+<div class="code">
+  <!-- Visual aid only: screen readers announce line numbers from the textarea itself. -->
+  <div class="gutter" aria-hidden="true">
+    <div class="line-numbers" [style.transform]="gutterOffset()">
+      @for (n of lineNumbers(); track n) {
+        <span [class.current]="n === caret().line">{{ n }}</span>
+      }
+    </div>
+  </div>
+
+  <!-- selectionchange covers arrow keys and clicks in current browsers; the
+       other events are the fallback for older ones. -->
+  <textarea
+    #input
+    aria-label="Docker Compose YAML"
+    wrap="off"
+    spellcheck="false"
+    autocapitalize="off"
+    autocomplete="off"
+    [value]="state.source()"
+    (input)="onInput($event)"
+    (scroll)="onScroll(input)"
+    (selectionchange)="trackCaret(input)"
+    (keyup)="trackCaret(input)"
+    (pointerup)="trackCaret(input)"
+    (focus)="trackCaret(input)"
+  ></textarea>
+</div>

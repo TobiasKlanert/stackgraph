@@ -44,8 +44,15 @@
 <main class="main">
   @if (graphView(); as view) {
     <section class="column editor-column" aria-label="Compose file">
-      <app-editor />
+      <app-editor #editor />
       <app-status-panel [status]="state.state()" />
+      <!-- Status bar. Ln/Col stays outside any live region: it changes with
+           every caret move and would otherwise be announced each time. -->
+      <div class="editor-status">
+        <span class="caret" data-testid="caret-position">
+          Ln {{ editor.caret().line }}, Col {{ editor.caret().column }}
+        </span>
+      </div>
     </section>
 
     <section id="graph" class="column graph-column" tabindex="-1" aria-labelledby="graph-title">
