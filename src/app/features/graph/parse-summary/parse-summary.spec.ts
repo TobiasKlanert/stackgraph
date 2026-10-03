@@ -49,15 +49,8 @@ describe('ParseSummary', () => {
     expect(text('.label')).toBe('3 errors');
   });
 
-  it('keeps the last result while an update is pending', async () => {
-    await render(ready);
-    await render({ status: 'pending' });
-
-    expect(text()).toBe('Valid YAML · parsed in 4 ms');
-  });
-
   it('shows nothing before the first result', async () => {
-    await render({ status: 'pending' });
+    await render({ status: 'empty' });
 
     expect(text()).toBe('');
   });

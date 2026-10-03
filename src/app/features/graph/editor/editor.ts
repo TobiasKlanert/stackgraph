@@ -1,6 +1,6 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { ComposeState } from '../../../core/state/compose-state';
-import { caretPosition, lineCount } from './text-position';
+import { caretPosition, lineCount, offsetAt } from './text-position';
 
 @Component({
   selector: 'app-editor',
@@ -11,6 +11,7 @@ import { caretPosition, lineCount } from './text-position';
 export class Editor {
   protected readonly state = inject(ComposeState);
 
+  private readonly textarea = viewChild.required<ElementRef<HTMLTextAreaElement>>('input');
   private readonly caretOffset = signal(0);
   private readonly scrollTop = signal(0);
 
@@ -23,6 +24,22 @@ export class Editor {
 
   /** The gutter does not scroll itself; it follows the textarea. */
   protected readonly gutterOffset = computed(() => `translateY(${-this.scrollTop()}px)`);
+
+  /**
+   * Puts the caret at a position and scrolls its line into view, a third
+   * down from the top rather than at the very edge. Used by "Go to line".
+   */
+  goTo(line: number, column = 1): void {
+    const textarea = this.textarea().nativeElement;
+    const offset = offsetAt(textarea.value, line, column);
+    textarea.focus();
+    textarea.setSelectionRange(offset, offset);
+    // Read from CSS so the rhythm is defined in one place (editor.scss).
+    const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight) || 20;
+    textarea.scrollTop = Math.max(0, (line - 1) * lineHeight - textarea.clientHeight / 3);
+    this.trackCaret(textarea);
+    this.onScroll(textarea);
+  }
 
   protected onInput(event: Event): void {
     const target = event.target as HTMLTextAreaElement;

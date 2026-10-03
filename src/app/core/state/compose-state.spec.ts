@@ -93,6 +93,19 @@ describe('ComposeState', () => {
     expect(state.displayed()).toBe(good);
   });
 
+  it('keeps the last settled result while a change is pending', async () => {
+    state.source.set(brokenYaml);
+    await settleUntil(() => state.state().status === 'error');
+
+    state.source.set(validYaml);
+    TestBed.tick();
+
+    expect(state.state().status).toBe('pending');
+    expect(state.settled().status).toBe('error');
+
+    await settleUntil(() => state.settled().status === 'ready');
+  });
+
   it('keeps the last good graph while the input is broken', async () => {
     state.source.set(validYaml);
     await settleUntil(() => state.state().status === 'ready');

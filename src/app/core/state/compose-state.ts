@@ -1,7 +1,7 @@
 import { Injectable, inject, computed, signal, linkedSignal } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, timer, from, of, switchMap, startWith } from 'rxjs';
+import { catchError, filter, timer, from, of, share, switchMap, startWith } from 'rxjs';
 import { ComposeModel, ParseError } from '../models/compose.model';
 import { PositionedGraph } from '../models/layout.model';
 import { parseCompose } from '../parser/yaml-parser';
@@ -30,18 +30,31 @@ export class ComposeState {
   /** Single source of truth for the YAML text. Home and editor both write here. */
   readonly source = signal('');
 
-  /** Honest result of the current input. Errors replace the graph. */
-  readonly state = toSignal(
-    toObservable(this.source).pipe(
-      switchMap((text) =>
-        timer(debounceMs).pipe(
-          switchMap(() => this.run(text)),
-          startWith({ status: 'pending' } as ParseState)
-        )
+  /** One pipeline for both signals below; `share` keeps it from running twice. */
+  private readonly state$ = toObservable(this.source).pipe(
+    switchMap((text) =>
+      timer(debounceMs).pipe(
+        switchMap(() => this.run(text)),
+        startWith({ status: 'pending' } as ParseState)
       )
     ),
-    { initialValue: { status: 'empty' } as ParseState }
+    share()
   );
+
+  /** Honest result of the current input. Errors replace the graph. */
+  readonly state = toSignal(this.state$, { initialValue: { status: 'empty' } as ParseState });
+
+  /**
+   * The current result without the "pending" phases. While typing, every
+   * pause is pending for the debounce time; status bar and error box show
+   * the last result instead of flickering. Built from the stream, not with
+   * linkedSignal, so it does not depend on being read in between.
+   */
+  readonly settled = toSignal(this.state$.pipe(filter((s) => s.status !== 'pending')), {
+    // `as const`, not `as ParseState`: the filter narrows the stream to
+    // results without "pending", and the initial value has to fit that type.
+    initialValue: { status: 'empty' } as const,
+  });
 
   /**
    * Last successful result, kept while the input is temporarily invalid.

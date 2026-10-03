@@ -108,4 +108,16 @@ describe('Editor', () => {
     const numbers: HTMLElement = fixture.nativeElement.querySelector('.line-numbers');
     expect(numbers.style.transform).toBe('translateY(-60px)');
   });
+
+  it('goes to a line and column, with focus in the text', async () => {
+    state.source.set('services:\n  web:\n    image: nginx');
+    await fixture.whenStable();
+
+    fixture.componentInstance.goTo(3, 5);
+    await fixture.whenStable();
+
+    expect(document.activeElement).toBe(textarea());
+    expect(textarea().selectionStart).toBe(21);
+    expect(fixture.componentInstance.caret()).toEqual({ line: 3, column: 5 });
+  });
 });

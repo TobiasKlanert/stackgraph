@@ -1,4 +1,4 @@
-import { caretPosition, lineCount } from './text-position';
+import { caretPosition, lineCount, offsetAt } from './text-position';
 
 describe('caretPosition', () => {
   const text = 'services:\n  web:\n    image: nginx';
@@ -33,5 +33,29 @@ describe('lineCount', () => {
   it('counts the empty line after a trailing line break', () => {
     expect(lineCount('a\nb')).toBe(2);
     expect(lineCount('a\nb\n')).toBe(3);
+  });
+});
+
+describe('offsetAt', () => {
+  const text = 'services:\n  web:\n    image: nginx';
+
+  it('finds the start of a line', () => {
+    expect(offsetAt(text, 2)).toBe(10);
+  });
+
+  it('adds the column within the line', () => {
+    expect(offsetAt(text, 3, 5)).toBe(21);
+    expect(text.slice(21, 26)).toBe('image');
+  });
+
+  it('is the inverse of caretPosition', () => {
+    const offset = offsetAt(text, 3, 7);
+    expect(caretPosition(text, offset)).toEqual({ line: 3, column: 7 });
+  });
+
+  it('clamps lines and columns outside the text', () => {
+    expect(offsetAt(text, 99)).toBe(text.lastIndexOf('\n') + 1);
+    expect(offsetAt(text, 1, 99)).toBe(9);
+    expect(offsetAt(text, 0, 0)).toBe(0);
   });
 });

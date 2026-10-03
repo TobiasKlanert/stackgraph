@@ -18,7 +18,7 @@ import { Home } from '../home/home';
 import { Legend } from '../legend/legend';
 import { ZoomControls } from '../zoom-controls/zoom-controls';
 import { ParseSummary } from '../parse-summary/parse-summary';
-import { StatusPanel } from '../../../shared/status-panel/status-panel';
+import { ErrorBox } from '../../../shared/error-box/error-box';
 import { SiteHeader } from '../../../shared/site-header/site-header';
 import { SiteFooter, privacyNote } from '../../../shared/site-footer/site-footer';
 import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
@@ -36,7 +36,7 @@ function count(n: number, noun: string): string {
     DetailPanel,
     StackOverview,
     Home,
-    StatusPanel,
+    ErrorBox,
     SiteHeader,
     SiteFooter,
     ThemeToggle,

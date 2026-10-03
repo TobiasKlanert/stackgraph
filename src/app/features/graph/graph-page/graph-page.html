@@ -44,12 +44,15 @@
 <main class="main">
   @if (graphView(); as view) {
     <section class="column editor-column" aria-label="Compose file">
+      @let settled = state.settled();
       <app-editor #editor />
-      <app-status-panel [status]="state.state()" />
+      @if (settled.status === 'error') {
+        <app-error-box [errors]="settled.errors" (goTo)="editor.goTo($event.line, $event.column)" />
+      }
       <!-- Status bar. Only the parse result is a live region; Ln/Col changes
            with every caret move and would otherwise be announced each time. -->
       <div class="editor-status">
-        <app-parse-summary [status]="state.state()" />
+        <app-parse-summary [status]="settled" />
         <span class="caret" data-testid="caret-position">
           Ln {{ editor.caret().line }}, Col {{ editor.caret().column }}
         </span>

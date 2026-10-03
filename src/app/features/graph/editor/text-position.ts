@@ -19,3 +19,15 @@ export function caretPosition(text: string, offset: number): CaretPosition {
 export function lineCount(text: string): number {
   return text.split('\n').length;
 }
+
+/** Character offset of a 1-based line and column, clamped to the text. */
+export function offsetAt(text: string, line: number, column = 1): number {
+  const lines = text.split('\n');
+  const target = Math.min(Math.max(line, 1), lines.length);
+  let offset = 0;
+  for (let i = 0; i < target - 1; i++) {
+    offset += (lines[i]?.length ?? 0) + 1;
+  }
+  const lineLength = lines[target - 1]?.length ?? 0;
+  return offset + Math.min(Math.max(column, 1) - 1, lineLength);
+}

@@ -1,7 +1,7 @@
 <!-- The live region only holds the result, which changes rarely. The timing
      changes with nearly every parse and would be announced each time. -->
 <span class="result" role="status">
-  @switch (settled().status) {
+  @switch (status().status) {
     @case ('ready') {
       <svg
         class="icon valid"

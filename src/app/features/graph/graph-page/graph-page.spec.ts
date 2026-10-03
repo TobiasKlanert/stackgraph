@@ -299,6 +299,41 @@ describe('GraphPage', () => {
       expect(summary?.textContent).toContain('The graph shows the last valid version');
     });
 
+    it('explains a syntax error and jumps to it in the editor', async () => {
+      await openGraph();
+      expect(fixture.nativeElement.querySelector('app-error-box')).toBeNull();
+
+      state.source.set('services:\n  web:\n    image: a\n    image: b\n');
+      await settleUntil(() => state.settled().status === 'error');
+
+      const box: HTMLElement | null = fixture.nativeElement.querySelector(
+        '.editor-column app-error-box'
+      );
+      expect(box?.querySelector('h3')?.textContent).toContain('line 4, column 5');
+
+      box?.querySelector<HTMLButtonElement>('button.go-to')?.click();
+      await fixture.whenStable();
+
+      const textarea: HTMLTextAreaElement =
+        fixture.nativeElement.querySelector('app-editor textarea');
+      expect(document.activeElement).toBe(textarea);
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="caret-position"]')?.textContent?.trim()
+      ).toBe('Ln 4, Col 5');
+    });
+
+    it('keeps the error box while the next change is pending', async () => {
+      await openGraph();
+      state.source.set('services:\n  web: [\n');
+      await settleUntil(() => state.settled().status === 'error');
+
+      state.source.set('services:\n  web: [x\n');
+      await fixture.whenStable();
+
+      expect(state.state().status).toBe('pending');
+      expect(fixture.nativeElement.querySelector('app-error-box')).not.toBeNull();
+    });
+
     it('shows the caret position of the editor below it', async () => {
       await openGraph();
       const caret = (): string =>
