@@ -46,9 +46,10 @@
     <section class="column editor-column" aria-label="Compose file">
       <app-editor #editor />
       <app-status-panel [status]="state.state()" />
-      <!-- Status bar. Ln/Col stays outside any live region: it changes with
-           every caret move and would otherwise be announced each time. -->
+      <!-- Status bar. Only the parse result is a live region; Ln/Col changes
+           with every caret move and would otherwise be announced each time. -->
       <div class="editor-status">
+        <app-parse-summary [status]="state.state()" />
         <span class="caret" data-testid="caret-position">
           Ln {{ editor.caret().line }}, Col {{ editor.caret().column }}
         </span>

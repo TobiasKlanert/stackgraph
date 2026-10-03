@@ -17,6 +17,7 @@ import { StackOverview } from '../stack-overview/stack-overview';
 import { Home } from '../home/home';
 import { Legend } from '../legend/legend';
 import { ZoomControls } from '../zoom-controls/zoom-controls';
+import { ParseSummary } from '../parse-summary/parse-summary';
 import { StatusPanel } from '../../../shared/status-panel/status-panel';
 import { SiteHeader } from '../../../shared/site-header/site-header';
 import { SiteFooter, privacyNote } from '../../../shared/site-footer/site-footer';
@@ -41,6 +42,7 @@ function count(n: number, noun: string): string {
     ThemeToggle,
     Legend,
     ZoomControls,
+    ParseSummary,
   ],
   templateUrl: './graph-page.html',
   styleUrl: './graph-page.scss',

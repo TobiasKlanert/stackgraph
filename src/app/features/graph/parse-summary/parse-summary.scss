@@ -1,0 +1,31 @@
+// Plain text flow instead of flex: in a narrow column the note wraps like a
+// sentence ("… the last / valid version") rather than as a detached block,
+// and the spaces in the markup are the real word gaps.
+:host {
+  display: block;
+  flex: 1;
+  min-inline-size: 0;
+  line-height: 1.35;
+}
+
+.icon {
+  margin-inline-end: 5px;
+  vertical-align: -2px;
+}
+
+.valid {
+  color: var(--sg-accent);
+}
+
+.invalid {
+  color: var(--sg-danger);
+}
+
+.label {
+  color: var(--sg-text);
+}
+
+.error {
+  color: var(--sg-danger);
+  font-weight: 500;
+}

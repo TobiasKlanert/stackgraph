@@ -52,16 +52,19 @@
   display: flex;
   flex: none;
   align-items: center;
-  justify-content: flex-end;
-  block-size: 32px;
-  padding: 0 14px;
+  gap: 4px 12px;
+  // Grows instead of clipping when the error note wraps in a narrow column.
+  min-block-size: 32px;
+  padding: 6px 14px;
   border-block-start: 1px solid var(--sg-border-subtle);
   color: var(--sg-text-muted);
   font-size: var(--sg-font-size-xs);
-  line-height: 1;
+  line-height: 1.35;
 }
 
 .caret {
+  align-self: flex-start;
+  margin-inline-start: auto;
   font-family: var(--sg-font-mono);
   white-space: nowrap;
 }

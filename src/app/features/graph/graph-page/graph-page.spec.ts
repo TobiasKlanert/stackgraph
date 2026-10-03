@@ -284,6 +284,21 @@ describe('GraphPage', () => {
       expect(graph?.getAttribute('tabindex')).toBe('-1');
     });
 
+    it('summarises the parse result in the status bar', async () => {
+      await openGraph();
+      const summary: HTMLElement | null = fixture.nativeElement.querySelector(
+        '.editor-status app-parse-summary'
+      );
+
+      expect(summary?.textContent).toContain('Valid YAML');
+      expect(summary?.querySelector('[role="status"]')).not.toBeNull();
+
+      state.source.set('services:\n  web: [');
+      await settleUntil(() => state.state().status === 'error');
+
+      expect(summary?.textContent).toContain('The graph shows the last valid version');
+    });
+
     it('shows the caret position of the editor below it', async () => {
       await openGraph();
       const caret = (): string =>
