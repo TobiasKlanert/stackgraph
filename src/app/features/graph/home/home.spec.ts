@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Home } from './home';
 import { ComposeState } from '../../../core/state/compose-state';
 import { sampleCompose } from '../../../core/samples/sample-compose';
+import { IS_APPLE_PLATFORM } from '../../../core/platform/platform';
 
 const validYaml = `
 services:
@@ -53,7 +54,10 @@ describe('Home', () => {
   }
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [Home] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [Home],
+      providers: [{ provide: IS_APPLE_PLATFORM, useValue: false }],
+    }).compileComponents();
     state = TestBed.inject(ComposeState);
     fixture = TestBed.createComponent(Home);
     fixture.detectChanges();
@@ -212,5 +216,70 @@ describe('Home', () => {
     );
 
     expect(note?.textContent).toContain('Nothing is uploaded');
+  });
+
+  describe('keyboard shortcut', () => {
+    function press(target: HTMLElement, init: KeyboardEventInit): KeyboardEvent {
+      const event = new KeyboardEvent('keydown', {
+        key: 'Enter',
+        bubbles: true,
+        cancelable: true,
+        ...init,
+      });
+      target.dispatchEvent(event);
+      return event;
+    }
+
+    it('shows Ctrl ↵ outside Apple systems', () => {
+      expect(showButton().querySelector('kbd')?.textContent?.trim()).toBe('Ctrl ↵');
+      expect(showButton().getAttribute('aria-keyshortcuts')).toBe('Control+Enter');
+    });
+
+    it('keeps the shortcut out of the button name', () => {
+      expect(showButton().querySelector('kbd')?.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('shows ⌘ ↵ on Apple systems', async () => {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [Home],
+        providers: [{ provide: IS_APPLE_PLATFORM, useValue: true }],
+      }).compileComponents();
+      fixture = TestBed.createComponent(Home);
+      await fixture.whenStable();
+
+      expect(showButton().querySelector('kbd')?.textContent?.trim()).toBe('⌘ ↵');
+      expect(showButton().getAttribute('aria-keyshortcuts')).toBe('Meta+Enter');
+    });
+
+    it.each([{ ctrlKey: true }, { metaKey: true }])(
+      'opens the graph from the field with %o',
+      async (modifier) => {
+        state.source.set(validYaml);
+        await settleUntil(() => state.state().status === 'ready');
+        const submits = trackSubmits();
+
+        const event = press(textarea(), modifier);
+        await settleUntil(() => submits.count > 0);
+
+        expect(submits.count).toBe(1);
+        expect(event.defaultPrevented).toBe(true);
+      }
+    );
+
+    it('explains an empty field like a click does', async () => {
+      press(textarea(), { ctrlKey: true });
+      await settleUntil(() => query('[data-testid="empty-hint"]') !== null);
+
+      expect(announcement()).toContain('Paste a compose file first');
+    });
+
+    it('ignores Enter without a modifier', async () => {
+      const event = press(textarea(), {});
+      await fixture.whenStable();
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(query('.feedback')).toBeNull();
+    });
   });
 });

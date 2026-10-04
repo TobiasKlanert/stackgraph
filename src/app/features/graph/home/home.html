@@ -26,11 +26,14 @@
       <div class="buttons">
         <button
           type="button"
-          class="sg-button sg-button--primary sg-button--lg"
+          class="sg-button sg-button--primary sg-button--lg show-graph"
+          [attr.aria-keyshortcuts]="shortcut.aria"
           (click)="onSubmit()"
           data-testid="show-graph"
         >
           Show graph
+          <!-- Hidden from the name; aria-keyshortcuts carries the shortcut. -->
+          <kbd class="shortcut" aria-hidden="true">{{ shortcut.label }}</kbd>
         </button>
         <button
           type="button"

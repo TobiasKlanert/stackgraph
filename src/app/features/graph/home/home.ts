@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { filter, firstValueFrom } from 'rxjs';
+import { IS_APPLE_PLATFORM } from '../../../core/platform/platform';
 import { ComposeState, ParseState } from '../../../core/state/compose-state';
 import { sampleCompose } from '../../../core/samples/sample-compose';
 import { ErrorBox } from '../../../shared/error-box/error-box';
@@ -27,10 +28,21 @@ const emptyHint = 'Paste a compose file first, or try the example.';
   imports: [Editor, ErrorBox],
   templateUrl: './home.html',
   styleUrl: './home.scss',
+  host: {
+    // Anywhere in the view, not only in the field: also from the buttons.
+    // Both are accepted everywhere; only the label follows the platform.
+    '(keydown.control.enter)': 'onShortcut($event)',
+    '(keydown.meta.enter)': 'onShortcut($event)',
+  },
 })
 export class Home {
   protected readonly state = inject(ComposeState);
   protected readonly emptyHint = emptyHint;
+
+  /** Shortcut for "Show graph", shown in the button and named for assistive tech. */
+  protected readonly shortcut = inject(IS_APPLE_PLATFORM)
+    ? { label: '⌘ ↵', aria: 'Meta+Enter' }
+    : { label: 'Ctrl ↵', aria: 'Control+Enter' };
 
   /** Asks the page to switch to the graph view. */
   readonly submitted = output<void>();
@@ -113,6 +125,12 @@ export class Home {
     } finally {
       this.waiting = false;
     }
+  }
+
+  protected onShortcut(event: Event): void {
+    // Some browsers insert a line break for Ctrl+Enter in a textarea.
+    event.preventDefault();
+    void this.onSubmit();
   }
 
   protected onTryIt(): void {
