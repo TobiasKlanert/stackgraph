@@ -37,6 +37,12 @@ describe('Editor', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
+  it('moves focus into the textarea on request', () => {
+    fixture.componentInstance.focus();
+
+    expect(document.activeElement).toBe(textarea());
+  });
+
   it('names the textarea after the label input', () => {
     expect(textarea().getAttribute('aria-label')).toBe('Docker Compose YAML');
   });

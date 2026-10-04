@@ -39,6 +39,11 @@ export class Editor {
   /** The gutter does not scroll itself; it follows the textarea. */
   protected readonly gutterOffset = computed(() => `translateY(${-this.scrollTop()}px)`);
 
+  /** Moves keyboard focus into the field, keeping the caret where it was. */
+  focus(): void {
+    this.textarea().nativeElement.focus();
+  }
+
   /**
    * Puts the caret at a position and scrolls its line into view, a third
    * down from the top rather than at the very edge. Used by "Go to line".

@@ -60,33 +60,113 @@ describe('Home', () => {
     await fixture.whenStable();
   });
 
-  it('disables the button while nothing has been entered', () => {
-    expect(showButton().disabled).toBe(true);
-  });
+  function query(selector: string): HTMLElement | null {
+    return fixture.nativeElement.querySelector(selector);
+  }
 
-  it('keeps the button disabled for invalid yaml', async () => {
-    state.source.set(brokenYaml);
-    await settleUntil(() => state.errors().length > 0);
+  function textarea(): HTMLTextAreaElement {
+    return query('textarea') as HTMLTextAreaElement;
+  }
 
-    expect(showButton().disabled).toBe(true);
-  });
+  function announcement(): string {
+    return query('[data-testid="announcement"]')?.textContent?.trim() ?? '';
+  }
 
-  it('enables the button once the yaml is valid', async () => {
-    state.source.set(validYaml);
-    await settleUntil(() => !showButton().disabled);
+  /** Counts `submitted` emissions from now on. */
+  function trackSubmits(): { count: number } {
+    const counter = { count: 0 };
+    fixture.componentInstance.submitted.subscribe(() => counter.count++);
+    return counter;
+  }
 
-    expect(showButton().disabled).toBe(false);
-  });
+  describe('show graph', () => {
+    it('is never disabled', () => {
+      expect(showButton().disabled).toBe(false);
+    });
 
-  it('emits when the button is clicked', async () => {
-    state.source.set(validYaml);
-    await settleUntil(() => !showButton().disabled);
+    it('opens the graph for valid yaml', async () => {
+      state.source.set(validYaml);
+      await settleUntil(() => state.state().status === 'ready');
+      const submits = trackSubmits();
 
-    let emitted = false;
-    fixture.componentInstance.submitted.subscribe(() => (emitted = true));
-    showButton().click();
+      showButton().click();
+      await settleUntil(() => submits.count > 0);
 
-    expect(emitted).toBe(true);
+      expect(submits.count).toBe(1);
+      expect(query('.feedback')).toBeNull();
+    });
+
+    it('waits for a pending parse instead of asking for a second click', async () => {
+      const submits = trackSubmits();
+      state.source.set(validYaml);
+      await fixture.whenStable();
+      expect(state.state().status).toBe('pending');
+
+      showButton().click();
+      await settleUntil(() => submits.count > 0);
+
+      expect(submits.count).toBe(1);
+    });
+
+    it('opens only once when clicked twice while waiting', async () => {
+      const submits = trackSubmits();
+      state.source.set(validYaml);
+      await fixture.whenStable();
+
+      showButton().click();
+      showButton().click();
+      await settleUntil(() => submits.count > 0);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(submits.count).toBe(1);
+    });
+
+    it('explains an empty field and moves focus into it', async () => {
+      const submits = trackSubmits();
+
+      showButton().click();
+      await settleUntil(() => query('[data-testid="empty-hint"]') !== null);
+
+      expect(submits.count).toBe(0);
+      expect(query('[data-testid="empty-hint"]')?.textContent).toContain(
+        'Paste a compose file first'
+      );
+      expect(announcement()).toContain('Paste a compose file first');
+      expect(document.activeElement).toBe(textarea());
+    });
+
+    it('shows the errors of broken yaml', async () => {
+      state.source.set(brokenYaml);
+      await settleUntil(() => state.errors().length > 0);
+      const submits = trackSubmits();
+
+      showButton().click();
+      await settleUntil(() => query('app-error-box') !== null);
+
+      expect(submits.count).toBe(0);
+      expect(announcement()).toMatch(/^Fix the error on line \d+ first\.$/);
+      expect(document.activeElement).toBe(textarea());
+    });
+
+    it('shows no feedback before the first click', async () => {
+      state.source.set(brokenYaml);
+      await settleUntil(() => state.errors().length > 0);
+
+      expect(query('.feedback')).toBeNull();
+      expect(announcement()).toBe('');
+    });
+
+    it('removes the feedback once the yaml is fixed', async () => {
+      state.source.set(brokenYaml);
+      await settleUntil(() => state.errors().length > 0);
+      showButton().click();
+      await settleUntil(() => query('app-error-box') !== null);
+
+      state.source.set(validYaml);
+      await settleUntil(() => query('.feedback') === null);
+
+      expect(announcement()).toBe('');
+    });
   });
 
   it('fills the source with the sample compose file', () => {

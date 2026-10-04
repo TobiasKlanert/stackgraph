@@ -138,6 +138,26 @@ $stack-below: 640px;
   color: var(--sg-text-secondary);
 }
 
+// The error box brings its own padding for the split view column.
+app-error-box.feedback {
+  padding: 0;
+}
+
+.empty-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--sg-text);
+  font-size: var(--sg-font-size-lg);
+  line-height: 1.4;
+}
+
+.hint-icon {
+  flex: none;
+  color: var(--sg-text-secondary);
+}
+
 .privacy {
   display: flex;
   align-items: center;

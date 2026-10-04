@@ -9,6 +9,7 @@
 
   <div class="form">
     <app-editor
+      #editor
       class="editor-card"
       label="Docker Compose YAML"
       placeholder="# Paste the contents of your docker-compose.yml"
@@ -21,15 +22,11 @@
       </span>
     </app-editor>
 
-    <!-- Interim: replaced by the click validation in the next step. -->
-    <app-status-panel [status]="state.state()" />
-
     <div class="actions">
       <div class="buttons">
         <button
           type="button"
           class="sg-button sg-button--primary sg-button--lg"
-          [disabled]="!canOpen()"
           (click)="onSubmit()"
           data-testid="show-graph"
         >
@@ -80,5 +77,40 @@
         Runs in your browser. Nothing is uploaded.
       </p>
     </div>
+
+    <!-- Only after a click that could not open the graph (A11y review #9). -->
+    @if (feedback(); as reason) {
+      @if (reason.status === 'error') {
+        <app-error-box
+          class="feedback"
+          [errors]="reason.errors"
+          (goTo)="editor.goTo($event.line, $event.column)"
+        />
+      } @else {
+        <p class="feedback empty-hint" data-testid="empty-hint">
+          <svg
+            class="hint-icon"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4M12 8h.01" />
+          </svg>
+          {{ emptyHint }}
+        </p>
+      }
+    }
+
+    <!-- The visible feedback is not a live region (the error box would be read
+         in full); this sentence is, and only changes on a click. -->
+    <p class="sr-only" role="status" data-testid="announcement">{{ announcement() }}</p>
   </div>
 </div>
