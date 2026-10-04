@@ -1,7 +1,12 @@
-import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, inject, input, signal, viewChild } from '@angular/core';
 import { ComposeState } from '../../../core/state/compose-state';
 import { caretPosition, lineCount, offsetAt } from './text-position';
 
+/**
+ * Code field for the compose file: line numbers, caret position, "go to line".
+ * The header above it belongs to the page (tab in the split view, label and
+ * status on the home page) and is projected via `[editorHeader]`.
+ */
 @Component({
   selector: 'app-editor',
   imports: [],
@@ -10,6 +15,12 @@ import { caretPosition, lineCount, offsetAt } from './text-position';
 })
 export class Editor {
   protected readonly state = inject(ComposeState);
+
+  /** Accessible name of the textarea; the visible header is up to the page. */
+  readonly label = input.required<string>();
+
+  /** Hint shown while the field is empty. */
+  readonly placeholder = input<string>();
 
   private readonly textarea = viewChild.required<ElementRef<HTMLTextAreaElement>>('input');
   private readonly caretOffset = signal(0);

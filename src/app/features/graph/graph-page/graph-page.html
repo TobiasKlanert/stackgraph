@@ -45,7 +45,10 @@
   @if (graphView(); as view) {
     <section class="column editor-column" aria-label="Compose file">
       @let settled = state.settled();
-      <app-editor #editor />
+      <app-editor #editor label="Docker Compose YAML">
+        <h2 editorHeader class="editor-tab">docker-compose.yml</h2>
+        <span editorHeader class="editor-language">YAML</span>
+      </app-editor>
       @if (settled.status === 'error') {
         <app-error-box [errors]="settled.errors" (goTo)="editor.goTo($event.line, $event.column)" />
       }

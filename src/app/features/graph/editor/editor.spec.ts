@@ -28,12 +28,26 @@ describe('Editor', () => {
     await TestBed.configureTestingModule({ imports: [Editor] }).compileComponents();
     state = TestBed.inject(ComposeState);
     fixture = TestBed.createComponent(Editor);
+    fixture.componentRef.setInput('label', 'Docker Compose YAML');
     fixture.detectChanges();
     await fixture.whenStable();
   });
 
   it('should create', () => {
     expect(fixture.componentInstance).toBeTruthy();
+  });
+
+  it('names the textarea after the label input', () => {
+    expect(textarea().getAttribute('aria-label')).toBe('Docker Compose YAML');
+  });
+
+  it('shows no placeholder unless one is given', async () => {
+    expect(textarea().hasAttribute('placeholder')).toBe(false);
+
+    fixture.componentRef.setInput('placeholder', '# Paste here');
+    await fixture.whenStable();
+
+    expect(textarea().getAttribute('placeholder')).toBe('# Paste here');
   });
 
   it('shows the current source', async () => {

@@ -1,6 +1,6 @@
-<div class="tab-bar">
-  <h2 class="tab">docker-compose.yml</h2>
-  <span class="language">YAML</span>
+<!-- Layout of the bar only; its content and look come from the page. -->
+<div class="header">
+  <ng-content select="[editorHeader]" />
 </div>
 
 <div class="code">
@@ -17,7 +17,8 @@
        other events are the fallback for older ones. -->
   <textarea
     #input
-    aria-label="Docker Compose YAML"
+    [attr.aria-label]="label()"
+    [attr.placeholder]="placeholder() ?? null"
     wrap="off"
     spellcheck="false"
     autocapitalize="off"
