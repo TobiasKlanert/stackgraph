@@ -33,6 +33,10 @@ describe('Home', () => {
     return button('try-it');
   }
 
+  function fieldStatus(): HTMLElement {
+    return fixture.nativeElement.querySelector('.field-status');
+  }
+
   /** Renders and polls until the pipeline produced the expected result. */
   async function settleUntil(predicate: () => boolean, timeoutMs = 10_000): Promise<void> {
     const deadline = Date.now() + timeoutMs;
@@ -98,5 +102,35 @@ describe('Home', () => {
     tryItButton().click();
 
     expect(emitted).toBe(true);
+  });
+
+  describe('field status', () => {
+    it('says the field is empty at first', () => {
+      expect(fieldStatus().textContent?.trim()).toBe('Empty');
+      expect(fieldStatus().getAttribute('role')).toBe('status');
+    });
+
+    it('reports valid yaml', async () => {
+      state.source.set(validYaml);
+      await settleUntil(() => fieldStatus().textContent?.trim() === 'Valid');
+
+      expect(fieldStatus().dataset['kind']).toBe('valid');
+    });
+
+    it('counts the errors of broken yaml', async () => {
+      state.source.set(brokenYaml);
+      await settleUntil(() => fieldStatus().textContent?.trim() === '1 error');
+
+      expect(fieldStatus().dataset['kind']).toBe('error');
+    });
+  });
+
+  it('describes the editor with the privacy note', () => {
+    const textarea: HTMLTextAreaElement = fixture.nativeElement.querySelector('textarea');
+    const note = fixture.nativeElement.querySelector(
+      `#${textarea.getAttribute('aria-describedby')}`
+    );
+
+    expect(note?.textContent).toContain('Nothing is uploaded');
   });
 });

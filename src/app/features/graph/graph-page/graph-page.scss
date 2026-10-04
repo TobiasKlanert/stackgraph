@@ -14,8 +14,15 @@
 }
 
 .main {
+  display: flex;
   flex: 1;
+  flex-direction: column;
   min-block-size: 0;
+}
+
+// The home view fills the space between header and footer.
+app-home {
+  flex: 1;
 }
 
 :host(.workspace) .main {

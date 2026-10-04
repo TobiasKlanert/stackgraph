@@ -22,6 +22,9 @@ export class Editor {
   /** Hint shown while the field is empty. */
   readonly placeholder = input<string>();
 
+  /** Id of a note that describes the field, e.g. the privacy note on the home page. */
+  readonly describedBy = input<string>();
+
   private readonly textarea = viewChild.required<ElementRef<HTMLTextAreaElement>>('input');
   private readonly caretOffset = signal(0);
   private readonly scrollTop = signal(0);

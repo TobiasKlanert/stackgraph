@@ -1,0 +1,154 @@
+// Below this width the actions stack: privacy note first, then full-width
+// buttons (mobile mockup). Above it they share one row.
+$stack-below: 640px;
+
+// Fills the page between header and footer and centres the content in it.
+:host {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 24px;
+
+  @media (width < $stack-below) {
+    justify-content: flex-start;
+    padding: 24px 16px 20px;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  inline-size: 100%;
+  max-inline-size: 760px;
+  margin-inline: auto;
+
+  @media (width < $stack-below) {
+    gap: 20px;
+  }
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.title {
+  margin: 0;
+  color: var(--sg-text);
+  font-size: clamp(1.875rem, 1.4rem + 2vw, 2.5rem); // 30 → 40px
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+.lead {
+  max-inline-size: 600px;
+  margin: 0;
+  color: var(--sg-text-secondary);
+  font-size: 1rem;
+  line-height: 1.55;
+
+  code {
+    padding: 1px 6px;
+    border: 1px solid var(--sg-border);
+    border-radius: 5px;
+    background: var(--sg-bg-chip);
+    color: var(--sg-text);
+    font-size: 0.875em;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+// The editor as a card. Its focus ring sits inside the code area (editor.scss),
+// same as in the split view.
+.editor-card {
+  block-size: clamp(230px, 40dvh, 320px);
+  overflow: hidden;
+  border: 1px solid var(--sg-border-strong);
+  border-radius: 12px;
+  background: var(--sg-bg-editor);
+}
+
+// Projected into the editor header
+.field-label,
+.field-status {
+  align-self: center;
+  line-height: 1;
+}
+
+.field-label {
+  padding-inline-start: 14px;
+  color: var(--sg-text);
+  font-size: var(--sg-font-size-md);
+  font-weight: 500;
+}
+
+.field-status {
+  padding-inline-end: 14px;
+  color: var(--sg-text-muted);
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-xs);
+
+  &[data-kind='valid'] {
+    color: var(--sg-accent);
+  }
+
+  &[data-kind='error'] {
+    color: var(--sg-danger);
+  }
+}
+
+// Desktop: buttons left, privacy note right. Mobile: note first, buttons below.
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+
+  @media (width < $stack-below) {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+
+  @media (width < $stack-below) {
+    flex-direction: column;
+
+    .sg-button {
+      justify-content: center;
+      block-size: 48px;
+      font-size: 0.9375rem; // 15px
+    }
+  }
+}
+
+.try-icon {
+  color: var(--sg-text-secondary);
+}
+
+.privacy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--sg-text-secondary);
+  font-size: var(--sg-font-size-md);
+  line-height: 1.4;
+}
+
+.privacy-icon {
+  flex: none;
+  color: var(--sg-accent);
+}

@@ -68,6 +68,12 @@ textarea {
     opacity: 1;
   }
 
+  // An empty field has no lines to keep apart, so a long placeholder may
+  // wrap instead of being cut off in a narrow column.
+  &:placeholder-shown {
+    white-space: pre-wrap;
+  }
+
   // The ring goes around gutter and text together (see .code below).
   &:focus-visible {
     outline: none;

@@ -40,6 +40,16 @@
   }
 }
 
+// Large variant for the main actions on the home page; 44 px is also the
+// touch target size the mobile layout needs.
+.sg-button--lg {
+  gap: 8px;
+  block-size: 44px;
+  padding: 0 16px;
+  border-radius: var(--sg-radius-md);
+  font-size: var(--sg-font-size-lg);
+}
+
 .sg-header-link {
   display: inline-flex;
   align-items: center;

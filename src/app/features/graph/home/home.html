@@ -1,19 +1,84 @@
-<section>
-  <h1>StackGraph</h1>
-  <p>Paste a <code>docker-compose.yml</code> to see it as an interactive graph.</p>
+<div class="content">
+  <div class="intro">
+    <h1 class="title">StackGraph</h1>
+    <p class="lead">
+      Paste a <code>docker-compose.yml</code> to see its services, networks, volumes and
+      dependencies as an interactive graph.
+    </p>
+  </div>
 
-  <label for="compose-input">Docker Compose YAML</label>
-  <textarea
-    id="compose-input"
-    [value]="state.source()"
-    (input)="onInput($event)"
-    spellcheck="false"
-    rows="16"
-  ></textarea>
-  <app-status-panel [status]="state.state()" />
+  <div class="form">
+    <app-editor
+      class="editor-card"
+      label="Docker Compose YAML"
+      placeholder="# Paste the contents of your docker-compose.yml"
+      describedBy="privacy-note"
+    >
+      <span editorHeader class="field-label">Docker Compose YAML</span>
+      <!-- Live region: after pasting, screen readers hear whether the file is valid. -->
+      <span editorHeader class="field-status" role="status" [attr.data-kind]="fieldStatus().kind">
+        {{ fieldStatus().text }}
+      </span>
+    </app-editor>
 
-  <button type="button" (click)="onTryIt()" data-testid="try-it">Try it with an example</button>
-  <button type="button" [disabled]="!canOpen()" (click)="onSubmit()" data-testid="show-graph">
-    Show graph
-  </button>
-</section>
+    <!-- Interim: replaced by the click validation in the next step. -->
+    <app-status-panel [status]="state.state()" />
+
+    <div class="actions">
+      <div class="buttons">
+        <button
+          type="button"
+          class="sg-button sg-button--primary sg-button--lg"
+          [disabled]="!canOpen()"
+          (click)="onSubmit()"
+          data-testid="show-graph"
+        >
+          Show graph
+        </button>
+        <button
+          type="button"
+          class="sg-button sg-button--lg"
+          (click)="onTryIt()"
+          data-testid="try-it"
+        >
+          <svg
+            class="try-icon"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <path d="M14 2v6h6M10 13l-2 2 2 2M14 17l2-2-2-2" />
+          </svg>
+          Try it with an example
+        </button>
+      </div>
+
+      <p id="privacy-note" class="privacy">
+        <svg
+          class="privacy-icon"
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+        Runs in your browser. Nothing is uploaded.
+      </p>
+    </div>
+  </div>
+</div>
