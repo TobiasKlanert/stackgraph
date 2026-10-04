@@ -1,0 +1,60 @@
+@use '../rendering/edge-styles' as edge;
+
+.entries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-block-size: 28px;
+    color: var(--sg-text-secondary);
+    font-size: var(--sg-font-size-sm);
+    white-space: nowrap;
+  }
+}
+
+.sample {
+  flex: none;
+  inline-size: 28px;
+}
+
+.line {
+  fill: none;
+  stroke-width: 1.5;
+}
+
+.depends-on {
+  @include edge.depends-on;
+}
+
+.network {
+  @include edge.network;
+}
+
+.volume {
+  @include edge.volume;
+}
+
+.arrow-head {
+  fill: var(--sg-edge);
+}
+
+// Miniature of a port chip
+.chip {
+  display: flex;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    inline-size: 20px;
+    block-size: 10px;
+    border: 1px solid var(--sg-text-secondary);
+    border-radius: 3px;
+  }
+}

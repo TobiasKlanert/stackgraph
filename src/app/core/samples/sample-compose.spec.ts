@@ -3,6 +3,10 @@ import { parseCompose } from '../parser/yaml-parser';
 import { sampleCompose } from './sample-compose';
 
 describe('sampleCompose', () => {
+  it('starts with its first key, so the editor shows no empty first line', () => {
+    expect(sampleCompose.startsWith('services:')).toBe(true);
+  });
+
   it('parses without errors', () => {
     const result = parseCompose(sampleCompose);
     expect(result.ok).toBe(true);

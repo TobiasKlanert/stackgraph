@@ -1,0 +1,171 @@
+// Page column: header, content filling the rest, footer at the bottom edge
+// even when the content is short.
+:host {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100dvh;
+}
+
+// The split view is an application screen, not a document: it takes exactly
+// the viewport and never scrolls as a whole. Each column scrolls on its own.
+:host(.workspace) {
+  block-size: 100dvh;
+  overflow: hidden;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-block-size: 0;
+}
+
+// The home view fills the space between header and footer.
+app-home {
+  flex: 1;
+}
+
+:host(.workspace) .main {
+  display: grid;
+  // Side columns shrink between ~1024 and 1440 px instead of squeezing the
+  // graph; below that the responsive layout takes over.
+  grid-template-columns:
+    clamp(280px, 28vw, 400px)
+    minmax(0, 1fr)
+    clamp(260px, 22vw, 320px);
+  // minmax(0, …) lets the row shrink below its content, so long editor
+  // content scrolls inside its column instead of stretching the page.
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.column {
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+.editor-column {
+  display: flex;
+  flex-direction: column;
+  background: var(--sg-bg-editor);
+  border-inline-end: 1px solid var(--sg-border-subtle);
+
+  app-editor {
+    flex: 1;
+    min-block-size: 0;
+  }
+}
+
+// Editor header in the split view: the open "file" as a tab, marked by an
+// accent line at the bottom. Projected into the editor, styled here.
+.editor-tab {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0 14px;
+  border-inline-end: 1px solid var(--sg-border-subtle);
+  background: var(--sg-bg-raised);
+  box-shadow: inset 0 -2px 0 var(--sg-accent);
+  color: var(--sg-text);
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-sm);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.editor-language {
+  align-self: center;
+  padding-inline-end: 14px;
+  color: var(--sg-text-muted);
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-xs);
+  line-height: 1;
+}
+
+.editor-status {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px 12px;
+  // Grows instead of clipping when the error note wraps in a narrow column.
+  min-block-size: 32px;
+  padding: 6px 14px;
+  border-block-start: 1px solid var(--sg-border-subtle);
+  color: var(--sg-text-muted);
+  font-size: var(--sg-font-size-xs);
+  line-height: 1.35;
+}
+
+.caret {
+  align-self: flex-start;
+  margin-inline-start: auto;
+  font-family: var(--sg-font-mono);
+  white-space: nowrap;
+}
+
+.graph-column {
+  display: grid;
+  // Canvas takes the rest, the toolbar its own height.
+  grid-template-rows: minmax(0, 1fr) auto;
+  overflow: hidden;
+  background: var(--sg-bg-app);
+
+  // Focus from the skip link lands here; the ring would frame the whole
+  // canvas, and the column is not an interactive control itself.
+  &:focus {
+    outline: none;
+  }
+}
+
+.graph-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  min-block-size: 52px;
+  padding: 8px 14px;
+  border-block-start: 1px solid var(--sg-border-subtle);
+  background: var(--sg-bg-panel);
+}
+
+.detail-column {
+  overflow-y: auto;
+  background: var(--sg-bg-panel);
+  border-inline-start: 1px solid var(--sg-border-subtle);
+}
+
+// Header content of the split view
+.file-name {
+  margin: 0;
+  padding-inline-start: 12px;
+  border-inline-start: 1px solid var(--sg-border);
+  color: var(--sg-text-secondary);
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-sm);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.summary {
+  margin: 0 10px 0 0;
+  color: var(--sg-text-muted);
+  white-space: nowrap;
+}
+
+// Skip link: off-screen until focused, then pinned over the header
+.skip-link {
+  position: absolute;
+  inset-block-start: -60px;
+  inset-inline-start: 12px;
+  z-index: 10;
+  padding: 10px 14px;
+  border-radius: var(--sg-radius-md);
+  background: var(--sg-text);
+  color: var(--sg-bg-app);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:focus {
+    inset-block-start: 8px;
+  }
+}

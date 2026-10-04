@@ -1,0 +1,19 @@
+// Line style per relationship, shared by the graph and its legend, so the
+// legend can never show a pattern the graph does not use.
+
+@mixin depends-on {
+  stroke: var(--sg-edge);
+}
+
+@mixin network {
+  stroke: var(--sg-network);
+  stroke-dasharray: 6 4;
+  opacity: 0.9;
+}
+
+@mixin volume {
+  stroke: var(--sg-volume);
+  stroke-width: 1.8;
+  stroke-dasharray: 0.1 4.5;
+  stroke-linecap: round;
+}

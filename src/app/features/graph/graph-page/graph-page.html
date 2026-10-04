@@ -1,15 +1,106 @@
-@if (graphView(); as view) {
-  <app-editor />
-  <app-status-panel [status]="state.state()" />
-  <button type="button" data-testid="export-svg" (click)="onExport()">Export SVG</button>
-  <app-rendering
-    [graph]="view.graph"
-    [selectedId]="selectedId()"
-    (nodeSelected)="onNodeSelected($event)"
-  />
-  @if (selectedService(); as service) {
-    <app-detail-panel [service]="service" />
-  }
-} @else {
-  <app-home (submitted)="openGraph()" />
+@if (graphView()) {
+  <!-- Fragment link: the graph column takes focus via tabindex="-1". -->
+  <a class="skip-link" href="#graph">Skip to graph</a>
 }
+
+<!-- Header and footer sit outside the view switch, so they survive it and keyboard focus on the brand is not lost. -->
+<app-site-header>
+  @if (graphView()) {
+    <h1 siteHeaderStart class="file-name">docker-compose.yml</h1>
+  }
+
+  @if (graphView(); as view) {
+    <p class="summary">{{ summary() }}</p>
+    <button
+      type="button"
+      class="sg-button sg-button--primary"
+      data-testid="export-svg"
+      (click)="onExport()"
+    >
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M12 15V3M7 10l5 5 5-5M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      </svg>
+      Export SVG
+    </button>
+  } @else {
+    <nav aria-label="Main">
+      <a class="sg-header-link" routerLink="/about">About</a>
+    </nav>
+  }
+  <app-theme-toggle />
+</app-site-header>
+
+<main class="main">
+  @if (graphView(); as view) {
+    <section class="column editor-column" aria-label="Compose file">
+      @let settled = state.settled();
+      <app-editor #editor label="Docker Compose YAML">
+        <h2 editorHeader class="editor-tab">docker-compose.yml</h2>
+        <span editorHeader class="editor-language">YAML</span>
+      </app-editor>
+      @if (settled.status === 'error') {
+        <app-error-box [errors]="settled.errors" (goTo)="editor.goTo($event.line, $event.column)" />
+      }
+      <!-- Status bar. Only the parse result is a live region; Ln/Col changes
+           with every caret move and would otherwise be announced each time. -->
+      <div class="editor-status">
+        <app-parse-summary [status]="settled" [updating]="state.updating()" />
+        <span class="caret" data-testid="caret-position">
+          Ln {{ editor.caret().line }}, Col {{ editor.caret().column }}
+        </span>
+      </div>
+    </section>
+
+    <section id="graph" class="column graph-column" tabindex="-1" aria-labelledby="graph-title">
+      <h2 id="graph-title" class="sr-only">Service graph</h2>
+      <app-rendering
+        #canvas
+        [graph]="view.graph"
+        [selectedId]="selectedId()"
+        (nodeSelected)="onNodeSelected($event)"
+        (selectionCleared)="selectedId.set(null)"
+      />
+      <!-- Below the canvas, not over it, so it never hides a node. -->
+      <div class="graph-toolbar">
+        <app-legend />
+        <app-zoom-controls
+          [percent]="canvas.zoomPercent()"
+          [canZoomIn]="canvas.canZoomIn()"
+          [canZoomOut]="canvas.canZoomOut()"
+          (zoomIn)="canvas.zoomIn()"
+          (zoomOut)="canvas.zoomOut()"
+          (actualSize)="canvas.zoomToActualSize()"
+          (fit)="canvas.fitToView()"
+        />
+      </div>
+    </section>
+
+    <div class="column detail-column">
+      @if (selectedService(); as service) {
+        <app-detail-panel
+          [service]="service"
+          [model]="view.model"
+          (serviceSelected)="selectFromPanel($event)"
+          (closed)="closeDetails()"
+        />
+      } @else {
+        <app-stack-overview [model]="view.model" (serviceSelected)="selectFromPanel($event)" />
+      }
+    </div>
+  } @else {
+    <app-home (submitted)="openGraph()" />
+  }
+</main>
+
+<app-site-footer [tagline]="footerText()" />

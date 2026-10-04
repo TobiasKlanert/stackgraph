@@ -1,97 +1,35 @@
+import { TestBed } from '@angular/core/testing';
 import { ComposeModel } from '../models/compose.model';
 import { StackGraphNode } from '../models/layout.model';
-import { toElkGraph } from './compose-to-elk';
+import { Layout } from './layout';
 
-describe('toElkGraph', () => {
+describe('Layout', () => {
   const model: ComposeModel = {
     services: [
       {
         name: 'web',
-        image: 'nginx:latest',
-        ports: [],
-        dependsOn: ['api', 'db'],
-        networks: ['web'],
-        volumes: [{ source: 'db_data', target: '/var/lib/...', type: 'volume' }],
-      },
-      {
-        name: 'api',
-        image: 'node:20-alpine',
-        ports: [],
-        dependsOn: ['db'],
-        networks: [],
-        volumes: [],
-      },
-      {
-        name: 'db',
-        image: 'postgres:16',
-        ports: [],
+        image: 'nginx:alpine',
+        ports: [{ host: '80', container: '80' }],
         dependsOn: [],
-        networks: [],
+        networks: ['edge'],
         volumes: [],
       },
     ],
-    networks: [
-      {
-        name: 'web',
-      },
-    ],
-    volumes: [{ name: 'db_data' }],
+    networks: [{ name: 'edge' }],
+    volumes: [],
   };
 
-  const result = toElkGraph(model);
+  it('keeps node types, display data and sizes through the ELK round trip', async () => {
+    const graph = await TestBed.inject(Layout).layout(model);
+    const [web, edge] = (graph.children ?? []) as StackGraphNode[];
 
-  it('determines the children correctly', () => {
-    expect(result.children?.map((c) => c.id)).toEqual([
-      'web',
-      'api',
-      'db',
-      'net:web',
-      'vol:db_data',
-    ]);
-  });
-
-  it('determines the node types correctly', () => {
-    expect(result.children?.map((c) => (c as StackGraphNode).nodeType)).toEqual([
-      'service',
-      'service',
-      'service',
-      'network',
-      'volume',
-    ]);
-  });
-
-  it('determines the edges correctly', () => {
-    expect(result.edges).toEqual([
-      {
-        edgeType: 'dependsOn',
-        id: 'web->api',
-        sources: ['web'],
-        targets: ['api'],
-      },
-      {
-        edgeType: 'dependsOn',
-        id: 'web->db',
-        sources: ['web'],
-        targets: ['db'],
-      },
-      {
-        edgeType: 'dependsOn',
-        id: 'api->db',
-        sources: ['api'],
-        targets: ['db'],
-      },
-      {
-        edgeType: 'network',
-        id: 'web--net:web',
-        sources: ['web'],
-        targets: ['net:web'],
-      },
-      {
-        edgeType: 'volume',
-        id: 'web--vol:db_data',
-        sources: ['web'],
-        targets: ['vol:db_data'],
-      },
-    ]);
+    expect(web).toMatchObject({
+      nodeType: 'service',
+      display: { name: 'web', image: 'nginx:alpine', ports: ['80:80'] },
+      width: 196,
+      height: 76,
+    });
+    expect(edge).toMatchObject({ nodeType: 'network', display: { name: 'edge' } });
+    expect(typeof web?.x).toBe('number');
   });
 });

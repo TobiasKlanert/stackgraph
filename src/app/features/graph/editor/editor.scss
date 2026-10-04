@@ -1,0 +1,88 @@
+// Line height in px, shared by gutter and textarea: the numbers only line up
+// if both use exactly the same rhythm.
+$line-height: 20px;
+$padding-block: 10px;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+}
+
+.header {
+  display: flex;
+  flex: none;
+  align-items: stretch;
+  justify-content: space-between;
+  min-block-size: 40px;
+  border-block-end: 1px solid var(--sg-border-subtle);
+}
+
+.code {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 48px minmax(0, 1fr);
+  min-block-size: 0;
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-sm);
+  line-height: $line-height;
+}
+
+.gutter {
+  overflow: hidden;
+  padding-block: $padding-block;
+  color: var(--sg-text-line-number);
+  text-align: end;
+  user-select: none;
+}
+
+.line-numbers span {
+  display: block;
+  block-size: $line-height;
+  padding-inline-end: 16px;
+
+  &.current {
+    color: var(--sg-text-secondary);
+  }
+}
+
+textarea {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  padding: $padding-block 14px $padding-block 0;
+  border: 0;
+  background: transparent;
+  color: var(--sg-text);
+  font: inherit;
+  line-height: inherit;
+  white-space: pre;
+  overflow-wrap: normal;
+  tab-size: 2;
+  resize: none;
+
+  // Firefox dims placeholders with opacity; the colour alone sets the contrast.
+  &::placeholder {
+    color: var(--sg-text-muted);
+    opacity: 1;
+  }
+
+  // An empty field has no lines to keep apart, so a long placeholder may
+  // wrap instead of being cut off in a narrow column.
+  &:placeholder-shown {
+    white-space: pre-wrap;
+  }
+
+  // The ring goes around gutter and text together (see .code below).
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+// Focus ring inside the edges, since the column itself has no gap around
+// the code area. Neutral colour like every other focus ring.
+.code:has(textarea:focus-visible) {
+  outline: 2px solid var(--sg-focus);
+  outline-offset: -2px;
+}

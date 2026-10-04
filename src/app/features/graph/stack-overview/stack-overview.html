@@ -1,0 +1,80 @@
+<section class="panel" aria-labelledby="overview-title">
+  <header class="panel-header">
+    <h2 id="overview-title" #heading tabindex="-1">Stack overview</h2>
+    <p>Select a service here or in the graph to see its details.</p>
+  </header>
+
+  <div class="group">
+    <h3>
+      Services <span class="count">{{ services().length }}</span>
+    </h3>
+    <ul>
+      @for (service of services(); track service.name) {
+        <li>
+          <button type="button" class="service-row" (click)="serviceSelected.emit(service.name)">
+            <app-type-icon kind="service" />
+            <span class="service-text">
+              <span class="service-name">{{ service.name }}</span>
+              <span class="service-image">
+                <span class="sr-only">, </span>{{ service.image ?? 'local build' }}
+              </span>
+            </span>
+            @if (service.hostPorts) {
+              <span class="service-ports">
+                <span class="sr-only">, ports </span>{{ service.hostPorts }}
+              </span>
+            }
+          </button>
+        </li>
+      }
+    </ul>
+  </div>
+
+  @if (networks().length) {
+    <div class="group">
+      <h3>
+        Networks <span class="count">{{ networks().length }}</span>
+      </h3>
+      <ul>
+        @for (network of networks(); track network.name) {
+          <li class="row">
+            <app-type-icon kind="network" />
+            <span class="row-name">{{ network.name }}</span>
+            <span class="row-meta">
+              <span class="sr-only">, </span>
+              @if (network.services.length) {
+                <span class="sr-only">services: </span>{{ network.services.join(', ') }}
+              } @else {
+                unused
+              }
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  @if (volumes().length) {
+    <div class="group">
+      <h3>
+        Volumes <span class="count">{{ volumes().length }}</span>
+      </h3>
+      <ul>
+        @for (volume of volumes(); track volume.name) {
+          <li class="row">
+            <app-type-icon kind="volume" />
+            <span class="row-name">{{ volume.name }}</span>
+            <span class="row-meta">
+              <span class="sr-only">, </span>
+              @if (volume.services.length) {
+                used by {{ volume.services.join(', ') }}
+              } @else {
+                unused
+              }
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</section>

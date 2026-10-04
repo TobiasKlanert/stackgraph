@@ -1,0 +1,58 @@
+@for (error of errors(); track $index) {
+  <div class="error">
+    <svg
+      class="icon"
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 8v4M12 16h.01" />
+    </svg>
+    <div class="body">
+      <h3 class="title">{{ title(error) }}</h3>
+      <p class="message">{{ asSentence(error.message) }}</p>
+      @if (fixHint(error); as hint) {
+        <p class="hint">{{ hint }}</p>
+      }
+      @if (error.line !== undefined || error.path) {
+        <div class="actions">
+          @if (error.line; as line) {
+            <button
+              type="button"
+              class="sg-button go-to"
+              (click)="goTo.emit({ line, column: error.column ?? 1 })"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="M9 10l-5 5 5 5" />
+                <path d="M20 4v7a4 4 0 0 1-4 4H4" />
+              </svg>
+              Go to line {{ line }}
+            </button>
+          }
+          @if (error.path) {
+            <code class="path">{{ error.path }}</code>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

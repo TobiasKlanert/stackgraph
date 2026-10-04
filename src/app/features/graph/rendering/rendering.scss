@@ -1,3 +1,5 @@
+@use 'edge-styles' as edge;
+
 :host {
   display: block;
   inline-size: 100%;
@@ -16,25 +18,42 @@ svg {
   }
 }
 
-//TODO: Placeholder to make the selection visible. Proper styling will follow in Phase 7
 .selectable {
   cursor: pointer;
 }
 
-rect {
-  fill: #1e293b;
-  stroke: #334155;
-  stroke-width: 1;
+// Edges: one line style per relationship, so the type reads without colour.
+.edge {
+  fill: none;
+  stroke-width: 1.4;
 }
 
-.selected rect {
-  stroke: #2dd4bf;
-  stroke-width: 2;
+.edge--dependsOn {
+  @include edge.depends-on;
+  stroke: var(--sg-edge);
 }
 
-text {
-  fill: #e2e8f0;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  pointer-events: none;
+.edge--network {
+  @include edge.network;
+  stroke: var(--sg-network);
+  stroke-dasharray: 6 4;
+  opacity: 0.9;
+}
+
+.edge--volume {
+  @include edge.volume;
+  stroke: var(--sg-volume);
+  stroke-width: 1.8;
+  stroke-dasharray: 0.1 4.5;
+  stroke-linecap: round;
+}
+
+.arrow-head {
+  fill: var(--sg-edge);
+}
+
+// The service shape draws its own focus ring; the browser outline would be
+// a sharp rectangle around the group's bounding box.
+.node:focus {
+  outline: none;
 }

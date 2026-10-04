@@ -1,0 +1,11 @@
+<svg:path class="shape" [attr.d]="body()" />
+<svg:path class="lid" [attr.d]="lid()" />
+<svg:text
+  class="label"
+  [attr.x]="width() / 2"
+  [attr.y]="height() / 2 + 8"
+  [attr.font-size]="g.labelFontSize"
+  text-anchor="middle"
+>
+  {{ label() }}
+</svg:text>

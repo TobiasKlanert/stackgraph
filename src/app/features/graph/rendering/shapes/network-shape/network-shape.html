@@ -1,0 +1,10 @@
+<svg:polygon class="shape" [attr.points]="points()" />
+<svg:text
+  class="label"
+  [attr.x]="width() / 2"
+  [attr.y]="height() / 2 + 4.5"
+  [attr.font-size]="g.labelFontSize"
+  text-anchor="middle"
+>
+  {{ label() }}
+</svg:text>

@@ -28,7 +28,8 @@ module.exports = defineConfig([
       '@angular-eslint/component-selector': [
         'error',
         {
-          type: 'element',
+          // Attribute selectors for components drawn on SVG elements (g[app-…-shape])
+          type: ['element', 'attribute'],
           prefix: 'app',
           style: 'kebab-case',
         },

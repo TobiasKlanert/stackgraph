@@ -1,5 +1,4 @@
-export const sampleCompose = `
-services:
+export const sampleCompose = `services:
   proxy:
     image: caddy:2-alpine
     ports:

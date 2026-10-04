@@ -1,0 +1,62 @@
+.controls {
+  display: flex;
+  align-items: stretch;
+  block-size: 36px;
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-md);
+  background: var(--sg-bg-panel);
+  // Keeps the square button corners inside the rounded frame.
+  overflow: hidden;
+}
+
+button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sg-text);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--sg-bg-raised);
+  }
+
+  &:disabled {
+    color: var(--sg-text-muted);
+    cursor: default;
+  }
+
+  // Inside a clipped frame the outline would be cut off, so it moves inwards.
+  &:focus-visible {
+    outline-offset: -2px;
+  }
+
+  & + & {
+    border-inline-start: 1px solid var(--sg-border-subtle);
+  }
+}
+
+.icon {
+  inline-size: 36px;
+  color: var(--sg-text-secondary);
+}
+
+.percent {
+  inline-size: 56px;
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.fit {
+  display: flex;
+  gap: 6px;
+  padding: 0 12px;
+  font-size: var(--sg-font-size-md);
+  font-weight: 500;
+
+  svg {
+    color: var(--sg-text-secondary);
+  }
+}

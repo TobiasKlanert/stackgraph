@@ -1,0 +1,51 @@
+// Plain text flow instead of flex: in a narrow column the note wraps like a
+// sentence ("… the last / valid version") rather than as a detached block,
+// and the spaces in the markup are the real word gaps.
+:host {
+  display: block;
+  flex: 1;
+  min-inline-size: 0;
+  line-height: 1.35;
+}
+
+.icon {
+  margin-inline-end: 5px;
+  vertical-align: -2px;
+}
+
+.valid {
+  color: var(--sg-accent);
+}
+
+.invalid {
+  color: var(--sg-danger);
+}
+
+.label {
+  color: var(--sg-text);
+}
+
+.error {
+  color: var(--sg-danger);
+  font-weight: 500;
+}
+
+// Small ring with a gap that turns. Under prefers-reduced-motion the global
+// rule in _base.scss stops the animation, leaving a still ring.
+.spinner {
+  display: inline-block;
+  inline-size: 9px;
+  block-size: 9px;
+  margin-inline-end: 7px;
+  border: 1.5px solid var(--sg-text-secondary);
+  border-block-start-color: transparent;
+  border-radius: 50%;
+  vertical-align: -1px;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}

@@ -1,0 +1,13 @@
+.shape {
+  fill: var(--sg-network-bg);
+  stroke: var(--sg-network);
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+}
+
+.label {
+  fill: var(--sg-network-text);
+  font-family: var(--sg-font-sans);
+  font-weight: 500;
+  pointer-events: none;
+}

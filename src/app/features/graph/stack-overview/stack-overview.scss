@@ -1,0 +1,132 @@
+@use '../panel';
+
+:host {
+  display: block;
+}
+
+.panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px 16px;
+  border-block-end: 1px solid var(--sg-border-subtle);
+
+  p {
+    margin: 0;
+    color: var(--sg-text-secondary);
+    line-height: 1.45;
+  }
+}
+
+h2 {
+  margin: 0;
+  color: var(--sg-text);
+  font-size: 1.125rem; // 18px
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 12px 10px;
+
+  & + & {
+    border-block-start: 1px solid var(--sg-border-subtle);
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+h3 {
+  @include panel.label;
+  padding: 0 8px;
+}
+
+.count {
+  @include panel.count;
+}
+
+// Full-width row button, 44 px high: the overview is also the touch-friendly
+// way to reach a service.
+.service-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  inline-size: 100%;
+  min-block-size: 44px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--sg-radius-sm);
+  background: transparent;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sg-bg-raised);
+  }
+}
+
+.service-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-inline-size: 0;
+}
+
+.service-name {
+  color: var(--sg-text);
+  font-size: 0.84375rem; // 13.5px
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.service-image,
+.service-ports {
+  color: var(--sg-text-muted);
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-xs);
+  line-height: 1.2;
+}
+
+.service-image {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-ports {
+  flex: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-block-size: 36px;
+  padding: 0 8px;
+}
+
+.row-name {
+  flex: none;
+  color: var(--sg-text);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.row-meta {
+  min-inline-size: 0;
+  margin-inline-start: auto;
+  color: var(--sg-text-muted);
+  font-size: var(--sg-font-size-xs);
+  line-height: 1.2;
+  text-align: end;
+}

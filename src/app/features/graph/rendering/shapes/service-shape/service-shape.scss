@@ -1,0 +1,64 @@
+// Colours come from the theme tokens. Font sizes are bound as attributes
+// from node-geometry instead, the same numbers that sized the node.
+
+.body {
+  fill: var(--sg-node-bg);
+  stroke: var(--sg-node-border);
+  stroke-width: 1;
+}
+
+.glow {
+  fill: none;
+  stroke: var(--sg-accent);
+  stroke-width: 6;
+  opacity: var(--sg-node-glow-opacity);
+}
+
+:host(.selected) .body {
+  fill: var(--sg-node-selected-bg);
+  stroke: var(--sg-accent);
+  stroke-width: 2;
+}
+
+text {
+  pointer-events: none;
+}
+
+.name {
+  fill: var(--sg-text);
+  font-family: var(--sg-font-sans);
+  font-weight: 600;
+}
+
+.image {
+  fill: var(--sg-text-muted);
+  font-family: var(--sg-font-mono);
+}
+
+:host(.selected) .image {
+  fill: var(--sg-text-secondary);
+}
+
+.image.missing {
+  font-family: var(--sg-font-sans);
+  font-style: italic;
+}
+
+.chip {
+  rect {
+    fill: var(--sg-node-chip-bg);
+    stroke: var(--sg-node-chip-border);
+    stroke-width: 1;
+  }
+
+  text {
+    fill: var(--sg-text-secondary);
+    font-family: var(--sg-font-mono);
+  }
+}
+
+.focus-ring {
+  fill: none;
+  stroke: var(--sg-focus);
+  stroke-width: 2;
+}

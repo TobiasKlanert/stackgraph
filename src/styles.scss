@@ -1,1 +1,10 @@
-/* You can add global styles to this file, and also import other style files */
+// Fonts (self-hosted; files are stored in hashed form under /media)
+@use '@fontsource-variable/inter';
+@use '@fontsource-variable/jetbrains-mono';
+
+// Design-System
+@use 'styles/tokens';
+@use 'styles/themes';
+@use 'styles/base';
+@use 'styles/controls';
+@use 'styles/utilities';

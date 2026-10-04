@@ -65,6 +65,14 @@ describe('ComposeState', () => {
     expect(state.displayed()?.graph).toBeDefined();
   });
 
+  it('measures how long parsing took', async () => {
+    state.source.set(validYaml);
+    await settleUntil(() => state.state().status === 'ready');
+
+    const current = state.state();
+    expect(current.status === 'ready' && current.parseMs).toBeGreaterThanOrEqual(0);
+  });
+
   it('reports pending before the debounce has elapsed', () => {
     state.source.set(validYaml);
     TestBed.tick();
@@ -83,6 +91,53 @@ describe('ComposeState', () => {
 
     expect(state.state().status).toBe('pending');
     expect(state.displayed()).toBe(good);
+  });
+
+  describe('updating', () => {
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    it('stays quiet for a short update', async () => {
+      state.source.set(validYaml);
+      TestBed.tick();
+      expect(state.state().status).toBe('pending');
+      expect(state.updating()).toBe(false);
+
+      await settleUntil(() => state.state().status === 'ready');
+      expect(state.updating()).toBe(false);
+    });
+
+    it('turns on once a change has been pending long enough, and off when it settles', async () => {
+      // Typing on (a key every 120 ms, below the 300 ms debounce) keeps the
+      // state pending. The check falls after the delay but before the last
+      // change settles.
+      const typed = ['s', 'services:', 'services:\n  w', 'services:\n  we', validYaml];
+      for (const text of typed) {
+        state.source.set(text);
+        TestBed.tick();
+        await sleep(120);
+      }
+      await sleep(30);
+      TestBed.tick();
+
+      expect(state.state().status).toBe('pending');
+      expect(state.updating()).toBe(true);
+
+      await settleUntil(() => state.state().status === 'ready');
+      expect(state.updating()).toBe(false);
+    });
+  });
+
+  it('keeps the last settled result while a change is pending', async () => {
+    state.source.set(brokenYaml);
+    await settleUntil(() => state.state().status === 'error');
+
+    state.source.set(validYaml);
+    TestBed.tick();
+
+    expect(state.state().status).toBe('pending');
+    expect(state.settled().status).toBe('error');
+
+    await settleUntil(() => state.settled().status === 'ready');
   });
 
   it('keeps the last good graph while the input is broken', async () => {

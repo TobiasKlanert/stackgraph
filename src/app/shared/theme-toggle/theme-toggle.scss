@@ -1,0 +1,17 @@
+.toggle {
+  display: grid;
+  place-items: center;
+  inline-size: 32px;
+  block-size: 32px;
+  padding: 0;
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-sm);
+  background: transparent;
+  color: var(--sg-text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--sg-text);
+    border-color: var(--sg-border-strong);
+  }
+}

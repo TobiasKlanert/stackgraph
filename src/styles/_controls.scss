@@ -1,0 +1,69 @@
+// Shared controls. Global on purpose: the same buttons and header links
+// appear in the home view, the split view and the document pages, and a
+// class is the lightest way to share their look across component styles.
+
+.sg-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  block-size: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--sg-border-strong);
+  border-radius: var(--sg-radius-sm);
+  background: transparent;
+  color: var(--sg-text);
+  font-size: var(--sg-font-size-md);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sg-bg-raised);
+  }
+
+  svg {
+    flex: none;
+  }
+}
+
+.sg-button--primary {
+  border-color: var(--sg-accent);
+  background: var(--sg-accent);
+  color: var(--sg-on-accent);
+  font-weight: 600;
+  box-shadow: var(--sg-accent-glow);
+
+  &:hover {
+    background: var(--sg-accent);
+    filter: brightness(1.08);
+  }
+}
+
+// Large variant for the main actions on the home page; 44 px is also the
+// touch target size the mobile layout needs.
+.sg-button--lg {
+  gap: 8px;
+  block-size: 44px;
+  padding: 0 16px;
+  border-radius: var(--sg-radius-md);
+  font-size: var(--sg-font-size-lg);
+}
+
+.sg-header-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  block-size: 32px;
+  padding: 0 10px;
+  border-radius: var(--sg-radius-sm);
+  color: var(--sg-text-secondary);
+  font-size: var(--sg-font-size-md);
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--sg-text);
+  }
+}

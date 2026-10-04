@@ -217,6 +217,17 @@ describe('parseCompose', () => {
     }
   });
 
+  it('reports the column of a syntax error, counted from one', () => {
+    const source = 'services:\n  web:\n    image: a\n    image: b\n';
+
+    const result = parseCompose(source);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors[0]?.message).toBe('duplicated mapping key');
+      expect(result.errors[0]).toMatchObject({ line: 4, column: 5 });
+    }
+  });
+
   it('reports all errors together as a list', () => {
     const source = `
     services:

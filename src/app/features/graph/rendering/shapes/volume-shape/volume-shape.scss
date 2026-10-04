@@ -1,0 +1,18 @@
+.shape {
+  fill: var(--sg-volume-bg);
+  stroke: var(--sg-volume);
+  stroke-width: 1.25;
+}
+
+.lid {
+  fill: none;
+  stroke: var(--sg-volume);
+  stroke-width: 1.25;
+}
+
+.label {
+  fill: var(--sg-volume-text);
+  font-family: var(--sg-font-sans);
+  font-weight: 500;
+  pointer-events: none;
+}

@@ -1,0 +1,66 @@
+:host {
+  display: block;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  // min instead of fixed height, so zoomed text grows the bar instead of clipping
+  min-block-size: 52px;
+  padding: 0 12px 0 16px;
+  background: var(--sg-bg-panel);
+  border-block-end: 1px solid var(--sg-border-subtle);
+}
+
+.start,
+.end {
+  display: flex;
+  align-items: center;
+  min-inline-size: 0;
+}
+
+.start {
+  gap: 12px;
+}
+
+.end {
+  gap: 8px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  block-size: 36px;
+  border-radius: var(--sg-radius-sm);
+  color: var(--sg-text);
+  text-decoration: none;
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  inline-size: 20px;
+  block-size: 20px;
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-sm);
+  background: var(--sg-bg-raised);
+
+  &::before {
+    content: '';
+    inline-size: 7px;
+    block-size: 7px;
+    border-radius: 1px;
+    background: var(--sg-accent);
+    transform: rotate(45deg);
+  }
+}
+
+.name {
+  font-size: var(--sg-font-size-lg);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}

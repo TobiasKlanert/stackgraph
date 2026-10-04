@@ -1,0 +1,74 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 12px 12px;
+  // Several structure errors must not push the editor out of the column.
+  max-block-size: 45%;
+  overflow-y: auto;
+}
+
+.error {
+  display: flex;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--sg-danger) 50%, transparent);
+  border-radius: var(--sg-radius-md);
+  background: var(--sg-danger-bg);
+}
+
+.icon {
+  flex: none;
+  margin-block-start: 1px;
+  color: var(--sg-danger);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-inline-size: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--sg-danger);
+  font-size: var(--sg-font-size-lg);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.message {
+  margin: 0;
+  color: var(--sg-text);
+  font-size: 0.84375rem; // 13.5px
+  line-height: 1.45;
+}
+
+.hint {
+  margin: 0;
+  color: var(--sg-text-secondary);
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-block-start: 4px;
+}
+
+.go-to {
+  background: var(--sg-bg-raised);
+
+  svg {
+    color: var(--sg-text-secondary);
+  }
+}
+
+.path {
+  color: var(--sg-text-muted);
+  font-size: var(--sg-font-size-xs);
+  overflow-wrap: anywhere;
+}
