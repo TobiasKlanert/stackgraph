@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { WorkspaceView } from '../../core/state/workspace-view';
+import { isPlainClick } from '../events/is-plain-click';
 
 @Component({
   selector: 'app-site-header',
@@ -18,7 +19,7 @@ export class SiteHeader {
    */
   protected onBrandClick(event: MouseEvent): void {
     // Modified clicks open a new tab; the current view must stay as it is.
-    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+    if (!isPlainClick(event)) {
       return;
     }
     this.workspace.close();
