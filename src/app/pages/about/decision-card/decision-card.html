@@ -1,0 +1,19 @@
+<h3 class="heading">
+  <span class="index">{{ index() }}.</span>
+  {{ heading() }}
+</h3>
+
+<!-- Fragment links through the router, like the table of contents. -->
+<p class="follows">
+  <span class="follows-label">Follows from</span><span class="sr-only">: </span>
+  @for (id of followsFrom(); track id; let last = $last) {
+    <a [routerLink]="[]" [fragment]="id">{{ titles[id] }}</a>
+    @if (!last) {
+      <span class="sep" aria-hidden="true">·</span><span class="sr-only">, </span>
+    }
+  }
+</p>
+
+<div class="body">
+  <ng-content />
+</div>

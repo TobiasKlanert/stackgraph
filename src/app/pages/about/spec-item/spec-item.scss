@@ -1,0 +1,66 @@
+@use '../../prose';
+
+// Title above text; title (and tag) left, text right from the stacking
+// width on. Rows are separated by hairlines; the list closes the last one.
+:host {
+  display: grid;
+  grid-template-areas:
+    'heading'
+    'tag'
+    'text';
+  align-content: start;
+  padding-block: 16px;
+  border-block-start: 1px solid var(--sg-border-subtle);
+
+  @media (width >= prose.$stack-below) {
+    grid-template-areas:
+      'heading text'
+      'tag text';
+    grid-template-columns: 12rem minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: 24px;
+  }
+}
+
+// Jump target from the decision cards: a starting point for reading, not a
+// control, so no ring.
+:host(:focus) {
+  outline: none;
+}
+
+.heading {
+  grid-area: heading;
+  margin: 0 0 4px;
+  color: var(--sg-text);
+  font-size: 1rem;
+  font-weight: 600;
+  // Same line height as the text, so the title sits on its first line.
+  line-height: prose.$body-leading;
+
+  @media (width >= prose.$stack-below) {
+    margin: 0;
+  }
+}
+
+.tag {
+  grid-area: tag;
+  align-self: start;
+  justify-self: start;
+  margin: 0 0 8px;
+  padding: 2px 6px;
+  border: 1px solid var(--sg-border-subtle);
+  border-radius: var(--sg-radius-sm);
+  color: var(--sg-text-secondary);
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-xs);
+  line-height: 1.3;
+
+  @media (width >= prose.$stack-below) {
+    margin: 6px 0 0;
+  }
+}
+
+.text {
+  grid-area: text;
+  margin: 0;
+}

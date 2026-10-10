@@ -5,7 +5,7 @@
 // the figures, which are wider than the text.
 $two-columns: 75rem;
 
-// Titles inside the spec list and the steps: body size, set apart by weight.
+// Titles inside the steps: body size, set apart by weight.
 $body-title-size: 1rem;
 
 :host {
@@ -125,42 +125,11 @@ h3 {
   margin-block: 28px 32px;
 }
 
-// ---- Goals & constraints: a data sheet, title left, text right ----
+// ---- Data sheets (constraints, accessibility); rows are SpecItems ----
 
 .spec-list {
   margin-block: 24px;
   border-block-end: 1px solid var(--sg-border-subtle);
-}
-
-.spec {
-  padding-block: 16px;
-  border-block-start: 1px solid var(--sg-border-subtle);
-
-  // Target of the cross-references from the decision cards.
-  &:focus {
-    outline: none;
-  }
-
-  h3 {
-    margin: 0 0 4px;
-    font-size: $body-title-size;
-  }
-
-  p {
-    margin: 0;
-  }
-
-  @media (width >= prose.$stack-below) {
-    display: grid;
-    grid-template-columns: 12rem minmax(0, 1fr);
-    column-gap: 24px;
-
-    h3 {
-      margin: 0;
-      // Optical alignment with the first line of the text next to it.
-      line-height: prose.$body-leading;
-    }
-  }
 }
 
 // ---- How it works: numbered steps ----
@@ -197,4 +166,104 @@ h3 {
   // Same line box as the step title, so number and title share a baseline.
   line-height: prose.$body-leading * 1rem;
   font-variant-numeric: tabular-nums;
+}
+
+// ---- Stack & patterns: tables, cards below the stacking width ----
+
+.stack-table {
+  inline-size: 100%;
+  margin-block: 24px 32px;
+  border-collapse: collapse;
+  // Fixed layout: both tables share the same column widths.
+  table-layout: fixed;
+  font-size: var(--sg-font-size-lg);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+
+  // Names the table; the header row only labels the columns.
+  caption {
+    padding-block-end: 8px;
+    color: var(--sg-text);
+    font-weight: 600;
+    text-align: start;
+  }
+
+  th {
+    padding: 0 16px 8px 0;
+    border-block-end: 1px solid var(--sg-border);
+    color: var(--sg-text-muted);
+    font-size: var(--sg-font-size-xs);
+    font-weight: 500;
+    text-align: start;
+  }
+
+  td {
+    padding: 12px 16px 12px 0;
+    border-block-end: 1px solid var(--sg-border-subtle);
+    vertical-align: top;
+  }
+
+  th:nth-child(1) {
+    inline-size: 25%;
+  }
+
+  th:nth-child(2) {
+    inline-size: 27%;
+  }
+
+  td:first-child {
+    color: var(--sg-text);
+    font-weight: 500;
+  }
+
+  @media (width < prose.$stack-below) {
+    // Header row stays for screen readers; each row shows its own labels.
+    thead {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    tr {
+      display: block;
+      padding-block: 12px;
+      border-block-end: 1px solid var(--sg-border-subtle);
+    }
+
+    td {
+      display: block;
+      padding: 2px 0;
+      border: 0;
+    }
+
+    // Label from the column, hidden from screen readers (they have the header).
+    td[data-label]::before {
+      content: attr(data-label) / '';
+      display: block;
+      margin-block-start: 6px;
+      color: var(--sg-text-muted);
+      font-size: var(--sg-font-size-xs);
+      font-weight: 500;
+    }
+  }
+}
+
+// ---- Key decisions ----
+
+.cards {
+  display: grid;
+  gap: 16px;
+  margin-block-start: 24px;
+
+  // The paragraphs are this page's own content, projected into the cards.
+  app-decision-card p:last-child {
+    margin-block-end: 0;
+  }
+}
+
+.method {
+  color: var(--sg-text-muted);
+  font-size: var(--sg-font-size-lg);
 }

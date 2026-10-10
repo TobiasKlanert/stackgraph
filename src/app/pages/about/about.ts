@@ -3,6 +3,8 @@ import { RouterLink } from '@angular/router';
 import { AboutHero } from './about-hero/about-hero';
 import { ArchitectureDiagram } from './architecture-diagram/architecture-diagram';
 import { DataFlow } from './data-flow/data-flow';
+import { DecisionCard } from './decision-card/decision-card';
+import { SpecItem } from './spec-item/spec-item';
 
 /** A section of the page; `id` is the fragment the table of contents links to. */
 export interface AboutSection {
@@ -29,7 +31,7 @@ export const aboutSections: readonly AboutSection[] = [
 /** Case study: how StackGraph works and why it is built the way it is. */
 @Component({
   selector: 'app-about',
-  imports: [RouterLink, AboutHero, DataFlow, ArchitectureDiagram],
+  imports: [RouterLink, AboutHero, SpecItem, DataFlow, ArchitectureDiagram, DecisionCard],
   templateUrl: './about.html',
   styleUrl: './about.scss',
 })
