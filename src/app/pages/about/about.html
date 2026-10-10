@@ -1,1 +1,101 @@
-<p>about works!</p>
+<article class="about">
+  <header class="hero">
+    <p class="kicker">Case study</p>
+    <h1>Building StackGraph</h1>
+    <p class="subtitle">
+      A browser-only tool that turns a <code>docker-compose.yml</code> into an interactive service
+      graph. This page explains how it works, why it is built the way it is, and what went wrong
+      along the way.
+    </p>
+  </header>
+
+  <!--
+    Fragment links go through the router: with <base href="/">, a plain
+    href="#why" would resolve to "/#why" and reload the start page.
+  -->
+  <nav class="toc" aria-labelledby="toc-label">
+    <p id="toc-label" class="toc-label">On this page</p>
+    <ol class="toc-list">
+      @for (section of sections; track section.id) {
+        <li>
+          <a [routerLink]="[]" [fragment]="section.id">{{ section.title }}</a>
+        </li>
+      }
+    </ol>
+  </nav>
+
+  <!-- Sections take focus from the table of contents (tabindex="-1"). -->
+  <div class="sections">
+    <section id="why" tabindex="-1">
+      <h2>Why I built it</h2>
+      <p class="lead">
+        StackGraph is three things at once: a portfolio project, a learning project, and a tool I
+        wanted for myself.
+      </p>
+    </section>
+
+    <section id="constraints" tabindex="-1">
+      <h2>Goals &amp; constraints</h2>
+      <p class="lead">
+        Five requirements shaped almost every technical decision in StackGraph, and each of them
+        ruled something out.
+      </p>
+    </section>
+
+    <section id="how-it-works" tabindex="-1">
+      <h2>How it works</h2>
+      <p class="lead">
+        Every edit runs through the same short pipeline: wait for a pause, parse, lay out, draw.
+        Each step hands a typed result to the next.
+      </p>
+    </section>
+
+    <section id="architecture" tabindex="-1">
+      <h2>Architecture</h2>
+      <p class="lead">
+        Four layers, and dependencies only point downwards. The core of StackGraph does not know
+        that Angular components exist.
+      </p>
+    </section>
+
+    <section id="stack" tabindex="-1">
+      <h2>Stack &amp; patterns</h2>
+      <p class="lead">
+        Every library and pattern here traces back to one of the constraints above. Where a choice
+        has a limit, the table names it.
+      </p>
+    </section>
+
+    <section id="decisions" tabindex="-1">
+      <h2>Key decisions</h2>
+      <p class="lead">
+        Four decisions shaped StackGraph more than any others. Each card names what it follows from,
+        the options, and the price.
+      </p>
+    </section>
+
+    <section id="accessibility" tabindex="-1">
+      <h2>Accessibility</h2>
+      <p class="lead">
+        A graph is visual by nature, so StackGraph does not rely on the picture alone. Everything
+        the graph shows can also be reached with a keyboard and read by a screen reader.
+      </p>
+    </section>
+
+    <section id="lessons" tabindex="-1">
+      <h2>Lessons learned</h2>
+      <p class="lead">
+        Three things that went wrong while building StackGraph, and what each one changed in how I
+        work.
+      </p>
+    </section>
+
+    <section id="whats-next" tabindex="-1">
+      <h2>What's next</h2>
+      <p class="lead">
+        v1.1 picks up what the first version deliberately left out. The Web Worker comes first; the
+        rest is grouped by what it improves.
+      </p>
+    </section>
+  </div>
+</article>

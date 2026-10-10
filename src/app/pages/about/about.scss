@@ -1,0 +1,129 @@
+@use '../prose';
+
+// Two columns from this width on: table of contents left, article right.
+// A table of contents in the margin of a centred column would collide with
+// the figures, which are wider than the text.
+$two-columns: 75rem;
+
+:host {
+  display: block;
+  @include prose.text;
+}
+
+.about {
+  display: grid;
+  grid-template-areas:
+    'hero'
+    'toc'
+    'sections';
+  max-inline-size: calc(#{prose.$measure} + 32px);
+  margin-inline: auto;
+  padding: 56px 16px 96px;
+
+  @media (min-width: $two-columns) {
+    grid-template-areas:
+      'toc hero'
+      'toc sections';
+    grid-template-columns: 13rem minmax(0, 1fr);
+    column-gap: 4rem;
+    max-inline-size: 76rem;
+    padding-inline: 32px;
+  }
+}
+
+// ---- Hero ----
+
+.hero {
+  grid-area: hero;
+}
+
+.kicker {
+  @include prose.kicker;
+}
+
+h1 {
+  @include prose.h1;
+}
+
+.subtitle {
+  margin-block: 16px 0;
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+// ---- Table of contents ----
+
+.toc {
+  grid-area: toc;
+  margin-block-start: 40px;
+
+  @media (min-width: $two-columns) {
+    position: sticky;
+    margin-block-start: 0;
+    inset-block-start: 32px;
+    align-self: start;
+  }
+}
+
+.toc-label {
+  margin: 0 0 8px;
+  color: var(--sg-text-muted);
+  font-size: var(--sg-font-size-xs);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.toc-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-inline-start: 1px solid var(--sg-border-subtle);
+
+  a {
+    display: flex;
+    align-items: center;
+    // 32 px targets, above the 24 px minimum of WCAG 2.5.8
+    min-block-size: 32px;
+    padding: 4px 12px;
+    color: var(--sg-text-secondary);
+    font-size: var(--sg-font-size-lg);
+    line-height: 1.3;
+    // Navigation list: the context makes the links recognisable
+    text-decoration: none;
+
+    &:hover {
+      color: var(--sg-text);
+    }
+  }
+}
+
+// ---- Sections ----
+
+.sections {
+  grid-area: sections;
+}
+
+// The spacing sits inside each section, so a jump from the table of
+// contents leaves the same room above every heading.
+section {
+  padding-block-start: 48px;
+
+  // Focus from the table of contents lands here; the section is a starting
+  // point for reading, not a control, so it gets no ring.
+  &:focus {
+    outline: none;
+  }
+
+  @media (min-width: $two-columns) {
+    padding-block-start: 56px;
+  }
+}
+
+h2 {
+  @include prose.h2;
+}
+
+.lead {
+  @include prose.lead;
+}

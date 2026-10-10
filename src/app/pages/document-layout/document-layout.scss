@@ -1,0 +1,10 @@
+// Full-height column, so the footer stays at the bottom on short pages.
+:host {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100dvh;
+}
+
+.main {
+  flex: 1;
+}
