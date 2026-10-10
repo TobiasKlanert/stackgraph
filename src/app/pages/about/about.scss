@@ -5,6 +5,9 @@
 // the figures, which are wider than the text.
 $two-columns: 75rem;
 
+// Titles inside the spec list and the steps: body size, set apart by weight.
+$body-title-size: 1rem;
+
 :host {
   display: block;
   @include prose.text;
@@ -20,7 +23,7 @@ $two-columns: 75rem;
   margin-inline: auto;
   padding: 56px 16px 96px;
 
-  @media (min-width: $two-columns) {
+  @media (width >= $two-columns) {
     grid-template-areas:
       'toc hero'
       'toc sections';
@@ -31,24 +34,9 @@ $two-columns: 75rem;
   }
 }
 
-// ---- Hero ----
-
+// The hero is its own component; it only needs its place in the grid.
 .hero {
   grid-area: hero;
-}
-
-.kicker {
-  @include prose.kicker;
-}
-
-h1 {
-  @include prose.h1;
-}
-
-.subtitle {
-  margin-block: 16px 0;
-  font-size: 1.125rem;
-  line-height: 1.6;
 }
 
 // ---- Table of contents ----
@@ -57,7 +45,7 @@ h1 {
   grid-area: toc;
   margin-block-start: 40px;
 
-  @media (min-width: $two-columns) {
+  @media (width >= $two-columns) {
     position: sticky;
     margin-block-start: 0;
     inset-block-start: 32px;
@@ -115,7 +103,7 @@ section {
     outline: none;
   }
 
-  @media (min-width: $two-columns) {
+  @media (width >= $two-columns) {
     padding-block-start: 56px;
   }
 }
@@ -124,6 +112,84 @@ h2 {
   @include prose.h2;
 }
 
+h3 {
+  @include prose.h3;
+}
+
 .lead {
   @include prose.lead;
+}
+
+// ---- Goals & constraints: a data sheet, title left, text right ----
+
+.spec-list {
+  margin-block: 24px;
+  border-block-end: 1px solid var(--sg-border-subtle);
+}
+
+.spec {
+  padding-block: 16px;
+  border-block-start: 1px solid var(--sg-border-subtle);
+
+  // Target of the cross-references from the decision cards.
+  &:focus {
+    outline: none;
+  }
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: $body-title-size;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  @media (width >= prose.$stack-below) {
+    display: grid;
+    grid-template-columns: 12rem minmax(0, 1fr);
+    column-gap: 24px;
+
+    h3 {
+      margin: 0;
+      // Optical alignment with the first line of the text next to it.
+      line-height: prose.$body-leading;
+    }
+  }
+}
+
+// ---- How it works: numbered steps ----
+
+.steps {
+  display: grid;
+  gap: 24px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  column-gap: 12px;
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: $body-title-size;
+    line-height: prose.$body-leading;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.step-number {
+  color: var(--sg-accent);
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-md);
+  font-weight: 500;
+  // Same line box as the step title, so number and title share a baseline.
+  line-height: prose.$body-leading * 1rem;
+  font-variant-numeric: tabular-nums;
 }

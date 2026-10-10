@@ -1,0 +1,103 @@
+<header>
+  <p class="kicker">Case study</p>
+  <h1>Building StackGraph</h1>
+  <p class="subtitle">
+    A browser-only tool that turns a <code>docker-compose.yml</code> into an interactive service
+    graph. This page explains how it works, why it is built the way it is, and what went wrong along
+    the way.
+  </p>
+
+  <ul class="keywords" aria-label="Technologies">
+    <li>Angular 21</li>
+    <li>TypeScript (strict)</li>
+    <li>Signals + RxJS</li>
+    <li>ELK.js</li>
+    <li>Docker</li>
+    <li>GitHub Actions</li>
+  </ul>
+
+  <ul class="highlights">
+    <li>
+      <strong>Nothing leaves the browser.</strong>
+      No backend, no upload, no analytics.
+    </li>
+    <li>
+      <strong>Four layers, one direction.</strong>
+      Parser, mapping and geometry are plain functions, tested without Angular or a DOM.
+    </li>
+    <li>
+      <strong>Built to be accessible.</strong>
+      A text view of the whole stack, full keyboard control and deliberate focus handling.
+    </li>
+  </ul>
+
+  <div class="actions">
+    <a
+      class="sg-button sg-button--primary sg-button--lg"
+      routerLink="/"
+      (click)="onTryIt($event)"
+      data-testid="hero-primary"
+    >
+      @if (hasOwnSource()) {
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        Back to the app
+      } @else {
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <path d="M14 2v6h6M10 13l-2 2 2 2M14 17l2-2-2-2" />
+        </svg>
+        Try it with an example
+      }
+    </a>
+    <a class="sg-button sg-button--lg" [href]="links.github" target="_blank" rel="noopener">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="m16 18 6-6-6-6M8 6l-6 6 6 6" />
+      </svg>
+      Source on GitHub
+      <span class="sr-only"> (opens in a new tab)</span>
+    </a>
+  </div>
+
+  <p class="byline">
+    A project by
+    <a [href]="links.linkedIn" target="_blank" rel="noopener"
+      >Tobias Klanert<span class="sr-only"> (LinkedIn, opens in a new tab)</span></a
+    >
+    · about 10 minutes to read
+  </p>
+</header>

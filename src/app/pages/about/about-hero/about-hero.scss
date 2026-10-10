@@ -1,0 +1,88 @@
+@use '../../prose';
+
+:host {
+  display: block;
+  @include prose.text;
+}
+
+.kicker {
+  @include prose.kicker;
+}
+
+h1 {
+  @include prose.h1;
+}
+
+.subtitle {
+  margin-block: 16px 0;
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-inline-size: none;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 4px 8px;
+    border: 1px solid var(--sg-border-subtle);
+    border-radius: var(--sg-radius-sm);
+    background: var(--sg-bg-raised);
+    color: var(--sg-text-secondary);
+    font-family: var(--sg-font-mono);
+    font-size: var(--sg-font-size-xs);
+    line-height: 1.2;
+  }
+}
+
+// Three columns as soon as each one gets about 16 em; stacked below.
+.highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 16px 24px;
+  max-inline-size: none;
+  margin: 32px 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding-block-start: 12px;
+    border-block-start: 1px solid var(--sg-border);
+    font-size: var(--sg-font-size-lg);
+    line-height: 1.5;
+  }
+
+  strong {
+    display: block;
+    margin-block-end: 2px;
+  }
+}
+
+// Full-width buttons on narrow screens, like on the home page.
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block-start: 32px;
+
+  @media (width < prose.$stack-below) {
+    flex-direction: column;
+
+    .sg-button {
+      justify-content: center;
+      block-size: 48px;
+      font-size: 0.9375rem; // 15px
+    }
+  }
+}
+
+.byline {
+  margin: 20px 0 0;
+  color: var(--sg-text-muted);
+  font-size: var(--sg-font-size-lg);
+}

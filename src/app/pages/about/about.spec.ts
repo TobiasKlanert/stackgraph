@@ -1,6 +1,8 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { ComposeState } from '../../core/state/compose-state';
 import { About, aboutSections } from './about';
 
 describe('About', () => {
@@ -8,7 +10,11 @@ describe('About', () => {
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      providers: [provideRouter([{ path: 'about', component: About }])],
+      providers: [
+        provideRouter([{ path: 'about', component: About }]),
+        // The hero reads the editor text; the real pipeline is not needed here.
+        { provide: ComposeState, useValue: { source: signal('') } },
+      ],
     });
     const harness = await RouterTestingHarness.create('/about');
     el = harness.routeNativeElement as HTMLElement;
@@ -16,11 +22,11 @@ describe('About', () => {
 
   const tocLinks = () => Array.from(el.querySelectorAll<HTMLAnchorElement>('nav.toc a'));
 
-  it('has one page title', () => {
+  it('has one page title, in the hero', () => {
     const titles = el.querySelectorAll('h1');
 
     expect(titles).toHaveLength(1);
-    expect(titles[0]?.textContent?.trim()).toBe('Building StackGraph');
+    expect(titles[0]?.closest('app-about-hero')).not.toBeNull();
   });
 
   it('builds the table of contents from the section list, in page order', () => {
@@ -54,5 +60,32 @@ describe('About', () => {
     const ids = Array.from(el.querySelectorAll('section[id]')).map((s) => s.id);
 
     expect(ids).toEqual(aboutSections.map((s) => s.id));
+  });
+
+  it('gives every constraint a focusable anchor for the decision cards', () => {
+    const specs = Array.from(el.querySelectorAll('#constraints .spec'));
+
+    expect(specs.map((s) => s.id)).toEqual([
+      'c-browser',
+      'c-feedback',
+      'c-errors',
+      'c-direction',
+      'c-a11y',
+    ]);
+    expect(specs.every((s) => s.getAttribute('tabindex') === '-1')).toBe(true);
+  });
+
+  it('lists the pipeline steps in order', () => {
+    const titles = Array.from(el.querySelectorAll('#how-it-works ol.steps h3')).map((h) =>
+      h.textContent?.trim()
+    );
+
+    expect(titles).toEqual([
+      'Wait for a pause',
+      'Parse into a typed model',
+      'Compute the layout',
+      'Draw the graph',
+      'Keep the last good graph',
+    ]);
   });
 });
