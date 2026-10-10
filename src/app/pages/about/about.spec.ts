@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { ComposeState } from '../../core/state/compose-state';
+import { ConstraintId, constraintTitles } from './about-constraints';
 import { About, aboutSections } from './about';
 
 describe('About', () => {
@@ -62,17 +63,16 @@ describe('About', () => {
     expect(ids).toEqual(aboutSections.map((s) => s.id));
   });
 
-  it('gives every constraint a focusable anchor for the decision cards', () => {
-    const specs = Array.from(el.querySelectorAll('#constraints .spec'));
+  it('gives every constraint a focusable anchor with the title the cards use', () => {
+    const rows = Array.from(el.querySelectorAll('#constraints app-spec-item'));
 
-    expect(specs.map((s) => s.id)).toEqual([
-      'c-browser',
-      'c-feedback',
-      'c-errors',
-      'c-direction',
-      'c-a11y',
-    ]);
-    expect(specs.every((s) => s.getAttribute('tabindex') === '-1')).toBe(true);
+    expect(rows.map((r) => r.id)).toEqual(Object.keys(constraintTitles));
+    for (const row of rows) {
+      expect(row.getAttribute('tabindex'), row.id).toBe('-1');
+      expect(row.querySelector('h3')?.textContent, row.id).toBe(
+        constraintTitles[row.id as ConstraintId]
+      );
+    }
   });
 
   it('lists the pipeline steps in order', () => {
@@ -87,5 +87,53 @@ describe('About', () => {
       'Draw the graph',
       'Keep the last good graph',
     ]);
+  });
+
+  it('links every decision card only to anchors that exist on the page', () => {
+    const targets = Array.from(el.querySelectorAll<HTMLAnchorElement>('app-decision-card a')).map(
+      (a) => a.getAttribute('href')?.split('#')[1] ?? ''
+    );
+
+    expect(targets.length).toBeGreaterThan(0);
+    for (const id of targets) {
+      expect(el.querySelector(`#${id}`), id).not.toBeNull();
+    }
+  });
+
+  it('gives every decision card a decision and a cost', () => {
+    const cards = Array.from(el.querySelectorAll('app-decision-card'));
+
+    expect(cards).toHaveLength(4);
+    for (const card of cards) {
+      const blocks = Array.from(card.querySelectorAll('p > strong')).map((b) => b.textContent);
+
+      expect(blocks, card.querySelector('h3')?.textContent ?? '').toContain('Decision.');
+      expect(blocks, card.querySelector('h3')?.textContent ?? '').toContain('Cost.');
+    }
+  });
+
+  it('keeps table semantics explicit, so the mobile card layout cannot drop them', () => {
+    const tables = Array.from(el.querySelectorAll<HTMLTableElement>('#stack table'));
+
+    expect(tables).toHaveLength(2);
+    for (const table of tables) {
+      expect(table.getAttribute('role')).toBe('table');
+      expect(table.querySelectorAll('th[scope="col"][role="columnheader"]')).toHaveLength(3);
+      for (const row of Array.from(table.tBodies[0]?.rows ?? [])) {
+        const labels = Array.from(row.cells).map((c) => c.dataset['label'] ?? null);
+
+        expect(labels).toEqual([null, 'Where', 'Why']);
+        expect(Array.from(row.cells).every((c) => c.getAttribute('role') === 'cell')).toBe(true);
+      }
+    }
+  });
+
+  it('names a WCAG criterion for every accessibility point', () => {
+    const tags = Array.from(el.querySelectorAll('#accessibility app-spec-item .tag')).map(
+      (t) => t.textContent
+    );
+
+    expect(tags).toHaveLength(5);
+    expect(tags.every((t) => t?.startsWith('WCAG '))).toBe(true);
   });
 });

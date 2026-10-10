@@ -52,49 +52,33 @@
       </p>
 
       <div class="spec-list">
-        <div class="spec" id="c-browser" tabindex="-1">
-          <h3>Nothing leaves the browser</h3>
-          <p>
-            Compose files often contain internal hostnames, registry paths and sometimes credentials
-            in environment variables. StackGraph therefore has no backend, no upload and no
-            analytics, and even the fonts are self-hosted so that no request goes to a third party.
-            Parsing, layout and rendering all run on the user's machine, which means every
-            dependency has to justify its weight in the bundle.
-          </p>
-        </div>
-        <div class="spec" id="c-feedback" tabindex="-1">
-          <h3>Feedback while typing</h3>
-          <p>
-            The graph follows the editor without a render button. Half-typed YAML is invalid more
-            often than it is valid, so the graph must not vanish on every keystroke, and a slow
-            layout run must never overwrite the result of a newer one.
-          </p>
-        </div>
-        <div class="spec" id="c-errors" tabindex="-1">
-          <h3>Errors a person can act on</h3>
-          <p>
-            "Invalid YAML" does not help in an 80-line file. Every error names its cause, gives the
-            line and column or the path in the file, and for common mistakes a hint on how to fix
-            it.
-          </p>
-        </div>
-        <div class="spec" id="c-direction" tabindex="-1">
-          <h3>A layout that shows direction</h3>
-          <p>
-            Dependencies in a compose file usually form layers, from the proxy down to the database.
-            The layout has to make that order visible, and the result has to leave the app as a
-            clean SVG file. That ruled out force-directed layouts, which are good at clusters but
-            say nothing about direction. It also meant owning the SVG markup instead of handing it
-            to a graph library.
-          </p>
-        </div>
-        <div class="spec" id="c-a11y" tabindex="-1">
-          <h3>Accessibility is part of v1</h3>
-          <p>
-            A graph is visual by nature, so everything it shows also needs a route that works with a
-            keyboard and a screen reader, and no information may depend on color alone.
-          </p>
-        </div>
+        <app-spec-item id="c-browser" tabindex="-1" heading="Nothing leaves the browser">
+          Compose files often contain internal hostnames, registry paths and sometimes credentials
+          in environment variables. StackGraph therefore has no backend, no upload and no analytics,
+          and even the fonts are self-hosted so that no request goes to a third party. Parsing,
+          layout and rendering all run on the user's machine, which means every dependency has to
+          justify its weight in the bundle.
+        </app-spec-item>
+        <app-spec-item id="c-feedback" tabindex="-1" heading="Feedback while typing">
+          The graph follows the editor without a render button. Half-typed YAML is invalid more
+          often than it is valid, so the graph must not vanish on every keystroke, and a slow layout
+          run must never overwrite the result of a newer one.
+        </app-spec-item>
+        <app-spec-item id="c-errors" tabindex="-1" heading="Errors a person can act on">
+          "Invalid YAML" does not help in an 80-line file. Every error names its cause, gives the
+          line and column or the path in the file, and for common mistakes a hint on how to fix it.
+        </app-spec-item>
+        <app-spec-item id="c-direction" tabindex="-1" heading="A layout that shows direction">
+          Dependencies in a compose file usually form layers, from the proxy down to the database.
+          The layout has to make that order visible, and the result has to leave the app as a clean
+          SVG file. That ruled out force-directed layouts, which are good at clusters but say
+          nothing about direction. It also meant owning the SVG markup instead of handing it to a
+          graph library.
+        </app-spec-item>
+        <app-spec-item id="c-a11y" tabindex="-1" heading="Accessibility is part of v1">
+          A graph is visual by nature, so everything it shows also needs a route that works with a
+          keyboard and a screen reader, and no information may depend on color alone.
+        </app-spec-item>
       </div>
 
       <p>
@@ -246,6 +230,190 @@
         Every library and pattern here traces back to one of the constraints above. Where a choice
         has a limit, the table names it.
       </p>
+
+      <!--
+        Explicit roles: below the stacking width the rows become cards, and
+        some browsers drop table semantics once CSS changes the display of
+        table elements.
+      -->
+      <table class="stack-table" role="table">
+        <caption>
+          Technologies
+        </caption>
+        <thead role="rowgroup">
+          <tr role="row">
+            <th scope="col" role="columnheader">Name</th>
+            <th scope="col" role="columnheader">Where</th>
+            <th scope="col" role="columnheader">Why</th>
+          </tr>
+        </thead>
+        <tbody role="rowgroup">
+          <tr role="row">
+            <td role="cell">Angular 21, standalone and zoneless</td>
+            <td role="cell" data-label="Where">everywhere</td>
+            <td role="cell" data-label="Why">
+              The framework I trained in, so the effort went into the problem, not into learning a
+              tool. Zoneless: re-renders are triggered by signal changes and events, not by patched
+              browser APIs.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">
+              TypeScript 5.9, <code>strict</code> plus <code>noUncheckedIndexedAccess</code> and
+              <code>exactOptionalPropertyTypes</code>
+            </td>
+            <td role="cell" data-label="Where">everywhere</td>
+            <td role="cell" data-label="Why">
+              The parser works on untrusted input. These flags force a check on every lookup into
+              the parsed YAML and keep an absent field apart from an explicit
+              <code>undefined</code>.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">js-yaml</td>
+            <td role="cell" data-label="Where"><code>core/parser</code></td>
+            <td role="cell" data-label="Why">
+              Small, mature, and reports line and column for syntax errors. Its limit: structural
+              errors only get a path, not a line.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">ELK.js, layered algorithm</td>
+            <td role="cell" data-label="Where"><code>core/layout</code></td>
+            <td role="cell" data-label="Why">
+              Computes positions only and leaves drawing to the app. The layered algorithm makes the
+              direction of dependencies visible.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">d3-zoom and d3-selection</td>
+            <td role="cell" data-label="Where"><code>shared/directives/zoomable.ts</code></td>
+            <td role="cell" data-label="Why">
+              Proven handling of wheel, drag and pinch. Only these two d3 modules: d3 listens to
+              gestures, Angular writes the transform.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">RxJS</td>
+            <td role="cell" data-label="Where"><code>core/state/compose-state.ts</code></td>
+            <td role="cell" data-label="Why">
+              Only where time matters: the pause before parsing, discarding stale layouts, the
+              delayed "Updating…" indicator. Everything else is signals.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">Vitest with jsdom</td>
+            <td role="cell" data-label="Where"><code>*.spec.ts</code></td>
+            <td role="cell" data-label="Why">
+              Fast tests without a browser. The pure functions in the core need no Angular test
+              setup at all.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">ESLint, Prettier, GitHub Actions</td>
+            <td role="cell" data-label="Where"><code>.github/workflows/ci.yml</code></td>
+            <td role="cell" data-label="Why">
+              Lint, format check, tests and production build must pass before a pull request can be
+              merged. The build fails above a 1 MB initial bundle.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">Docker, nginx, GHCR, Caddy</td>
+            <td role="cell" data-label="Where"><code>Dockerfile</code>, <code>ci.yml</code></td>
+            <td role="cell" data-label="Why">
+              A multi-stage build produces a small static nginx image. Every merge to
+              <code>main</code> is pushed to GHCR and deployed to a VPS behind Caddy: a compose
+              visualizer, deployed with compose.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="stack-table" role="table">
+        <caption>
+          Patterns
+        </caption>
+        <thead role="rowgroup">
+          <tr role="row">
+            <th scope="col" role="columnheader">Name</th>
+            <th scope="col" role="columnheader">Where</th>
+            <th scope="col" role="columnheader">Why</th>
+          </tr>
+        </thead>
+        <tbody role="rowgroup">
+          <tr role="row">
+            <td role="cell">Functional core</td>
+            <td role="cell" data-label="Where">
+              <code>core/parser</code>, <code>core/layout</code>, <code>core/relations</code>,
+              <code>core/format</code>
+            </td>
+            <td role="cell" data-label="Why">
+              Logic without side effects is easy to test and to reason about. Angular wraps it, not
+              the other way round.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">Discriminated unions</td>
+            <td role="cell" data-label="Where">
+              <code>ParseResult</code>, <code>ParseState</code>, <code>StackGraphNode</code>
+            </td>
+            <td role="cell" data-label="Why">
+              A result is either valid or an error, never both. Checking <code>status</code> or
+              <code>nodeType</code> narrows the type, in templates too via <code>&#64;switch</code>.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">Derived state with <code>linkedSignal</code></td>
+            <td role="cell" data-label="Where"><code>ComposeState.displayed</code></td>
+            <td role="cell" data-label="Why">
+              "Last valid graph" is its own named step on top of the honest pipeline result, not a
+              flag hidden inside it.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">Container and presentational components</td>
+            <td role="cell" data-label="Where"><code>GraphPage</code> and the graph components</td>
+            <td role="cell" data-label="Why">
+              One component owns state and selection; the others render inputs and emit outputs, so
+              each can be tested on its own.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">Injection tokens for browser APIs</td>
+            <td role="cell" data-label="Where">
+              <code>THEME_STORAGE</code>, <code>IS_APPLE_PLATFORM</code>
+            </td>
+            <td role="cell" data-label="Why">
+              Storage and platform detection are injected instead of read from globals, so tests
+              choose them without patching <code>window</code>.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">Attribute-selector components in SVG</td>
+            <td role="cell" data-label="Where"><code>g[app-service-shape]</code> and siblings</td>
+            <td role="cell" data-label="Why">
+              SVG does not render unknown elements, so each shape component attaches to a
+              <code>&lt;g&gt;</code> instead of its own tag.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">Lazy loading</td>
+            <td role="cell" data-label="Where">text pages, ELK</td>
+            <td role="cell" data-label="Why">
+              ELK and the About and legal pages load on demand, which keeps the initial bundle well
+              below its budget.
+            </td>
+          </tr>
+          <tr role="row">
+            <td role="cell">Semantic design tokens</td>
+            <td role="cell" data-label="Where"><code>src/styles</code></td>
+            <td role="cell" data-label="Why">
+              Components use roles like surface or accent instead of raw colors, so light and dark
+              theme differ only in token values.
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
     <section id="decisions" tabindex="-1">
@@ -254,6 +422,123 @@
         Four decisions shaped StackGraph more than any others. Each card names what it follows from,
         the options, and the price.
       </p>
+
+      <div class="cards">
+        <app-decision-card
+          [index]="1"
+          heading="ELK and my own SVG instead of a graph component"
+          [followsFrom]="['c-direction', 'c-a11y']"
+        >
+          <p>
+            <strong>Options.</strong> ngx-graph, a maintained Angular graph component with dagre
+            layout; D3, whose built-in layouts are force-directed or made for trees; or ELK for
+            positions only, with the drawing done in Angular templates.
+          </p>
+          <p>
+            <strong>Decision.</strong> ELK plus my own SVG. ELK's layered algorithm computes node
+            positions and orthogonal edge routes, and everything on screen is markup I control. That
+            is what makes the rest possible: service nodes act as toggle buttons with
+            <code>aria-pressed</code>, focus and selection have separate visuals, and the export
+            serializes exactly what is drawn. D3 would have given the same control, but it changes
+            the DOM directly, next to Angular instead of through it.
+          </p>
+          <p>
+            <strong>Cost.</strong> More code: node shapes, edge paths, zoom wiring and export are
+            all my own. For a product under deadline, ngx-graph would have been the reasonable
+            choice. For a learning project, building these parts was part of the point.
+          </p>
+        </app-decision-card>
+
+        <app-decision-card
+          [index]="2"
+          heading="An honest result plus a separate memory"
+          [followsFrom]="['c-feedback']"
+        >
+          <p>
+            <strong>Problem.</strong> Half-typed YAML is invalid most of the time. If the graph
+            simply followed the latest result, it would disappear on almost every keystroke.
+          </p>
+          <p>
+            <strong>Options.</strong> Clear the graph on every error; keep one state object that
+            mixes the last graph with the current errors; or keep the pipeline result honest and add
+            the memory as a separate step.
+          </p>
+          <p>
+            <strong>Decision.</strong> The third. <code>state</code> only ever describes the current
+            input: empty, pending, error or ready. A <code>linkedSignal</code> on top derives
+            <code>displayed</code>, which holds on to the last ready result while the input is
+            broken and resets when the editor is emptied on purpose. The pipeline can be tested
+            without any history, and the memory is one named step instead of a rule spread across
+            the app.
+          </p>
+          <p>
+            <strong>Cost.</strong> <code>linkedSignal</code> computes lazily: it only remembers a
+            value if something read it while that value was current. The graph view does that on
+            every change, and a comment in the code says so, but it is a dependency on how the
+            signal is used, not only on what it computes.
+          </p>
+        </app-decision-card>
+
+        <app-decision-card
+          [index]="3"
+          heading="Node sizes calculated, not measured"
+          [followsFrom]="['c-feedback']"
+        >
+          <p>
+            <strong>Problem.</strong> ELK needs the size of every node before it can place anything,
+            but the size depends on text: the service name, the image, the port chips.
+          </p>
+          <p>
+            <strong>Options.</strong> Render the nodes, measure them and run the layout a second
+            time; measure the text on a hidden canvas; or calculate the sizes from the text.
+          </p>
+          <p>
+            <strong>Decision.</strong> Calculated, in a pure function. Images and ports use
+            JetBrains Mono, where every character is exactly 0.6 em wide, so their widths are exact.
+            Names use the proportional Inter, so the estimate there is deliberately generous. The
+            same geometry module tells ELK how large a node is and tells the shape components where
+            to draw its parts, so layout and drawing cannot drift apart.
+          </p>
+          <p>
+            <strong>Cost.</strong> Inter widths are an estimate, so some names get a little more
+            room than they need. Text that is too long is shortened, and the full text appears as a
+            tooltip.
+          </p>
+        </app-decision-card>
+
+        <app-decision-card
+          [index]="4"
+          heading="The Web Worker can wait"
+          [followsFrom]="['c-feedback']"
+        >
+          <p>
+            <strong>Plan.</strong> The original design ran ELK in a Web Worker, so that layout would
+            never block the main thread.
+          </p>
+          <p>
+            <strong>Decision.</strong> Not in v1. The bundled ELK build already offers an
+            asynchronous API, so the <code>Layout</code> service returns a promise either way, and a
+            real worker later only changes the inside of that service. Getting ELK's worker file
+            through Angular's esbuild-based build, on the other hand, would have added risk to the
+            production build for a benefit that only shows with large files.
+          </p>
+          <p>
+            <strong>Measured.</strong> A layout run takes about 10 ms for the example file with 5
+            services and about 36 ms for 20 services, and it only starts after a 300 ms pause in
+            typing. At 50 services it takes about a quarter of a second, long enough for the next
+            keystroke to lag, and at 100 services more than a second.
+            <em class="method">
+              (Median of 30 runs with Node on my machine, which uses the same V8 engine as Chrome;
+              synthetic compose files.)
+            </em>
+          </p>
+          <p>
+            <strong>Cost.</strong> Large compose files make the editor feel sluggish until the
+            worker arrives. It is the first item for v1.1, and these numbers are the baseline it
+            will be measured against.
+          </p>
+        </app-decision-card>
+      </div>
     </section>
 
     <section id="accessibility" tabindex="-1">
@@ -261,6 +546,46 @@
       <p class="lead">
         A graph is visual by nature, so StackGraph does not rely on the picture alone. Everything
         the graph shows can also be reached with a keyboard and read by a screen reader.
+      </p>
+
+      <div class="spec-list">
+        <app-spec-item heading="A text alternative that is a real view" tag="WCAG 1.1.1">
+          While nothing is selected, the side panel shows a stack overview: every service with its
+          image and ports, every network and volume with the services that use it. Each service
+          there is a button that selects it, so the whole stack can be explored without touching the
+          canvas.
+        </app-spec-item>
+        <app-spec-item heading="The graph itself is operable" tag="WCAG 2.1.1">
+          Service nodes are focusable toggle buttons with <code>aria-pressed</code> and a name made
+          of service and image. Enter or Space selects a node, Escape clears the selection. Edges
+          are hidden from screen readers, because the detail panel lists the same relationships as
+          text, in both directions. Zoom has its own buttons, so it does not depend on a mouse wheel
+          or a pinch gesture.
+        </app-spec-item>
+        <app-spec-item heading="Focus and selection look different" tag="WCAG 2.4.7 · 2.4.3">
+          Selection is a tinted fill with a soft glow; keyboard focus is a neutral ring that only
+          appears for keyboard users. A node can be focused without being selected and the other way
+          round. When a button in the panel replaces the panel's content, focus moves to the new
+          heading instead of disappearing with the button.
+        </app-spec-item>
+        <app-spec-item heading="Status without noise" tag="WCAG 4.1.3">
+          Only the parse result ("Valid YAML", "2 errors", "Updating…") is a live region. Cursor
+          position and parse time sit next to it, not inside it; otherwise a screen reader would
+          announce every arrow key. The "Show graph" button is never disabled, because a disabled
+          button cannot say why. A click on it explains what is missing instead.
+        </app-spec-item>
+        <app-spec-item heading="Color is never the only signal" tag="WCAG 1.4.1">
+          Every node type has its own shape and every edge type its own line style, so the graph
+          still reads in grayscale. The color tokens come from a contrast review against WCAG AA in
+          both themes, and animations stop when the system asks for reduced motion.
+        </app-spec-item>
+      </div>
+
+      <p>
+        <strong>Not done yet.</strong> Networks and volumes cannot be selected in the graph, only
+        read in the overview, and the graph does not yet pan to a service chosen in the panel. There
+        has been no formal audit and no test with a screen reader yet; keyboard behavior and ARIA
+        states are covered by the unit tests.
       </p>
     </section>
 
@@ -270,6 +595,38 @@
         Three things that went wrong while building StackGraph, and what each one changed in how I
         work.
       </p>
+
+      <h3>A failed layout that silenced the editor</h3>
+      <p>
+        Every edit runs through a <code>switchMap</code> that parses and lays out the new text. In
+        an early version, a single rejected layout promise travelled up into the outer stream, and
+        in RxJS an error ends the stream it reaches. After that, the editor no longer updated the
+        graph: no error message, no crash, just nothing. The fix was to catch errors
+        <em>inside</em> the <code>switchMap</code>, so a failure ends only that one run and becomes
+        an error state the UI can show. Since then I ask of every operator chain: which stream does
+        this error end?
+      </p>
+
+      <h3>A test that passed for the wrong reason</h3>
+      <p>
+        <code>displayed</code> keeps the last valid graph with a <code>linkedSignal</code>, and a
+        test checked that clearing the editor removes the graph. It passed, and it would also have
+        passed if the rule had been broken. <code>linkedSignal</code> computes lazily, and the test
+        had never read it while the graph was valid, so there was no previous graph to keep in the
+        first place. The test now first asserts that the graph is visible, and only then clears the
+        input. The same insight shaped the code: the status bar's <code>settled</code> signal is
+        built from the stream instead of a <code>linkedSignal</code>, so it cannot depend on being
+        read at the right moment. A test I have never seen fail tells me very little.
+      </p>
+
+      <h3>Waiting for time instead of waiting for a state</h3>
+      <p>
+        The state tests originally waited a fixed 400 ms for the pipeline to settle. Locally that
+        was plenty. On the CI runner, the first ELK layout after a cold start sometimes took longer,
+        and tests failed at random. A bigger number would only have moved the problem. Now every
+        wait polls for the condition it actually needs, such as "the state is ready", and a generous
+        timeout is the only fixed number left. A slow machine makes the tests slower, not red.
+      </p>
     </section>
 
     <section id="whats-next" tabindex="-1">
@@ -278,6 +635,37 @@
         v1.1 picks up what the first version deliberately left out. The Web Worker comes first; the
         rest is grouped by what it improves.
       </p>
+      <p>
+        <strong>Faster layouts for large files.</strong> ELK moves into a real Web Worker, so typing
+        stays smooth beyond 50 services. The measurements in the
+        <a [routerLink]="[]" fragment="decisions">decisions above</a> are the baseline it has to
+        beat.
+      </p>
+      <p>
+        <strong>Reading large stacks.</strong> Toggles in the legend to hide ports, networks or
+        volumes; networks and volumes that can be selected like services; and a graph that pans to
+        whatever is chosen in the side panel, animated only when the system allows motion.
+      </p>
+      <p>
+        <strong>Better error positions.</strong> Structural errors get a line number and "Go to
+        line" as well. That needs a YAML parser that keeps source positions for every node, which
+        js-yaml does not.
+      </p>
+      <p>
+        <strong>Getting files in and out.</strong> Opening a compose file from disk (read in the
+        browser, never uploaded), PNG export, fonts embedded in the exported SVG so it looks the
+        same on every machine, and shareable links that carry the compose file in the URL itself.
+      </p>
+      <p>
+        <strong>A richer editor.</strong> Syntax highlighting and a highlighted current line. That
+        most likely means CodeMirror as a new dependency, so it has to earn its weight first.
+      </p>
+      <p>
+        <strong>What stays out: a backend.</strong> Every item above works without a server,
+        shareable links included.
+      </p>
+      <!-- Link to the GitHub milestone follows once its URL is settled. -->
+      <p>The full list lives in the v1.1 milestone on GitHub.</p>
     </section>
   </div>
 </article>

@@ -1,0 +1,58 @@
+@use '../../prose';
+
+// Only the frame lives here; the projected paragraphs take the page's
+// typography.
+:host {
+  display: block;
+  max-inline-size: calc(#{prose.$measure} + 48px);
+  padding: 20px 24px;
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-lg);
+  background: var(--sg-bg-raised);
+
+  @media (width < prose.$stack-below) {
+    padding: 16px;
+  }
+}
+
+.heading {
+  margin: 0;
+  color: var(--sg-text);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.index {
+  color: var(--sg-accent);
+  font-family: var(--sg-font-mono);
+  font-weight: 500;
+}
+
+.follows {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  margin: 8px 0 16px;
+  font-size: var(--sg-font-size-lg);
+  line-height: 1.5;
+
+  a {
+    color: var(--sg-text-secondary);
+    text-decoration-color: var(--sg-accent);
+    text-underline-offset: 3px;
+
+    &:hover {
+      color: var(--sg-text);
+    }
+  }
+}
+
+.follows-label {
+  color: var(--sg-text-muted);
+}
+
+.sep {
+  color: var(--sg-text-muted);
+}
