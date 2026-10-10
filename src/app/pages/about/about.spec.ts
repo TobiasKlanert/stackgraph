@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { ComposeState } from '../../core/state/compose-state';
+import { externalLinks, sourceRef } from '../../core/config/external-links';
 import { ConstraintId, constraintTitles } from './about-constraints';
 import { About, aboutSections } from './about';
 
@@ -135,5 +136,17 @@ describe('About', () => {
 
     expect(tags).toHaveLength(5);
     expect(tags.every((t) => t?.startsWith('WCAG '))).toBe(true);
+  });
+
+  it('links the source at the release the page describes, never at main', () => {
+    const sourceLinks = Array.from(el.querySelectorAll<HTMLAnchorElement>('a[href]'))
+      .map((a) => a.getAttribute('href') ?? '')
+      .filter((href) => href.startsWith(`${externalLinks.github}/`));
+
+    expect(sourceLinks.length).toBeGreaterThan(10);
+    for (const href of sourceLinks.filter((h) => /\/(blob|tree)\//.test(h))) {
+      expect(href).toMatch(new RegExp(`/(blob|tree)/${sourceRef}/`));
+    }
+    expect(sourceLinks).toContain(externalLinks.milestoneNext);
   });
 });

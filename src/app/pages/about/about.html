@@ -119,8 +119,8 @@
               notations end up in one shape, so <code>"8080:80"</code> and <code>"443"</code> both
               become port mappings, and structural problems are collected across the whole file
               instead of stopping at the first one. The result is either a valid model or a list of
-              errors, never something in between. The idea behind this is known as "parse, don't
-              validate".
+              errors, never something in between. The idea behind this is known as
+              <a [href]="links.parseDontValidate">"parse, don't validate"</a>.
             </p>
           </div>
         </li>
@@ -271,7 +271,9 @@
           </tr>
           <tr role="row">
             <td role="cell">js-yaml</td>
-            <td role="cell" data-label="Where"><code>core/parser</code></td>
+            <td role="cell" data-label="Where">
+              <a [href]="where.parser"><code>core/parser</code></a>
+            </td>
             <td role="cell" data-label="Why">
               Small, mature, and reports line and column for syntax errors. Its limit: structural
               errors only get a path, not a line.
@@ -279,7 +281,9 @@
           </tr>
           <tr role="row">
             <td role="cell">ELK.js, layered algorithm</td>
-            <td role="cell" data-label="Where"><code>core/layout</code></td>
+            <td role="cell" data-label="Where">
+              <a [href]="where.layout"><code>core/layout</code></a>
+            </td>
             <td role="cell" data-label="Why">
               Computes positions only and leaves drawing to the app. The layered algorithm makes the
               direction of dependencies visible.
@@ -287,7 +291,9 @@
           </tr>
           <tr role="row">
             <td role="cell">d3-zoom and d3-selection</td>
-            <td role="cell" data-label="Where"><code>shared/directives/zoomable.ts</code></td>
+            <td role="cell" data-label="Where">
+              <a [href]="where.zoomable"><code>shared/directives/zoomable.ts</code></a>
+            </td>
             <td role="cell" data-label="Why">
               Proven handling of wheel, drag and pinch. Only these two d3 modules: d3 listens to
               gestures, Angular writes the transform.
@@ -295,7 +301,9 @@
           </tr>
           <tr role="row">
             <td role="cell">RxJS</td>
-            <td role="cell" data-label="Where"><code>core/state/compose-state.ts</code></td>
+            <td role="cell" data-label="Where">
+              <a [href]="where.composeState"><code>core/state/compose-state.ts</code></a>
+            </td>
             <td role="cell" data-label="Why">
               Only where time matters: the pause before parsing, discarding stale layouts, the
               delayed "Updating…" indicator. Everything else is signals.
@@ -311,7 +319,9 @@
           </tr>
           <tr role="row">
             <td role="cell">ESLint, Prettier, GitHub Actions</td>
-            <td role="cell" data-label="Where"><code>.github/workflows/ci.yml</code></td>
+            <td role="cell" data-label="Where">
+              <a [href]="where.ci"><code>.github/workflows/ci.yml</code></a>
+            </td>
             <td role="cell" data-label="Why">
               Lint, format check, tests and production build must pass before a pull request can be
               merged. The build fails above a 1 MB initial bundle.
@@ -319,7 +329,10 @@
           </tr>
           <tr role="row">
             <td role="cell">Docker, nginx, GHCR, Caddy</td>
-            <td role="cell" data-label="Where"><code>Dockerfile</code>, <code>ci.yml</code></td>
+            <td role="cell" data-label="Where">
+              <a [href]="where.dockerfile"><code>Dockerfile</code></a
+              >, <a [href]="where.ci"><code>ci.yml</code></a>
+            </td>
             <td role="cell" data-label="Why">
               A multi-stage build produces a small static nginx image. Every merge to
               <code>main</code> is pushed to GHCR and deployed to a VPS behind Caddy: a compose
@@ -344,8 +357,10 @@
           <tr role="row">
             <td role="cell">Functional core</td>
             <td role="cell" data-label="Where">
-              <code>core/parser</code>, <code>core/layout</code>, <code>core/relations</code>,
-              <code>core/format</code>
+              <a [href]="where.parser"><code>core/parser</code></a
+              >, <a [href]="where.layout"><code>core/layout</code></a
+              >, <a [href]="where.relations"><code>core/relations</code></a
+              >, <a [href]="where.format"><code>core/format</code></a>
             </td>
             <td role="cell" data-label="Why">
               Logic without side effects is easy to test and to reason about. Angular wraps it, not
@@ -355,7 +370,10 @@
           <tr role="row">
             <td role="cell">Discriminated unions</td>
             <td role="cell" data-label="Where">
-              <code>ParseResult</code>, <code>ParseState</code>, <code>StackGraphNode</code>
+              <a [href]="where.composeModel"><code>ParseResult</code></a
+              >, <a [href]="where.composeState"><code>ParseState</code></a
+              >,
+              <a [href]="where.layoutModel"><code>StackGraphNode</code></a>
             </td>
             <td role="cell" data-label="Why">
               A result is either valid or an error, never both. Checking <code>status</code> or
@@ -364,7 +382,9 @@
           </tr>
           <tr role="row">
             <td role="cell">Derived state with <code>linkedSignal</code></td>
-            <td role="cell" data-label="Where"><code>ComposeState.displayed</code></td>
+            <td role="cell" data-label="Where">
+              <a [href]="where.composeState"><code>ComposeState.displayed</code></a>
+            </td>
             <td role="cell" data-label="Why">
               "Last valid graph" is its own named step on top of the honest pipeline result, not a
               flag hidden inside it.
@@ -372,7 +392,9 @@
           </tr>
           <tr role="row">
             <td role="cell">Container and presentational components</td>
-            <td role="cell" data-label="Where"><code>GraphPage</code> and the graph components</td>
+            <td role="cell" data-label="Where">
+              <a [href]="where.graphPage"><code>GraphPage</code></a> and the graph components
+            </td>
             <td role="cell" data-label="Why">
               One component owns state and selection; the others render inputs and emit outputs, so
               each can be tested on its own.
@@ -381,7 +403,9 @@
           <tr role="row">
             <td role="cell">Injection tokens for browser APIs</td>
             <td role="cell" data-label="Where">
-              <code>THEME_STORAGE</code>, <code>IS_APPLE_PLATFORM</code>
+              <a [href]="where.theme"><code>THEME_STORAGE</code></a
+              >,
+              <a [href]="where.platform"><code>IS_APPLE_PLATFORM</code></a>
             </td>
             <td role="cell" data-label="Why">
               Storage and platform detection are injected instead of read from globals, so tests
@@ -390,7 +414,9 @@
           </tr>
           <tr role="row">
             <td role="cell">Attribute-selector components in SVG</td>
-            <td role="cell" data-label="Where"><code>g[app-service-shape]</code> and siblings</td>
+            <td role="cell" data-label="Where">
+              <a [href]="where.shapes"><code>g[app-service-shape]</code></a> and siblings
+            </td>
             <td role="cell" data-label="Why">
               SVG does not render unknown elements, so each shape component attaches to a
               <code>&lt;g&gt;</code> instead of its own tag.
@@ -398,7 +424,7 @@
           </tr>
           <tr role="row">
             <td role="cell">Lazy loading</td>
-            <td role="cell" data-label="Where">text pages, ELK</td>
+            <td role="cell" data-label="Where"><a [href]="where.routes">text pages</a>, ELK</td>
             <td role="cell" data-label="Why">
               ELK and the About and legal pages load on demand, which keeps the initial bundle well
               below its budget.
@@ -406,7 +432,9 @@
           </tr>
           <tr role="row">
             <td role="cell">Semantic design tokens</td>
-            <td role="cell" data-label="Where"><code>src/styles</code></td>
+            <td role="cell" data-label="Where">
+              <a [href]="where.styles"><code>src/styles</code></a>
+            </td>
             <td role="cell" data-label="Why">
               Components use roles like surface or accent instead of raw colors, so light and dark
               theme differ only in token values.
@@ -664,8 +692,9 @@
         <strong>What stays out: a backend.</strong> Every item above works without a server,
         shareable links included.
       </p>
-      <!-- Link to the GitHub milestone follows once its URL is settled. -->
-      <p>The full list lives in the v1.1 milestone on GitHub.</p>
+      <p>
+        The full list lives in the <a [href]="links.milestoneNext">v1.1 milestone</a> on GitHub.
+      </p>
     </section>
   </div>
 </article>
