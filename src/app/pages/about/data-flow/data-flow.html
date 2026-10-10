@@ -1,0 +1,25 @@
+<figure>
+  <!--
+    The arrows between the stations are drawn in CSS and never read out;
+    an invisible colon joins each type to where it comes from.
+  -->
+  <ol class="stations" role="list">
+    <li class="station">
+      <code class="type">string</code><span class="sr-only">: </span>
+      <span class="by">from the editor</span>
+    </li>
+    <li class="station">
+      <code class="type">ComposeModel</code><span class="sr-only">: </span>
+      <span class="by"><code>parseCompose</code>, after a 300 ms pause</span>
+    </li>
+    <li class="station">
+      <code class="type">PositionedGraph</code><span class="sr-only">: </span>
+      <span class="by"><code>toElkGraph</code> + ELK</span>
+    </li>
+    <li class="station">
+      <code class="type">SVG</code><span class="sr-only">: </span>
+      <span class="by">Angular template</span>
+    </li>
+  </ol>
+  <figcaption>Data flow: the typed result each step hands to the next.</figcaption>
+</figure>

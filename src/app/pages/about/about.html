@@ -110,7 +110,7 @@
         Each step hands a typed result to the next.
       </p>
 
-      <!-- Data-flow strip follows in the next step. -->
+      <app-data-flow class="figure" />
 
       <!-- role="list": Safari drops list semantics when the markers are hidden. -->
       <ol class="steps" role="list">
@@ -189,6 +189,54 @@
       <p class="lead">
         Four layers, and dependencies only point downwards. The core of StackGraph does not know
         that Angular components exist.
+      </p>
+
+      <app-architecture-diagram class="figure" />
+
+      <p>
+        <strong>Model.</strong> At the bottom are plain TypeScript types: the
+        <code>ComposeModel</code> the parser produces and the <code>PositionedGraph</code> the
+        layout returns. <code>compose.model.ts</code> imports nothing at all. Every other part of
+        the app agrees on these shapes, which makes them the real contract between the layers.
+      </p>
+      <p>
+        <strong>Pipeline.</strong> Above the model sit the steps described in
+        <a [routerLink]="[]" fragment="how-it-works">How it works</a>. Most of them are pure
+        functions without Angular: <code>parseCompose</code>, the mapping to ELK, the node geometry,
+        the reverse lookups behind "required by" and "used by", port formatting and error hints.
+        Angular appears only where a browser or library API requires it. The
+        <code>Layout</code> service wraps ELK's asynchronous API and its lazy loading, and the SVG
+        export needs the DOM.
+      </p>
+      <p>
+        <strong>State.</strong> <code>ComposeState</code> is the only place that connects parser and
+        layout. It owns everything that has to do with time: the pause before parsing, discarding
+        outdated results, keeping the last valid graph. Components read its signals and never call
+        the parser or the layout themselves.
+      </p>
+      <p>
+        <strong>Components.</strong> At the top, a single container, <code>GraphPage</code>, reads
+        the state and holds the selection. Apart from Home and the editor, which write the text, the
+        graph components receive their data through inputs and report back through outputs. The
+        renderer only knows the <code>PositionedGraph</code>; the detail panel and the stack
+        overview only know the <code>ComposeModel</code>. <code>GraphPage</code> connects the two
+        through the service name. The graph and its text alternative are therefore two independent
+        views of the same model, and neither is derived from the other.
+      </p>
+      <p>
+        <strong>What this buys.</strong> The parser, the mapping and the geometry are tested as
+        plain functions, without a component or a DOM. Moving the layout into a Web Worker later
+        only changes the inside of the <code>Layout</code> service, because its contract is a
+        promise that stays the same. And the node geometry is defined once and used twice: the
+        mapping uses it to tell ELK how large a node is, the shape components use it to draw that
+        node. A node is always drawn exactly as large as ELK planned it.
+      </p>
+      <p>
+        <strong>What it costs.</strong> The positioned graph extends ELK's own types, and the
+        renderer reads edge routes in ELK's format. Replacing ELK with another layout engine would
+        therefore mean touching the renderer too. A neutral graph type would remove that coupling,
+        but with a single layout engine it would add a translation step that nothing currently
+        needs.
       </p>
     </section>
 

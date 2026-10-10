@@ -1,0 +1,129 @@
+@use '../../prose';
+@use '../diagram';
+
+$gap: 32px;
+
+:host {
+  display: block;
+}
+
+figure {
+  margin: 0;
+}
+
+.layers {
+  display: grid;
+  gap: $gap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Head (name, role, libraries) and rows: stacked, and side by side from
+// the stacking width on.
+.layer {
+  @include diagram.box;
+  position: relative;
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+
+  @media (width >= prose.$stack-below) {
+    grid-template-columns: 10rem minmax(0, 1fr);
+    align-items: start;
+    column-gap: 20px;
+  }
+
+  // "Depends on" points from each layer to the one below it.
+  &:not(:last-child)::after {
+    @include diagram.arrow(18px);
+    position: absolute;
+    inset-block-start: calc(100% + (#{$gap} - 10px) / 2);
+    inset-inline-start: 50%;
+    transform: translateX(-50%) rotate(90deg);
+  }
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  color: var(--sg-accent);
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-xs);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.role {
+  @include diagram.note;
+}
+
+.rows {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Items left, note right; the note wraps below when the row gets narrow.
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 16px;
+}
+
+.items {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+
+.item {
+  @include diagram.code;
+}
+
+.item-text {
+  color: var(--sg-text-secondary);
+  font-family: inherit;
+}
+
+.sep {
+  color: var(--sg-text-muted);
+}
+
+.note {
+  @include diagram.note;
+  margin-inline-start: auto;
+}
+
+.libraries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+}
+
+.library {
+  padding: 3px 7px;
+  border: 1px solid var(--sg-border-subtle);
+  border-radius: var(--sg-radius-sm);
+  background: var(--sg-bg-chip);
+  color: var(--sg-text-secondary);
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-xs);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+figcaption {
+  @include diagram.caption;
+}
