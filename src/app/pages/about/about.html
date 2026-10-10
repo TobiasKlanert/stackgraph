@@ -1,13 +1,5 @@
 <article class="about">
-  <header class="hero">
-    <p class="kicker">Case study</p>
-    <h1>Building StackGraph</h1>
-    <p class="subtitle">
-      A browser-only tool that turns a <code>docker-compose.yml</code> into an interactive service
-      graph. This page explains how it works, why it is built the way it is, and what went wrong
-      along the way.
-    </p>
-  </header>
+  <app-about-hero class="hero" />
 
   <!--
     Fragment links go through the router: with <base href="/">, a plain
@@ -24,13 +16,31 @@
     </ol>
   </nav>
 
-  <!-- Sections take focus from the table of contents (tabindex="-1"). -->
+  <!-- Sections and constraints take focus from fragment links (tabindex="-1"). -->
   <div class="sections">
     <section id="why" tabindex="-1">
       <h2>Why I built it</h2>
       <p class="lead">
         StackGraph is three things at once: a portfolio project, a learning project, and a tool I
         wanted for myself.
+      </p>
+      <p>
+        After finishing my training at the Developer Akademie, I wanted a project that is entirely
+        my own, not a course assignment and not a tutorial clone. I use Docker Compose a lot in my
+        own setups, and I kept running into the same problem: the longer a compose file gets, the
+        harder it is to see what is going on. Which service depends on the database, which ones
+        share a network, where data is persisted. The answers are all in the file, but spread across
+        dozens of indented lines. A graph shows them at a glance, and that became the idea for
+        StackGraph.
+      </p>
+      <p>
+        The learning side was just as deliberate. "Parser" was a word I had used many times without
+        really knowing what it involves, so I wanted to find out by building the part that matters
+        here myself. js-yaml reads the YAML syntax. Everything after that is my own code: turning an
+        untyped tree into a validated, typed model, and turning every problem into an error message
+        a person can act on. It was also the first time I designed an architecture before writing
+        feature code, instead of letting the structure grow as I went. The rest of this page is
+        about the decisions that came out of that.
       </p>
     </section>
 
@@ -40,6 +50,57 @@
         Five requirements shaped almost every technical decision in StackGraph, and each of them
         ruled something out.
       </p>
+
+      <div class="spec-list">
+        <div class="spec" id="c-browser" tabindex="-1">
+          <h3>Nothing leaves the browser</h3>
+          <p>
+            Compose files often contain internal hostnames, registry paths and sometimes credentials
+            in environment variables. StackGraph therefore has no backend, no upload and no
+            analytics, and even the fonts are self-hosted so that no request goes to a third party.
+            Parsing, layout and rendering all run on the user's machine, which means every
+            dependency has to justify its weight in the bundle.
+          </p>
+        </div>
+        <div class="spec" id="c-feedback" tabindex="-1">
+          <h3>Feedback while typing</h3>
+          <p>
+            The graph follows the editor without a render button. Half-typed YAML is invalid more
+            often than it is valid, so the graph must not vanish on every keystroke, and a slow
+            layout run must never overwrite the result of a newer one.
+          </p>
+        </div>
+        <div class="spec" id="c-errors" tabindex="-1">
+          <h3>Errors a person can act on</h3>
+          <p>
+            "Invalid YAML" does not help in an 80-line file. Every error names its cause, gives the
+            line and column or the path in the file, and for common mistakes a hint on how to fix
+            it.
+          </p>
+        </div>
+        <div class="spec" id="c-direction" tabindex="-1">
+          <h3>A layout that shows direction</h3>
+          <p>
+            Dependencies in a compose file usually form layers, from the proxy down to the database.
+            The layout has to make that order visible, and the result has to leave the app as a
+            clean SVG file. That ruled out force-directed layouts, which are good at clusters but
+            say nothing about direction. It also meant owning the SVG markup instead of handing it
+            to a graph library.
+          </p>
+        </div>
+        <div class="spec" id="c-a11y" tabindex="-1">
+          <h3>Accessibility is part of v1</h3>
+          <p>
+            A graph is visual by nature, so everything it shows also needs a route that works with a
+            keyboard and a screen reader, and no information may depend on color alone.
+          </p>
+        </div>
+      </div>
+
+      <p>
+        Just as deliberate is what v1 leaves out. File upload, drag and drop and PNG export are
+        planned, but none of them was needed to prove the core idea.
+      </p>
     </section>
 
     <section id="how-it-works" tabindex="-1">
@@ -48,6 +109,79 @@
         Every edit runs through the same short pipeline: wait for a pause, parse, lay out, draw.
         Each step hands a typed result to the next.
       </p>
+
+      <!-- Data-flow strip follows in the next step. -->
+
+      <!-- role="list": Safari drops list semantics when the markers are hidden. -->
+      <ol class="steps" role="list">
+        <li class="step">
+          <span class="step-number" aria-hidden="true">01</span>
+          <div>
+            <h3>Wait for a pause</h3>
+            <p>
+              The editor writes into a single signal. StackGraph waits until typing has paused for
+              300 ms before doing any work, and each new keystroke drops whatever is still pending.
+              A layout that finishes late is simply ignored, so it can never replace a newer one.
+            </p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-number" aria-hidden="true">02</span>
+          <div>
+            <h3>Parse into a typed model</h3>
+            <p>
+              js-yaml turns the text into a plain JavaScript tree. <code>parseCompose</code> then
+              checks that tree and converts it into a <code>ComposeModel</code>. Short and long
+              notations end up in one shape, so <code>"8080:80"</code> and <code>"443"</code> both
+              become port mappings, and structural problems are collected across the whole file
+              instead of stopping at the first one. The result is either a valid model or a list of
+              errors, never something in between. The idea behind this is known as "parse, don't
+              validate".
+            </p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-number" aria-hidden="true">03</span>
+          <div>
+            <h3>Compute the layout</h3>
+            <p>
+              A pure function translates the model into the graph format of ELK, the Eclipse Layout
+              Kernel. Services, networks and volumes become typed nodes; <code>depends_on</code>,
+              network membership and volume use become three kinds of edges. Node sizes are
+              calculated from their content before the layout runs, because ELK needs them to place
+              anything. ELK's layered algorithm then arranges the graph top-down, so dependencies
+              always point downwards. ELK is loaded only on first use and is not part of the initial
+              download.
+            </p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-number" aria-hidden="true">04</span>
+          <div>
+            <h3>Draw the graph</h3>
+            <p>
+              Angular binds the positioned nodes and edges directly to SVG elements in a template,
+              with no graph library between the data and the markup. d3-zoom only computes the pan
+              and zoom transform; Angular applies it. Because the SVG on screen is StackGraph's own
+              markup, exporting it means serializing exactly what is drawn, including its computed
+              styles.
+            </p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-number" aria-hidden="true">05</span>
+          <div>
+            <h3>Keep the last good graph</h3>
+            <p>
+              While the input is invalid, the graph keeps showing the last valid state and the
+              status bar explains what is wrong. An empty editor is treated differently: deleting
+              everything is an intent, not an error, so the graph is cleared. If an update takes
+              longer than 400 ms, a small "Updating…" indicator appears; shorter ones finish
+              unnoticed.
+            </p>
+          </div>
+        </li>
+      </ol>
     </section>
 
     <section id="architecture" tabindex="-1">

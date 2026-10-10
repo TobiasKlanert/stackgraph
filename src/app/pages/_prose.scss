@@ -8,6 +8,10 @@
 /// Line length for running text, about 68 characters of Inter at 16 px.
 $measure: 42.5rem;
 
+/// Below this width, side-by-side parts of the text pages stack (same
+/// breakpoint as the home view).
+$stack-below: 640px;
+
 $body-size: 1rem;
 $body-leading: 1.65;
 $lead-size: 1.0625rem;
@@ -35,14 +39,16 @@ $h3-size: 1.125rem;
   }
 
   // Links in running text are underlined, so they do not rely on colour.
-  :where(a) {
+  // Only links without a class: a link styled as a button (.sg-button) or
+  // navigation item keeps its own look.
+  :where(a:not([class])) {
     color: var(--sg-text);
     text-decoration-color: var(--sg-accent);
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
   }
 
-  :where(a:hover) {
+  :where(a:not([class]):hover) {
     text-decoration-thickness: 2px;
   }
 

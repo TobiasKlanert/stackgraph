@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AboutHero } from './about-hero/about-hero';
 
 /** A section of the page; `id` is the fragment the table of contents links to. */
 export interface AboutSection {
@@ -26,7 +27,7 @@ export const aboutSections: readonly AboutSection[] = [
 /** Case study: how StackGraph works and why it is built the way it is. */
 @Component({
   selector: 'app-about',
-  imports: [RouterLink],
+  imports: [RouterLink, AboutHero],
   templateUrl: './about.html',
   styleUrl: './about.scss',
 })
