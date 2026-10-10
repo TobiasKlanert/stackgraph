@@ -120,6 +120,11 @@ h3 {
   @include prose.lead;
 }
 
+// Diagrams use the full width of the article, beyond the text measure.
+.figure {
+  margin-block: 28px 32px;
+}
+
 // ---- Goals & constraints: a data sheet, title left, text right ----
 
 .spec-list {

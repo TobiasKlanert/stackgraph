@@ -1,0 +1,67 @@
+@use '../../prose';
+@use '../diagram';
+
+$gap: 32px;
+
+:host {
+  display: block;
+}
+
+figure {
+  margin: 0;
+}
+
+// One column with arrows pointing down; a row from the stacking width on.
+.stations {
+  display: grid;
+  gap: $gap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (width >= prose.$stack-below) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.station {
+  @include diagram.box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+
+  &:not(:last-child)::after {
+    @include diagram.arrow(16px);
+    position: absolute;
+    inset-block-start: calc(100% + (#{$gap} - 10px) / 2);
+    inset-inline-start: 50%;
+    transform: translateX(-50%) rotate(90deg);
+
+    @media (width >= prose.$stack-below) {
+      inset-block-start: 50%;
+      inset-inline-start: calc(100% + (#{$gap} - 16px) / 2);
+      transform: translateY(-50%);
+    }
+  }
+}
+
+.type {
+  @include diagram.code;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.by {
+  @include diagram.note;
+
+  code {
+    font-family: var(--sg-font-mono);
+    font-size: 0.95em;
+  }
+}
+
+figcaption {
+  @include diagram.caption;
+}

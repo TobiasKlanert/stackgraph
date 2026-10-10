@@ -1,0 +1,52 @@
+// Shared look of the two diagrams on the About page (data flow and
+// architecture). Mixins, like features/graph/_panel.scss: only these two
+// components use them, and their styles stay encapsulated.
+
+/// Decorative arrow pointing right, drawn with clip-path; rotate it for other
+/// directions. It has no text content, so screen readers never announce it.
+@mixin arrow($length: 20px) {
+  content: '';
+  display: block;
+  inline-size: $length;
+  block-size: 10px;
+  background: var(--sg-text-muted);
+  clip-path: polygon(
+    0 40%,
+    calc(100% - 7px) 40%,
+    calc(100% - 7px) 0,
+    100% 50%,
+    calc(100% - 7px) 100%,
+    calc(100% - 7px) 60%,
+    0 60%
+  );
+}
+
+/// A box in a diagram.
+@mixin box {
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-md);
+  background: var(--sg-bg-raised);
+}
+
+/// A name from the code.
+@mixin code {
+  color: var(--sg-text);
+  font-family: var(--sg-font-mono);
+  font-size: var(--sg-font-size-md);
+  line-height: 1.4;
+}
+
+/// Small explanation next to or below a name.
+@mixin note {
+  color: var(--sg-text-muted);
+  font-size: var(--sg-font-size-sm);
+  line-height: 1.4;
+}
+
+/// Caption under a figure.
+@mixin caption {
+  margin-block-start: 12px;
+  color: var(--sg-text-muted);
+  font-size: var(--sg-font-size-lg);
+  line-height: 1.5;
+}

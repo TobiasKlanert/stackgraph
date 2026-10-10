@@ -1,0 +1,56 @@
+<figure>
+  <!--
+    The arrows between the layers are drawn in CSS and never read out.
+    Invisible commas and colons separate the parts for screen readers,
+    like in the detail panel.
+  -->
+  <ol class="layers" role="list">
+    @for (layer of layers; track layer.name) {
+      <li class="layer">
+        <div class="head">
+          <span class="name">{{ layer.name }}</span>
+          <span class="sr-only">: </span>
+          <span class="role">{{ layer.role }}</span>
+          @if (layer.libraries.length > 0) {
+            <p class="libraries">
+              <span class="sr-only">. Uses </span>
+              @for (library of layer.libraries; track library; let last = $last) {
+                <span class="library">{{ library }}</span>
+                @if (!last) {
+                  <span class="sr-only">, </span>
+                }
+              }
+            </p>
+          }
+        </div>
+
+        <ul class="rows" role="list">
+          @for (row of layer.rows; track $index) {
+            <li class="row">
+              <span class="items">
+                @for (item of row.items; track item.name; let last = $last) {
+                  @if (item.kind === 'text') {
+                    <span class="item item-text">{{ item.name }}</span>
+                  } @else {
+                    <code class="item">{{ item.name }}</code>
+                  }
+                  @if (!last) {
+                    <span class="sep" aria-hidden="true">·</span><span class="sr-only">, </span>
+                  }
+                }
+              </span>
+              @if (row.note) {
+                <span class="sr-only">: </span>
+                <span class="note">{{ row.note }}</span>
+              }
+            </li>
+          }
+        </ul>
+      </li>
+    }
+  </ol>
+  <figcaption>
+    Arrows read “depends on”: a layer may use any layer below it, never one above. The names in the
+    diagram are checked against the code by a test.
+  </figcaption>
+</figure>
