@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { externalLinks, sourceAt } from '../../core/config/external-links';
 import { AboutHero } from './about-hero/about-hero';
 import { ArchitectureDiagram } from './architecture-diagram/architecture-diagram';
 import { DataFlow } from './data-flow/data-flow';
@@ -28,6 +29,29 @@ export const aboutSections: readonly AboutSection[] = [
   { id: 'whats-next', title: "What's next" },
 ];
 
+/**
+ * Repository links for the "Where" column of the stack tables, at the
+ * release the page describes. Folders end with a slash.
+ */
+const where = {
+  parser: sourceAt('src/app/core/parser/'),
+  layout: sourceAt('src/app/core/layout/'),
+  relations: sourceAt('src/app/core/relations/'),
+  format: sourceAt('src/app/core/format/'),
+  zoomable: sourceAt('src/app/shared/directives/zoomable.ts'),
+  composeState: sourceAt('src/app/core/state/compose-state.ts'),
+  composeModel: sourceAt('src/app/core/models/compose.model.ts'),
+  layoutModel: sourceAt('src/app/core/models/layout.model.ts'),
+  graphPage: sourceAt('src/app/features/graph/graph-page/graph-page.ts'),
+  theme: sourceAt('src/app/core/theme/theme.ts'),
+  platform: sourceAt('src/app/core/platform/platform.ts'),
+  shapes: sourceAt('src/app/features/graph/rendering/shapes/'),
+  routes: sourceAt('src/app/app.routes.ts'),
+  styles: sourceAt('src/styles/'),
+  ci: sourceAt('.github/workflows/ci.yml'),
+  dockerfile: sourceAt('Dockerfile'),
+} as const;
+
 /** Case study: how StackGraph works and why it is built the way it is. */
 @Component({
   selector: 'app-about',
@@ -37,4 +61,6 @@ export const aboutSections: readonly AboutSection[] = [
 })
 export class About {
   protected readonly sections = aboutSections;
+  protected readonly links = externalLinks;
+  protected readonly where = where;
 }
