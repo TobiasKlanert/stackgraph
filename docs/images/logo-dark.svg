@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>.node{fill:#2dd4bf}.edge{fill:none;stroke:#8b95a7;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+  <path class="edge" d="M12 6H10a2.5 2.5 0 0 0-2.5 2.5V13M20 16h2a2.5 2.5 0 0 1 2.5 2.5V23" />
+  <rect class="node" x="12" y="3" width="17" height="6" rx="2" />
+  <rect class="node" x="3" y="13" width="17" height="6" rx="2" />
+  <rect class="node" x="12" y="23" width="17" height="6" rx="2" />
+</svg>

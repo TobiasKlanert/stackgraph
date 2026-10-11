@@ -1,81 +1,139 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/logo-dark.svg" />
+  <img src="docs/images/logo-light.svg" alt="" width="56" height="56" />
+</picture>
+
 # StackGraph
 
-> Visualize your `docker-compose.yml` as an interactive service dependency graph — right in the browser, no backend required.
+Paste a `docker-compose.yml` and see it as an interactive service graph: services, dependencies,
+networks, volumes and ports. Everything runs in your browser; nothing is uploaded.
+
+**Try it at [stackgraph.tobias-klanert.de](https://stackgraph.tobias-klanert.de).** The
+[About page](https://stackgraph.tobias-klanert.de/about) explains how it is built and why.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-2DD4BF.svg)
 ![Angular](https://img.shields.io/badge/Angular-21-DD0031.svg?logo=angular&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6.svg?logo=typescript&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED.svg?logo=docker&logoColor=white)
+![CI](https://github.com/TobiasKlanert/stackgraph/actions/workflows/ci.yml/badge.svg)
 
-![CI](https://github.com/TobiasKlanert/stackgraph/actions/workflows/ci.yml/badge.svg) 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/split-view-dark.png" />
+  <img
+    src="docs/images/split-view-light.png"
+    alt="The split view: the compose file in the editor on the left, the service graph in the middle with the api service selected, and its details on the right."
+  />
+</picture>
 
-StackGraph is a **frontend-only** developer tool. You paste the contents of a `docker-compose.yml`
-and get an interactive graph that makes the structure of the file visible: services, networks,
-volumes, dependencies (`depends_on`) and port mappings. Everything runs client-side in the browser
-— there is no server, no login, and nothing is uploaded anywhere.
-
-It doubles as a portfolio project, built to demonstrate clean Angular architecture, strict
-TypeScript, and solid data visualization.
-
----
-
-## Project status
-
-**Under active development.**
-
-The foundation (repository, toolchain, CI/CD, Docker build, and deployment behind a reverse proxy)
-is in place. The application is currently an Angular skeleton with routing and stubbed feature
-components; the core functionality described below is being implemented incrementally.
-
-| Area | Status |
-|------|--------|
-| Repo, tooling, ESLint/Prettier, CI pipeline | ✅ Done |
-| Docker multi-stage build + deployment | ✅ Done |
-| Routing (`/`, `/imprint`, `/privacy-policy`) | ✅ Scaffolded |
-| YAML parsing & validation | ✅ Done |
-| ELK-based layout (compose → positioned graph) | ✅ Done |
-| SVG rendering, zoom/pan | ✅ Done |
-| Detail panel | ✅ Done |
-| SVG/PNG export | ✅ Done |
-
-The feature list below describes the **target MVP**, not the current build.
+StackGraph is a portfolio project, built to show clean Angular architecture, strict TypeScript and accessible data visualization.
 
 ---
 
-## Features (target MVP)
+## Features
 
-- **Paste-based input** — drop in a `docker-compose.yml`; a live, editable YAML editor sits next to the graph.
-- **"Try it" example** — one click loads a sample compose file and renders a full graph instantly.
-- **Parsing & validation** — invalid YAML produces a clear, human-readable error (reason, and line where possible) instead of a crash.
-- **Interactive graph:**
-  - services as nodes,
-  - `depends_on` as directed edges,
-  - networks and volumes as their own node/group types,
-  - ports shown as a detail on the selected node (in the detail panel).
-- **Interaction** — zoom, pan, select nodes, and inspect details (image, ports, networks, dependencies).
-- **Export** — download the graph as **SVG** (PNG planned for a later release).
-- **Responsive UI** — split view (editor + graph) that adapts to narrow screens.
+### Paste and get feedback
+
+- An editor with line numbers and caret position. The graph follows as you type, once you pause.
+- Errors say what is wrong and where, with a hint on how to fix it and a "Go to line" button.
+  Meanwhile the graph keeps showing the last valid version, and says so.
+- One click loads an example stack. `Ctrl+Enter` (`⌘+Enter` on a Mac) opens the graph.
+
+### Read the stack
+
+- Services as nodes, `depends_on` as arrows, networks and volumes as nodes of their own, ports as
+  chips on each service. The layout runs top to bottom, so dependencies read in one direction.
+- Node types differ by shape and line style, not by colour alone.
+- Select a service to see its image, ports (host → container), networks, volumes and bind mounts,
+  what it depends on and what requires it. Related services are one click away.
+- Without a selection, the side panel lists the whole stack.
+- Zoom and pan with mouse, touch or the zoom bar, which shows the real zoom level and fits the
+  graph or resets it to 100 %.
+
+### Take it with you
+
+- Export the graph as SVG, styled as on screen. Fonts are not embedded yet: on a machine without
+  Inter and JetBrains Mono the file falls back to system fonts.
+
+### Wherever you open it
+
+- Light and dark theme, following the system or chosen by hand.
+- On phones and small tablets the editor and the graph get a tab each, and the details sit in a
+  sheet under the graph, or beside it in landscape.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/phone-dark.png" />
+  <img
+    src="docs/images/phone-light.png"
+    width="300"
+    alt="StackGraph on a phone: Editor and Graph tabs at the top, the graph below, the collapsed details sheet at the bottom."
+  />
+</picture>
+
+---
+
+## How it works
+
+The compose text runs through a pipeline in which every step only knows the one before it:
+
+1. **Parse:** `js-yaml` reads the text, and the result is checked and turned into a typed model of
+   services, networks and volumes. Problems come back as readable errors with a position, not as
+   exceptions.
+2. **Layout:** the model becomes an ELK graph. Node sizes are computed from their content first,
+   then ELK's layered algorithm places the nodes and routes the edges at right angles.
+3. **Render:** Angular draws the positioned graph as plain SVG. `d3-zoom` only supplies the zoom
+   and pan transform. Because the SVG is the app's own DOM, export means serialising it.
+4. **State:** signals hold the state. RxJS only handles the timing: it waits for typing to pause
+   and drops results of outdated input.
+
+Parser, mapping and node geometry are plain functions, tested without Angular or a DOM. The
+[About page](https://stackgraph.tobias-klanert.de/about) covers constraints, decisions and
+trade-offs in detail.
+
+---
+
+## Privacy
+
+- There is no backend: the compose file never leaves the browser.
+- No cookies, no analytics. The fonts are self-hosted, so the page makes no third-party requests.
+- The only stored item is one `localStorage` entry, and only if you choose a theme by hand.
+- The container's nginx keeps no access log.
+
+---
+
+## Accessibility
+
+- Every service node is a toggle button: Tab reaches it, Enter or Space selects it, Escape clears
+  the selection. A skip link leads past the editor to the graph.
+- The stack overview lists every service, network and volume as text, as an alternative to the
+  graph. Choosing a service there works like selecting it in the graph.
+- The parse result is announced through a polite live region. The error details are there to read
+  and to jump to, not read out on every keystroke.
+- Focus moves on purpose: to the details when a service is chosen from the panel, to the error
+  when the graph cannot open on a touch screen, into the field when it cannot open with a mouse.
+- Colour is never the only cue, the focus ring is always visible, and reduced motion is respected.
+- On touch screens, the app's controls are at least 40 px, and the chips that select a service
+  44 px.
 
 ---
 
 ## Tech stack
 
 | Area | Choice |
-|------|--------|
+| --- | --- |
 | Framework | Angular 21 + TypeScript (strict) |
 | YAML parsing | [`js-yaml`](https://github.com/nodeca/js-yaml) |
 | Graph layout | [`elkjs`](https://github.com/kieler/elkjs) (ELK layered algorithm) |
-| Rendering | Custom SVG via Angular template binding |
-| Pan / zoom | [`d3-zoom`](https://github.com/d3/d3-zoom) (transform matrix only) |
+| Rendering | Custom SVG via Angular templates |
+| Pan / zoom | [`d3-zoom`](https://github.com/d3/d3-zoom) (transform only) |
 | State | Signals as the source of truth; RxJS for the debounced parse → layout pipeline |
+| Styling | SCSS with CSS custom properties as design tokens; no UI library |
 | Testing | [Vitest](https://vitest.dev/) (jsdom) |
-| Linting / formatting | ESLint (flat config via angular-eslint) + Prettier |
+| Linting / formatting | ESLint (angular-eslint flat config) + Prettier |
 | Container | Multi-stage Docker build (`node:22-alpine` → `nginx:alpine`) |
 
-> **Why ELK + custom SVG instead of a bundled graph library?** Separating *layout* (computing
-> positions) from *rendering + interaction* (drawing SVG, handling zoom/pan/click) keeps each layer
-> clean, makes SVG export trivial (we own the DOM), and produces high-quality layered layouts for the
-> dependency graph.
+> **Why ELK and custom SVG instead of a graph library?** Keeping _layout_ (computing positions)
+> apart from _rendering and interaction_ (drawing SVG, zoom, selection) keeps each layer simple,
+> makes the SVG export trivial, and gives layered layouts that suit dependency graphs.
 
 ---
 
@@ -83,151 +141,104 @@ The feature list below describes the **target MVP**, not the current build.
 
 ### Prerequisites
 
-- **Node.js 22 LTS** (recommended — matches the Docker build stage). Angular 21 supports Node
-  `^20.19`, `^22.12`, or `^24`. Newer versions may work but can be flagged as unsupported by the CLI.
-- **npm 11+** (comes with recent Node versions).
-- **Git**.
-- **Docker** — only required for the container workflow further below.
+- **Node.js 22 LTS** (matches the Docker build stage). Angular 21 supports Node `^20.19`, `^22.12`
+  or `^24`; newer versions may work but can be flagged as unsupported by the CLI.
+- **npm 11+**, **Git**, and **Docker** for the container workflow.
 
-> The Angular CLI is used via npm scripts, so a global `@angular/cli` install is optional. If you
-> prefer global `ng` commands, install it with `npm install -g @angular/cli`.
+The Angular CLI runs through the npm scripts, so a global `@angular/cli` is optional.
 
-### 1. Clone the repository
+### Run it locally
 
 ```bash
 git clone https://github.com/TobiasKlanert/stackgraph.git
 cd stackgraph
-```
-
-### 2. Install dependencies
-
-```bash
 npm install
-```
-
-### 3. Start the development server
-
-```bash
 npm start
 ```
 
-This runs `ng serve`. Once it's up, open:
+Open **http://localhost:4200/**. The app reloads when a source file changes.
 
-**http://localhost:4200/**
-
-The app reloads automatically whenever you change a source file.
-
-### 4. Build for production (optional)
+### Production build
 
 ```bash
 npm run build
 ```
 
-The optimized output is written to `dist/stackgraph/browser/`. These are plain static files that can
-be served by any static web server.
+The output in `dist/stackgraph/browser/` is plain static files for any web server.
 
 ---
 
 ## Running with Docker
 
-The repository ships a multi-stage `Dockerfile`: it builds the Angular app with `node:22-alpine`,
-then serves the static output with `nginx:alpine` (including SPA fallback and long-term caching for
-hashed assets).
-
-### 1. Clone and enter the project (if you haven't already)
-
-```bash
-git clone https://github.com/TobiasKlanert/stackgraph.git
-cd stackgraph
-```
-
-### 2. Build the image
+The `Dockerfile` builds the app with `node:22-alpine` and serves it with `nginx:alpine`, including
+the SPA fallback, long-term caching for hashed assets and revalidation for the icons.
 
 ```bash
 docker build -t stackgraph .
-```
-
-### 3. Run the container
-
-```bash
 docker run --rm -p 8080:80 stackgraph
 ```
 
-The container serves on port `80` internally; the command above maps it to `8080` on your machine.
-Open:
+Open **http://localhost:8080/** and stop the container with `Ctrl+C`.
 
-**http://localhost:8080/**
-
-Stop the container with `Ctrl+C`.
-
-> **Note on `docker-compose.yml`:** the included Compose file is tailored for **deployment behind an
-> existing reverse proxy** (Caddy) on an external Docker network named `web`, and therefore does not
-> publish any ports. It is not meant for a quick local run — for that, use the `docker build` /
-> `docker run` steps above.
+> The `docker-compose.yml` in this repository is the production deployment: it runs behind an
+> existing Caddy reverse proxy on an external Docker network named `web` and publishes no ports.
+> For a local run, use the commands above.
 
 ---
 
-## Testing
+## Testing and code quality
 
 ```bash
-npm test
-```
-
-Runs the unit tests with Vitest (jsdom, no browser required).
-
----
-
-## Linting & formatting
-
-```bash
+npm test              # unit tests with Vitest (jsdom, no browser needed)
 npm run lint          # ESLint
 npm run format        # Prettier: write changes
-npm run format:check  # Prettier: check only (used in CI)
+npm run format:check  # Prettier: check only
 ```
 
-Both the lint check and the Prettier format check are enforced by the CI pipeline before a pull
-request can be merged.
+CI runs lint, format check, tests and the production build for every pull request to `main` and
+every push to it.
+
+The README images are rendered from a production build with
+[`scripts/readme-screenshots.mjs`](scripts/readme-screenshots.mjs); the file explains how to run it.
+
+---
+
+## Deployment
+
+A push to `main` that passes CI builds the Docker image, pushes it to the GitHub Container Registry
+(`ghcr.io/tobiasklanert/stackgraph`, tagged `latest` and with the commit SHA), and deploys it over
+SSH: the server pulls the new image and restarts the container. There it runs behind Caddy, which
+handles TLS.
 
 ---
 
 ## Project structure
 
 ```
-src/app/
-├─ core/                 # app-wide singletons, models, services (parser, ELK layout) — being built out
-├─ features/
-│  └─ graph/             # route "/": container + state switch between home and split view
-│     ├─ graph-page/     #   container on "/", toggles home ↔ editor/graph split view
-│     ├─ home/           #   empty state: compose paste field + "Try it" button
-│     ├─ editor/         #   editable YAML panel
-│     ├─ rendering/      #   SVG graph rendering
-│     └─ detail-panel/   #   details of the selected node
-├─ pages/                # independently routed, lazy-loaded pages
-│  ├─ imprint/           #   lazy
-│  └─ privacy-policy/    #   lazy
-├─ app.routes.ts         # route definitions
-└─ app.config.ts         # application providers
+src/
+├─ app/
+│  ├─ core/         # parser and model, ELK mapping and node geometry, state, theme, export
+│  ├─ features/
+│  │  └─ graph/     # the tool: home view, editor, graph, details, the compact layout's parts
+│  ├─ shared/       # header, footer, theme toggle, error box, zoom directive
+│  ├─ pages/        # About, Impressum, Datenschutz: lazy-loaded with a shared document layout
+│  └─ app.routes.ts
+├─ styles/          # design tokens, themes, base styles, shared controls
+└─ testing/         # helpers for the unit tests
+scripts/            # tooling outside the app, e.g. the README images
+docs/images/        # images used in this README
 ```
 
-The layering follows the data flow: **parser → model → layout → rendering → interaction → export.**
+Dependencies point one way: features use `shared/` and `core/`, and `core/` uses neither.
 
 ---
 
 ## Roadmap
 
-Development follows a phased plan:
-
-1. **Phase 0 — Foundation:** repo, tooling, CI/CD, Docker, deployment. ✅
-2. **Phase 1 — Data model & parser:** typed compose model, YAML parsing + validation. ✅
-3. **Phase 2 — Layout:** ELK-based layout service (async; real Web Worker deferred to v1.1). ✅
-4. **Phase 3 — Rendering:** SVG rendering component + detail panel. ✅
-5. **Phase 4 — Interaction:** pan/zoom and node selection. ✅
-6. **Phase 5 — Split view:** editable YAML panel with debounced live re-parse. ✅
-7. **Phase 6 — Onboarding & export:** "Try it" sample, error UI, SVG export. ✅
-8. **Phase 7 — Polish & go-live:** styling, legal pages, responsive layout, screenshots.
-
-Planned for a later release (v1.1): filter toggles, file upload, node drag & drop, PNG export,
-shareable permalinks, moving ELK layout into a real Web Worker, and bind-mount nodes in the volume mapping.
+Version 1.0 covers everything above. The
+[v1.1 milestone](https://github.com/TobiasKlanert/stackgraph/milestone/9) collects what comes next,
+among other things: the ELK layout in a Web Worker so large stacks stay responsive, filter toggles
+in the legend, opening a compose file from disk, PNG export, and shareable links.
 
 ---
 
