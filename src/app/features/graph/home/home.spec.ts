@@ -3,6 +3,8 @@ import { Home } from './home';
 import { ComposeState } from '../../../core/state/compose-state';
 import { sampleCompose } from '../../../core/samples/sample-compose';
 import { IS_APPLE_PLATFORM } from '../../../core/platform/platform';
+import { touchPointerQuery } from '../../../core/platform/media-query';
+import { FakeMediaQuery } from '../../../../testing/fake-media-query';
 
 const validYaml = `
 services:
@@ -280,6 +282,56 @@ describe('Home', () => {
 
       expect(event.defaultPrevented).toBe(false);
       expect(query('.feedback')).toBeNull();
+    });
+  });
+
+  // On a touch screen, focus in the field would open the on-screen keyboard
+  // over the error, so focus goes to the error instead.
+  describe('on a touch screen', () => {
+    beforeEach(async () => {
+      vi.stubGlobal(
+        'matchMedia',
+        (query: string) => new FakeMediaQuery(query === touchPointerQuery)
+      );
+      // Created again: the component reads the media query on construction.
+      fixture = TestBed.createComponent(Home);
+      await fixture.whenStable();
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it('moves focus to the hint for an empty field, not into the field', async () => {
+      showButton().click();
+      await settleUntil(() => document.activeElement === query('[data-testid="empty-hint"]'));
+
+      expect(document.activeElement).not.toBe(textarea());
+      expect(announcement()).toContain('Paste a compose file first');
+    });
+
+    it('moves focus to the title of the first error', async () => {
+      state.source.set(brokenYaml);
+      await settleUntil(() => state.errors().length > 0);
+
+      showButton().click();
+      await settleUntil(() => document.activeElement?.matches('app-error-box .title') === true);
+
+      expect(document.activeElement?.textContent).toMatch(/^Invalid YAML on line \d+/);
+    });
+
+    it('moves focus to the error again on the next click', async () => {
+      state.source.set(brokenYaml);
+      await settleUntil(() => state.errors().length > 0);
+      showButton().click();
+      await settleUntil(() => document.activeElement?.matches('app-error-box .title') === true);
+
+      // Nothing changes on the second click, but focus has to move again.
+      showButton().focus();
+      showButton().click();
+      await settleUntil(() => document.activeElement?.matches('app-error-box .title') === true);
+
+      expect(document.activeElement).not.toBe(showButton());
     });
   });
 });

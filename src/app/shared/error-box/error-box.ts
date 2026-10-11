@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, ElementRef, inject, input, output, viewChildren } from '@angular/core';
 import { ParseError } from '../../core/models/compose.model';
 import { asSentence, fixHint } from '../../core/parser/error-hints';
 
@@ -25,6 +25,22 @@ export class ErrorBox {
 
   protected readonly asSentence = asSentence;
   protected readonly fixHint = fixHint;
+
+  private readonly host: HTMLElement = inject(ElementRef).nativeElement;
+  private readonly titles = viewChildren<ElementRef<HTMLElement>>('errorTitle');
+
+  /**
+   * Puts focus on the first error's title, so it is read and "Go to line" is
+   * the next stop. Focus alone scrolls only until the title shows, so the
+   * whole box is brought into view: explanation and button included.
+   */
+  focusFirst(): void {
+    this.titles()[0]?.nativeElement.focus({ preventScroll: true });
+    // jsdom has no scrollIntoView.
+    if (typeof this.host.scrollIntoView === 'function') {
+      this.host.scrollIntoView({ block: 'nearest' });
+    }
+  }
 
   protected title(error: ParseError): string {
     if (error.line === undefined) {
