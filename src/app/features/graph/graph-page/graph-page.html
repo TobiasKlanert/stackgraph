@@ -89,35 +89,10 @@
       <h2 id="graph-title" class="sr-only">Service graph</h2>
       <!-- Displayed only in the compact layout, where the header has no room for the summary. -->
       <p class="pane-summary">{{ summary() }}</p>
-      <!-- Compact layout only. A live region, in case the error settles after
-           the switch to this tab (the parse waits 400 ms for typing to pause). -->
-      <div class="stale-status" role="status">
-        @if (state.settled().status === 'error') {
-          <p class="stale-note">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 8v4M12 16h.01" />
-            </svg>
-            <span>
-              <strong>Error in the compose file.</strong>
-              The graph shows the last valid version.
-            </span>
-            <button type="button" class="sg-button" (click)="showErrorInEditor()">
-              Show in editor
-            </button>
-          </p>
-        }
-      </div>
+      <app-stale-notice
+        [stale]="state.settled().status === 'error'"
+        (showInEditor)="showErrorInEditor()"
+      />
       <app-rendering
         #canvas
         [graph]="view.graph"

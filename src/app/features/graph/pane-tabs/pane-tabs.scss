@@ -1,9 +1,16 @@
+@use '../compact';
+
 // Segmented control above the pane (mobile mockup)
 :host {
   display: block;
   padding: 10px 16px;
   border-block-end: 1px solid var(--sg-border-subtle);
   background: var(--sg-bg-panel);
+
+  // Sideways every pixel of height counts.
+  @include compact.landscape {
+    padding-block: 6px;
+  }
 }
 
 .tabs {

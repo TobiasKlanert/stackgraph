@@ -1,0 +1,32 @@
+@use '../compact';
+
+// Compact only: behind the Editor tab the error box is out of sight, so a
+// stale graph says so itself. Wide screens show the box next to the graph.
+:host {
+  display: none;
+
+  @media (width < compact.$below) {
+    display: block;
+  }
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 16px 0;
+  padding: 8px 8px 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--sg-danger) 50%, transparent);
+  border-radius: var(--sg-radius-md);
+  background: var(--sg-danger-bg);
+  line-height: 1.35;
+
+  svg {
+    flex: none;
+    color: var(--sg-danger);
+  }
+
+  strong {
+    color: var(--sg-danger);
+  }
+}
