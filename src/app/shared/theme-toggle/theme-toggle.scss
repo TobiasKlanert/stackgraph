@@ -10,6 +10,12 @@
   color: var(--sg-text-secondary);
   cursor: pointer;
 
+  // Touch target of the mobile layout
+  @media (pointer: coarse) {
+    inline-size: 40px;
+    block-size: 40px;
+  }
+
   &:hover {
     color: var(--sg-text);
     border-color: var(--sg-border-strong);

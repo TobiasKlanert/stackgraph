@@ -20,6 +20,13 @@
   white-space: nowrap;
   cursor: pointer;
 
+  // Touch: 40 px, the target size of the mobile layout. Input decides, not
+  // width: a tablet in landscape gets them too, a narrow desktop window not.
+  // The large variant below stays at 44 px, as it comes later.
+  @media (pointer: coarse) {
+    block-size: 40px;
+  }
+
   &:hover {
     background: var(--sg-bg-raised);
   }
@@ -64,6 +71,10 @@
   font-weight: 500;
   line-height: 1;
   text-decoration: none;
+
+  @media (pointer: coarse) {
+    block-size: 40px;
+  }
 
   &:hover {
     color: var(--sg-text);

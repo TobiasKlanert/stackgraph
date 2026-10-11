@@ -140,9 +140,10 @@ app-home {
 
   // Compact: the summary line above the canvas gets its own row; the zoom
   // floats over the canvas and needs it as its containing block. The inset
-  // (zoom height and its offset) keeps "Fit" from drawing under the zoom.
+  // (zoom up to 42 px on touch, its 12 px offset, a little air) keeps "Fit"
+  // from drawing under the zoom.
   @media (width < compact.$below) {
-    --sg-canvas-inset-block-end: 56px;
+    --sg-canvas-inset-block-end: 60px;
     position: relative;
     // Summary, error notice (empty without an error), canvas
     grid-template-rows: auto auto minmax(0, 1fr);

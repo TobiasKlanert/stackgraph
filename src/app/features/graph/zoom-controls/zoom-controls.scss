@@ -7,6 +7,11 @@
   background: var(--sg-bg-panel);
   // Keeps the square button corners inside the rounded frame.
   overflow: hidden;
+
+  // Touch: 40 px buttons inside the 1 px frame
+  @media (pointer: coarse) {
+    block-size: 42px;
+  }
 }
 
 button {
@@ -40,6 +45,10 @@ button {
 .icon {
   inline-size: 36px;
   color: var(--sg-text-secondary);
+
+  @media (pointer: coarse) {
+    inline-size: 40px;
+  }
 }
 
 .percent {

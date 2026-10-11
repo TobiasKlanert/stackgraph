@@ -48,6 +48,12 @@
   border-color: var(--sg-border-strong);
   cursor: pointer;
 
+  // Touch: 44 px. In the sheet these are the main action and sit close
+  // together (A11y review #11).
+  @media (pointer: coarse) {
+    min-block-size: 44px;
+  }
+
   &:hover {
     border-color: var(--sg-accent);
   }
