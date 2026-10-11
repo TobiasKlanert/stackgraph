@@ -1,5 +1,9 @@
 import {
+  ChangeDetectorRef,
   Component,
+  ElementRef,
+  Injector,
+  afterNextRender,
   computed,
   inject,
   linkedSignal,
@@ -10,6 +14,7 @@ import {
 import { toObservable } from '@angular/core/rxjs-interop';
 import { filter, firstValueFrom } from 'rxjs';
 import { IS_APPLE_PLATFORM } from '../../../core/platform/platform';
+import { mediaQuery, touchPointerQuery } from '../../../core/platform/media-query';
 import { ComposeState, ParseState } from '../../../core/state/compose-state';
 import { sampleCompose } from '../../../core/samples/sample-compose';
 import { ErrorBox } from '../../../shared/error-box/error-box';
@@ -48,6 +53,13 @@ export class Home {
   readonly submitted = output<void>();
 
   private readonly editorField = viewChild.required(Editor);
+  private readonly errorBox = viewChild(ErrorBox);
+  private readonly hint = viewChild<ElementRef<HTMLElement>>('hint');
+  private readonly injector = inject(Injector);
+  private readonly changeDetector = inject(ChangeDetectorRef);
+
+  /** Touch screen: focus in the field would open the on-screen keyboard. */
+  private readonly touch = mediaQuery(touchPointerQuery);
 
   /** Results without the pending phases, for a click while parsing is still running. */
   private readonly results$ = toObservable(this.state.state).pipe(
@@ -121,10 +133,37 @@ export class Home {
       }
       this.attempted.set(true);
       this.announcement.set(reason(result));
-      this.editorField().focus();
+      if (this.touch()) {
+        this.focusFeedbackAfterRender();
+      } else {
+        this.editorField().focus();
+      }
     } finally {
       this.waiting = false;
     }
+  }
+
+  /**
+   * On a touch screen, focus in the field opens the on-screen keyboard, and
+   * that covers the error below the buttons. Focus goes to the error itself
+   * instead: it is read out and stays in view, and the field is one tap
+   * away. The feedback appears with this click or is there from an earlier
+   * one; marking for check makes sure the next render, and so the focus,
+   * happens in both cases.
+   */
+  private focusFeedbackAfterRender(): void {
+    afterNextRender(
+      () => {
+        const box = this.errorBox();
+        if (box) {
+          box.focusFirst();
+        } else {
+          this.hint()?.nativeElement.focus();
+        }
+      },
+      { injector: this.injector }
+    );
+    this.changeDetector.markForCheck();
   }
 
   protected onShortcut(event: Event): void {

@@ -90,7 +90,7 @@
           (goTo)="editor.goTo($event.line, $event.column)"
         />
       } @else {
-        <p class="feedback empty-hint" data-testid="empty-hint">
+        <p #hint class="feedback empty-hint" data-testid="empty-hint" tabindex="-1">
           <svg
             class="hint-icon"
             width="16"

@@ -17,7 +17,7 @@
       <path d="M12 8v4M12 16h.01" />
     </svg>
     <div class="body">
-      <h3 class="title">{{ title(error) }}</h3>
+      <h3 #errorTitle class="title" tabindex="-1">{{ title(error) }}</h3>
       <p class="message">{{ asSentence(error.message) }}</p>
       @if (fixHint(error); as hint) {
         <p class="hint">{{ hint }}</p>
