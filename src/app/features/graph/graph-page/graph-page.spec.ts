@@ -599,6 +599,34 @@ describe('GraphPage', () => {
         expect(handle()?.getAttribute('aria-expanded')).toBe('false');
       });
     });
+
+    it('moves the legend into the sheet and leaves the zoom on the graph', async () => {
+      await openGraph();
+      const toolbar = (): HTMLElement => fixture.nativeElement.querySelector('.graph-toolbar');
+      expect(toolbar().querySelector('app-legend')).not.toBeNull();
+
+      await goCompact();
+
+      expect(toolbar().querySelector('app-legend')).toBeNull();
+      expect(toolbar().querySelector('app-zoom-controls')).not.toBeNull();
+      const legends = fixture.nativeElement.querySelectorAll('app-legend');
+      expect(legends).toHaveLength(1);
+      expect(legends[0].closest('app-detail-sheet')).not.toBeNull();
+    });
+
+    it('keeps only the legal links in the footer of the compact split view', async () => {
+      const footerLinks = (): (string | undefined)[] =>
+        Array.from<Element>(fixture.nativeElement.querySelectorAll('app-site-footer nav a')).map(
+          (a) => a.textContent?.trim()
+        );
+      await goCompact();
+      // The home view keeps the full footer at any width.
+      expect(footerLinks()).toContain('About');
+
+      await openGraph();
+
+      expect(footerLinks()).toEqual(['Impressum', 'Datenschutz']);
+    });
   });
 
   it('returns to home when the brand is clicked', async () => {

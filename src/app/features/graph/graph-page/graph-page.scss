@@ -179,9 +179,13 @@ app-home {
   overflow: hidden;
   background: var(--sg-bg-app);
 
-  // Compact: the summary line above the canvas gets its own row.
+  // Compact: the summary line above the canvas gets its own row; the zoom
+  // floats over the canvas and needs it as its containing block. The inset
+  // (zoom height and its offset) keeps "Fit" from drawing under the zoom.
   @media (width < compact.$below) {
-    grid-template-rows: auto minmax(0, 1fr) auto;
+    --sg-canvas-inset-block-end: 56px;
+    position: relative;
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   // Focus from the skip link lands here; the ring would frame the whole
@@ -215,6 +219,19 @@ app-home {
   padding: 8px 14px;
   border-block-start: 1px solid var(--sg-border-subtle);
   background: var(--sg-bg-panel);
+
+  // Compact: only the zoom is left, floating in the corner of the canvas
+  // (mobile mockup), so the graph gets the toolbar's height. "Fit" keeps
+  // nodes clear of it (inset above); after panning one may pass under it.
+  @media (width < compact.$below) {
+    position: absolute;
+    inset-block-end: 12px;
+    inset-inline-end: 12px;
+    min-block-size: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
 }
 
 // Header content of the split view

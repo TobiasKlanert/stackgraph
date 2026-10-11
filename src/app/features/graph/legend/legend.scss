@@ -1,4 +1,17 @@
+@use '../panel';
 @use '../rendering/edge-styles' as edge;
+
+// In a panel: spaced and separated like the panel's own groups
+:host([data-placement='panel']) {
+  display: block;
+  padding: 14px 20px 18px;
+  border-block-start: 1px solid var(--sg-border-subtle);
+}
+
+.title {
+  @include panel.label;
+  margin-block-end: 6px;
+}
 
 .entries {
   display: flex;

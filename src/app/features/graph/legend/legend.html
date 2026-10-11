@@ -1,6 +1,7 @@
 <div class="legend" role="group" aria-labelledby="legend-title">
-  <!-- Visually hidden: in the toolbar the samples speak for themselves. -->
-  <span id="legend-title" class="sr-only">Legend</span>
+  <!-- In the toolbar the samples speak for themselves, so the title is only
+       for screen readers. In a panel it labels the group like the others. -->
+  <span id="legend-title" [class]="placement() === 'panel' ? 'title' : 'sr-only'">Legend</span>
   <ul class="entries">
     <li>
       <svg class="sample" width="28" height="8" aria-hidden="true" focusable="false">
