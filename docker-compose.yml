@@ -5,6 +5,12 @@ services:
     networks:
       - web
     restart: unless-stopped
+    # Rotate what is still logged (startup, errors) instead of growing forever.
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
 
 networks:
   web:
