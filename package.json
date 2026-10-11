@@ -40,12 +40,12 @@
     "@types/d3-zoom": "^3.0.9",
     "@types/js-yaml": "^4.0.9",
     "angular-eslint": "21.4.0",
-    "eslint": "^10.11.0",
+    "eslint": "^10.12.0",
     "eslint-config-prettier": "^10.1.8",
     "jsdom": "^28.0.0",
     "prettier": "^3.9.9",
     "typescript": "~5.9.2",
-    "typescript-eslint": "8.71.0",
+    "typescript-eslint": "8.71.1",
     "vitest": "^4.0.8"
   },
   "allowScripts": {
