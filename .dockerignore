@@ -24,6 +24,10 @@ npm-debug.log*
 # Tests
 coverage
 
+# README images and their tooling (not part of the app)
+docs
+scripts
+
 # Docker (not required in the build context)
 Dockerfile
 .dockerignore
