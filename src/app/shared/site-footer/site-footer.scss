@@ -1,14 +1,13 @@
-:host {
-  display: block;
-}
-
 .footer {
   display: flex;
   align-items: center;
+  // No breakpoint: the footer wraps when its own content no longer fits. The
+  // tagline differs per view, so a fixed width would be right for one at most.
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 16px;
+  gap: 4px 16px;
   min-block-size: 44px;
-  padding: 0 10px 0 16px;
+  padding: 4px 10px 4px 16px;
   background: var(--sg-bg-panel);
   border-block-start: 1px solid var(--sg-border-subtle);
   color: var(--sg-text-muted);
@@ -16,10 +15,25 @@
   line-height: 1;
 }
 
-.links {
+// As tall as a link, so wrapped rows keep the same rhythm and the tagline
+// does not sit right against the border.
+.tagline {
   display: flex;
   align-items: center;
+  min-block-size: 32px;
+  // Wraps by itself only on very narrow screens or with large text; at the
+  // footer's line-height of 1 the lines would touch.
+  line-height: 1.4;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 2px;
+  // Once the links wrap under the tagline, the first label lines up with it
+  // instead of sitting a link padding further in (mobile mockup).
+  margin-inline-start: -8px;
 
   a {
     display: flex;
