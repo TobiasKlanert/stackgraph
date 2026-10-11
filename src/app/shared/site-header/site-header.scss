@@ -34,6 +34,12 @@
   align-items: center;
   gap: 9px;
   block-size: 36px;
+
+  // Touch target of the mobile layout
+  @media (pointer: coarse) {
+    block-size: 40px;
+  }
+
   border-radius: var(--sg-radius-sm);
   color: var(--sg-text);
   text-decoration: none;

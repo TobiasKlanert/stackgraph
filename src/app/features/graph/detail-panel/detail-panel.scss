@@ -46,6 +46,13 @@ h2 {
   block-size: 32px;
   padding: 0;
   border: 1px solid var(--sg-border);
+
+  // Touch target of the mobile layout
+  @media (pointer: coarse) {
+    inline-size: 40px;
+    block-size: 40px;
+  }
+
   border-radius: var(--sg-radius-sm);
   background: transparent;
   color: var(--sg-text-secondary);
