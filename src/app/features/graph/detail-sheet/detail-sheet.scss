@@ -92,3 +92,26 @@
   color: var(--sg-text-muted);
   font-weight: 400;
 }
+
+// Turned sideways: a column beside the graph, always open, so no handle.
+// The open/closed state stays, for when the device is turned back. Last in
+// the file, so it wins over the rules above.
+@include compact.landscape {
+  :host {
+    border-block-start: none;
+    border-inline-start: 1px solid var(--sg-border-subtle);
+    border-radius: 0;
+  }
+
+  :host([data-sheet]) {
+    block-size: auto;
+  }
+
+  :host([data-sheet]) .content {
+    display: block;
+  }
+
+  .handle {
+    display: none;
+  }
+}

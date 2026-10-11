@@ -14,6 +14,7 @@ import { WorkspaceView } from '../../../core/state/workspace-view';
 import { mediaQuery } from '../../../core/platform/media-query';
 import { type Pane, compactLayoutQuery } from '../compact-layout';
 import { PaneTabs } from '../pane-tabs/pane-tabs';
+import { StaleNotice } from '../stale-notice/stale-notice';
 import { Editor } from '../editor/editor';
 import { Rendering } from '../rendering/rendering';
 import { DetailPanel } from '../detail-panel/detail-panel';
@@ -41,6 +42,7 @@ function count(n: number, noun: string): string {
     DetailPanel,
     DetailSheet,
     PaneTabs,
+    StaleNotice,
     StackOverview,
     Home,
     ErrorBox,

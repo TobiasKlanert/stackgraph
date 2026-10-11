@@ -45,6 +45,17 @@ app-home {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr) auto;
   }
+
+  // Turned sideways: the details beside the graph. Tabs and editor span both.
+  @include compact.landscape {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    grid-template-rows: auto minmax(0, 1fr);
+
+    app-pane-tabs,
+    .editor-column {
+      grid-column: 1 / -1;
+    }
+  }
 }
 
 // The inactive pane is not displayed, which also takes it out of the
@@ -149,41 +160,15 @@ app-home {
     grid-template-rows: auto auto minmax(0, 1fr);
   }
 
+  // Sideways the height is scarce; the details beside it list the counts.
+  @include compact.landscape {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
   // Focus from the skip link lands here; the ring would frame the whole
   // canvas, and the column is not an interactive control itself.
   &:focus {
     outline: none;
-  }
-}
-
-// Compact only: behind the Editor tab the error box is out of sight, so a
-// stale graph says so itself. Wide screens show the box next to the graph.
-.stale-status {
-  display: none;
-
-  @media (width < compact.$below) {
-    display: block;
-  }
-}
-
-.stale-note {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 8px 16px 0;
-  padding: 8px 8px 8px 12px;
-  border: 1px solid color-mix(in srgb, var(--sg-danger) 50%, transparent);
-  border-radius: var(--sg-radius-md);
-  background: var(--sg-danger-bg);
-  line-height: 1.35;
-
-  svg {
-    flex: none;
-    color: var(--sg-danger);
-  }
-
-  strong {
-    color: var(--sg-danger);
   }
 }
 
@@ -198,6 +183,10 @@ app-home {
 
   @media (width < compact.$below) {
     display: block;
+  }
+
+  @include compact.landscape {
+    display: none;
   }
 }
 

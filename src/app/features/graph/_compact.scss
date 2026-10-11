@@ -2,3 +2,12 @@
 /// become a sheet. Must match compactLayoutQuery in compact-layout.ts, which
 /// switches the semantics (tabs, sheet handle) to the same layout.
 $below: 1024px;
+
+/// Compact and wider than tall, e.g. a phone turned sideways. The details sit
+/// beside the graph instead of below it: below, they would leave the graph a
+/// few pixels. Layout only, so no query in TypeScript has to follow it.
+@mixin landscape {
+  @media (width < $below) and (orientation: landscape) {
+    @content;
+  }
+}

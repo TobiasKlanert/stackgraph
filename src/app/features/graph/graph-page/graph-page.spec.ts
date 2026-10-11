@@ -575,7 +575,7 @@ describe('GraphPage', () => {
       }
 
       function notice(): HTMLElement | null {
-        return pane('graph')?.querySelector('.stale-note') ?? null;
+        return pane('graph')?.querySelector('app-stale-notice .note') ?? null;
       }
 
       it('marks the Editor tab and says above the graph that it is stale', async () => {
