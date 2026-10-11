@@ -112,9 +112,13 @@
         (nodeSelected)="onNodeSelected($event)"
         (selectionCleared)="selectedId.set(null)"
       />
-      <!-- Below the canvas, not over it, so it never hides a node. -->
+      <!-- Below the canvas, not over it, so it never hides a node. In the
+           compact layout only the zoom is left here, floating in the corner;
+           the legend moves into the details sheet. -->
       <div class="graph-toolbar">
-        <app-legend />
+        @if (!compact()) {
+          <app-legend />
+        }
         <app-zoom-controls
           [percent]="canvas.zoomPercent()"
           [canZoomIn]="canvas.canZoomIn()"
@@ -146,10 +150,14 @@
       } @else {
         <app-stack-overview [model]="view.model" (serviceSelected)="selectFromPanel($event)" />
       }
+      @if (compact()) {
+        <app-legend placement="panel" />
+      }
     </app-detail-sheet>
   } @else {
     <app-home (submitted)="openGraph()" />
   }
 </main>
 
-<app-site-footer [tagline]="footerText()" />
+<!-- The compact split view needs the height for the graph: legal links only. -->
+<app-site-footer [tagline]="footerText()" [legalOnly]="compact() && graphView() !== null" />

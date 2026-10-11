@@ -45,6 +45,17 @@ describe('SiteFooter', () => {
     }
   });
 
+  it('can show only the legal links', () => {
+    const fixture = TestBed.createComponent(SiteFooter);
+    fixture.componentRef.setInput('legalOnly', true);
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    const links = Array.from(el.querySelectorAll('nav a')).map((a) => a.textContent?.trim());
+
+    expect(links).toEqual(['Impressum', 'Datenschutz']);
+    expect(el.querySelector('.tagline')).toBeNull();
+  });
+
   it('marks the link to the current page', async () => {
     const harness = await RouterTestingHarness.create('/about');
     const el: HTMLElement = harness.routeNativeElement as HTMLElement;

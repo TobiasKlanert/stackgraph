@@ -1,9 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { Legend } from './legend';
+import { Legend, type LegendPlacement } from './legend';
 
 describe('Legend', () => {
-  function render(): HTMLElement {
+  function render(placement?: LegendPlacement): HTMLElement {
     const fixture = TestBed.createComponent(Legend);
+    if (placement !== undefined) {
+      fixture.componentRef.setInput('placement', placement);
+    }
     fixture.detectChanges();
     return fixture.nativeElement;
   }
@@ -14,6 +17,14 @@ describe('Legend', () => {
 
     expect(title?.textContent).toBe('Legend');
     expect(title?.classList.contains('sr-only')).toBe(true);
+  });
+
+  it('shows its title in a panel, still labelling the group', () => {
+    const group = render('panel').querySelector('[role="group"]');
+    const title = group?.querySelector(`#${group.getAttribute('aria-labelledby')}`);
+
+    expect(title?.textContent).toBe('Legend');
+    expect(title?.classList.contains('sr-only')).toBe(false);
   });
 
   it('explains every edge style and the port chips', () => {

@@ -15,5 +15,12 @@ export class SiteFooter {
   /** Left-hand text. */
   readonly tagline = input(privacyNote);
 
+  /**
+   * Only Impressum and Datenschutz, without tagline and the other links.
+   * For views that need the height, like the split view on a phone: the
+   * legal links stay one tap away there, the rest is on every other page.
+   */
+  readonly legalOnly = input(false);
+
   protected readonly links = externalLinks;
 }

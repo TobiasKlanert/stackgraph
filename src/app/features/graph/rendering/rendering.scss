@@ -10,6 +10,10 @@ svg {
   display: block;
   inline-size: 100%;
   block-size: 100%;
+  // Room for controls that float over the canvas, set by the page. The
+  // viewBox fits into the rest, so "Fit" keeps every node clear of them;
+  // panning still uses the whole area.
+  padding-block-end: var(--sg-canvas-inset-block-end, 0);
   touch-action: none;
   cursor: grab;
 
