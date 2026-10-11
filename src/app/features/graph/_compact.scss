@@ -1,0 +1,4 @@
+/// Below this width the split view shows one pane at a time and the details
+/// become a sheet. Must match compactLayoutQuery in compact-layout.ts, which
+/// switches the semantics (tabs, sheet handle) to the same layout.
+$below: 1024px;

@@ -1,8 +1,5 @@
+@use '../compact';
 @use '../../../../styles/a11y';
-
-/// Below this width the split view shows one pane at a time. Must match
-/// compactLayoutQuery in compact-layout.ts, which switches the tab semantics.
-$compact-below: 1024px;
 
 // Page column: header, content filling the rest, footer at the bottom edge
 // even when the content is short.
@@ -44,7 +41,7 @@ app-home {
   grid-template-rows: minmax(0, 1fr);
 
   // One column: tabs, the active pane and, under the graph, its details.
-  @media (width < $compact-below) {
+  @media (width < compact.$below) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr) auto;
   }
@@ -52,7 +49,7 @@ app-home {
 
 // The inactive pane is not displayed, which also takes it out of the
 // accessibility tree. Both stay rendered, so nothing loses its state.
-@media (width < $compact-below) {
+@media (width < compact.$below) {
   .main[data-pane='editor'] {
     .graph-column,
     .detail-column {
@@ -118,7 +115,7 @@ app-home {
   border-inline-end: 1px solid var(--sg-border-subtle);
 
   // Full width: no neighbour to separate from
-  @media (width < $compact-below) {
+  @media (width < compact.$below) {
     border-inline-end: none;
   }
 
@@ -183,7 +180,7 @@ app-home {
   background: var(--sg-bg-app);
 
   // Compact: the summary line above the canvas gets its own row.
-  @media (width < $compact-below) {
+  @media (width < compact.$below) {
     grid-template-rows: auto minmax(0, 1fr) auto;
   }
 
@@ -203,7 +200,7 @@ app-home {
   padding: 10px 16px 0;
   color: var(--sg-text-secondary);
 
-  @media (width < $compact-below) {
+  @media (width < compact.$below) {
     display: block;
   }
 }
@@ -220,20 +217,6 @@ app-home {
   background: var(--sg-bg-panel);
 }
 
-.detail-column {
-  overflow-y: auto;
-  background: var(--sg-bg-panel);
-  border-inline-start: 1px solid var(--sg-border-subtle);
-
-  // Under the graph until it becomes a bottom sheet; at most a third of the
-  // screen, so the graph keeps the larger part.
-  @media (width < $compact-below) {
-    max-block-size: 33dvh;
-    border-inline-start: none;
-    border-block-start: 1px solid var(--sg-border-subtle);
-  }
-}
-
 // Header content of the split view
 .file-name {
   margin: 0;
@@ -247,7 +230,7 @@ app-home {
 
   // Compact: no room next to the brand, and the editor header names the
   // file. The heading stays for screen readers, so the page keeps its h1.
-  @media (width < $compact-below) {
+  @media (width < compact.$below) {
     @include a11y.visually-hidden;
   }
 }
@@ -258,7 +241,7 @@ app-home {
   white-space: nowrap;
 
   // Compact: shown above the graph instead (.pane-summary)
-  @media (width < $compact-below) {
+  @media (width < compact.$below) {
     display: none;
   }
 }

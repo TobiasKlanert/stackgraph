@@ -1,0 +1,23 @@
+<!-- A button, not a drag target, so it works with keyboard and screen readers
+     (A11y review #11). Only in the compact layout; wide screens need none. -->
+@if (compact()) {
+  <button
+    type="button"
+    class="handle"
+    aria-controls="sheet-content"
+    [attr.aria-expanded]="expanded()"
+    (click)="toggle()"
+  >
+    <span class="grip" aria-hidden="true"></span>
+    <span class="title">
+      @if (kind(); as kind) {
+        <span class="kind">{{ kind }}</span>
+      }
+      {{ name() }}
+    </span>
+  </button>
+}
+
+<div id="sheet-content" class="content">
+  <ng-content />
+</div>

@@ -535,6 +535,70 @@ describe('GraphPage', () => {
         '2 services, 1 network, 0 volumes'
       );
     });
+
+    // The sheet's own behaviour is covered in detail-sheet.spec.ts; these
+    // check how the page wires it up.
+    describe('details sheet', () => {
+      function handle(): HTMLButtonElement | null {
+        return fixture.nativeElement.querySelector('app-detail-sheet .handle');
+      }
+
+      function handleName(): string {
+        return handle()?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+      }
+
+      it('has no handle on wide screens, where the details are a column', async () => {
+        await openGraph();
+
+        expect(handle()).toBeNull();
+      });
+
+      it('starts collapsed, holding the stack overview', async () => {
+        await openGraph();
+        await goCompact();
+
+        expect(handle()?.getAttribute('aria-expanded')).toBe('false');
+        expect(handleName()).toBe('Stack overview');
+      });
+
+      it('opens when a service is picked in the graph, leaving focus there', async () => {
+        await openGraph();
+        await goCompact();
+        const focusBefore = document.activeElement;
+
+        clickNode('web');
+        await fixture.whenStable();
+
+        expect(handle()?.getAttribute('aria-expanded')).toBe('true');
+        expect(handleName()).toBe('Service web');
+        expect(document.activeElement).toBe(focusBefore);
+      });
+
+      it('opens again on the next pick after the handle closed it', async () => {
+        await openGraph();
+        await goCompact();
+        clickNode('web');
+        await fixture.whenStable();
+
+        handle()?.click();
+        await fixture.whenStable();
+        expect(handle()?.getAttribute('aria-expanded')).toBe('false');
+
+        clickNode('api');
+        await fixture.whenStable();
+        expect(handle()?.getAttribute('aria-expanded')).toBe('true');
+      });
+
+      it('stays collapsed when a network is clicked, which has no details', async () => {
+        await openGraph();
+        await goCompact();
+
+        clickNode('net:web');
+        await fixture.whenStable();
+
+        expect(handle()?.getAttribute('aria-expanded')).toBe('false');
+      });
+    });
   });
 
   it('returns to home when the brand is clicked', async () => {

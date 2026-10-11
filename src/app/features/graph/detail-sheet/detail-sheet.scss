@@ -1,0 +1,94 @@
+@use '../compact';
+@use '../../../../styles/a11y';
+
+// Wide screens: the right-hand column, scrolling on its own.
+:host {
+  display: block;
+  overflow-y: auto;
+  background: var(--sg-bg-panel);
+  border-inline-start: 1px solid var(--sg-border-subtle);
+
+  // Compact: a sheet in the flow under the graph. It takes its own row, so
+  // the graph shrinks instead of being covered and never hides a node. The
+  // rounded corners show the graph background, which reads as a sheet on it.
+  @media (width < compact.$below) {
+    display: flex;
+    flex-direction: column;
+    // The content scrolls, the handle stays in place.
+    overflow: hidden;
+    border-inline-start: none;
+    border-block-start: 1px solid var(--sg-border);
+    border-start-start-radius: var(--sg-radius-lg);
+    border-start-end-radius: var(--sg-radius-lg);
+  }
+}
+
+@media (width < compact.$below) {
+  // Fixed rather than content height, so switching between services does
+  // not make the graph jump.
+  :host([data-sheet='expanded']) {
+    block-size: 45dvh;
+  }
+
+  :host([data-sheet='collapsed']) .content {
+    display: none;
+  }
+
+  .content {
+    flex: 1;
+    min-block-size: 0;
+    overflow-y: auto;
+  }
+}
+
+// Collapsed: grip and title. Expanded: only the grip, because the panel
+// below names the same thing; the title stays as the button's name.
+.handle {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  inline-size: 100%;
+  // 40 px: touch target of the mobile layout, also when only the grip shows
+  min-block-size: 40px;
+  padding: 10px 16px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--sg-text);
+  cursor: pointer;
+
+  // The host clips its overflow, so the focus ring goes inwards.
+  &:focus-visible {
+    outline-offset: -2px;
+  }
+}
+
+:host([data-sheet='expanded']) .handle {
+  padding-block-end: 0;
+}
+
+.grip {
+  inline-size: 36px;
+  block-size: 4px;
+  border-radius: 2px;
+  background: var(--sg-border-strong);
+}
+
+.title {
+  align-self: stretch;
+  font-size: var(--sg-font-size-lg);
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: start;
+}
+
+:host([data-sheet='expanded']) .title {
+  @include a11y.visually-hidden;
+}
+
+.kind {
+  margin-inline-end: 4px;
+  color: var(--sg-text-muted);
+  font-weight: 400;
+}
