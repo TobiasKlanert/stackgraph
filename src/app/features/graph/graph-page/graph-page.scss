@@ -1,3 +1,7 @@
+/// Below this width the split view shows one pane at a time. Must match
+/// compactLayoutQuery in compact-layout.ts, which switches the tab semantics.
+$compact-below: 1024px;
+
 // Page column: header, content filling the rest, footer at the bottom edge
 // even when the content is short.
 :host {
@@ -27,8 +31,8 @@ app-home {
 
 :host(.workspace) .main {
   display: grid;
-  // Side columns shrink between ~1024 and 1440 px instead of squeezing the
-  // graph; below that the responsive layout takes over.
+  // Side columns shrink between 1024 and 1440 px instead of squeezing the
+  // graph; below that the compact layout takes over.
   grid-template-columns:
     clamp(280px, 28vw, 400px)
     minmax(0, 1fr)
@@ -36,6 +40,68 @@ app-home {
   // minmax(0, …) lets the row shrink below its content, so long editor
   // content scrolls inside its column instead of stretching the page.
   grid-template-rows: minmax(0, 1fr);
+
+  // One column: tabs, the active pane and, under the graph, its details.
+  @media (width < $compact-below) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+}
+
+// The inactive pane is not displayed, which also takes it out of the
+// accessibility tree. Both stay rendered, so nothing loses its state.
+@media (width < $compact-below) {
+  .main[data-pane='editor'] {
+    .graph-column,
+    .detail-column {
+      display: none;
+    }
+  }
+
+  .main[data-pane='graph'] .editor-column {
+    display: none;
+  }
+}
+
+// Segmented control above the pane (mobile mockup).
+.pane-switch {
+  padding: 10px 16px;
+  border-block-end: 1px solid var(--sg-border-subtle);
+  background: var(--sg-bg-panel);
+}
+
+.pane-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-lg);
+  background: var(--sg-bg-app);
+}
+
+.pane-tab {
+  // 40 px: touch target of the mobile layout (A11y review #12)
+  block-size: 40px;
+  border: 1px solid transparent;
+  border-radius: var(--sg-radius-md);
+  background: transparent;
+  color: var(--sg-text-secondary);
+  font-size: var(--sg-font-size-lg);
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--sg-text);
+  }
+
+  // Selected: surface, border and weight, not colour alone
+  &[aria-selected='true'] {
+    border-color: var(--sg-border-strong);
+    background: var(--sg-bg-raised);
+    color: var(--sg-text);
+    font-weight: 600;
+  }
 }
 
 .column {
@@ -48,6 +114,11 @@ app-home {
   flex-direction: column;
   background: var(--sg-bg-editor);
   border-inline-end: 1px solid var(--sg-border-subtle);
+
+  // Full width: no neighbour to separate from
+  @media (width < $compact-below) {
+    border-inline-end: none;
+  }
 
   app-editor {
     flex: 1;
@@ -132,6 +203,14 @@ app-home {
   overflow-y: auto;
   background: var(--sg-bg-panel);
   border-inline-start: 1px solid var(--sg-border-subtle);
+
+  // Under the graph until it becomes a bottom sheet; at most a third of the
+  // screen, so the graph keeps the larger part.
+  @media (width < $compact-below) {
+    max-block-size: 33dvh;
+    border-inline-start: none;
+    border-block-start: 1px solid var(--sg-border-subtle);
+  }
 }
 
 // Header content of the split view

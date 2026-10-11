@@ -1,6 +1,6 @@
 @if (graphView()) {
   <!-- Fragment link: the graph column takes focus via tabindex="-1". -->
-  <a class="skip-link" href="#graph">Skip to graph</a>
+  <a class="skip-link" href="#graph" (click)="skipToGraph($event)">Skip to graph</a>
 }
 
 <!-- Header and footer sit outside the view switch, so they survive it and keyboard focus on the brand is not lost. -->
@@ -41,9 +41,41 @@
   <app-theme-toggle />
 </app-site-header>
 
-<main class="main">
+<!-- data-pane: which pane the compact layout shows; the stylesheet hides the other. -->
+<main class="main" [attr.data-pane]="pane()">
   @if (graphView(); as view) {
-    <section class="column editor-column" aria-label="Compose file">
+    <!-- Tabs only where one pane is shown at a time. Wide screens show every
+         column, so there the columns stay plain sections. -->
+    @if (compact()) {
+      <div class="pane-switch">
+        <div class="pane-tabs" role="tablist" aria-label="View">
+          @for (tab of paneTabs; track tab.pane) {
+            <button
+              #paneTab
+              type="button"
+              role="tab"
+              class="pane-tab"
+              [id]="'pane-tab-' + tab.pane"
+              [attr.aria-controls]="tab.pane"
+              [attr.aria-selected]="pane() === tab.pane"
+              [tabIndex]="pane() === tab.pane ? 0 : -1"
+              (click)="pane.set(tab.pane)"
+              (keydown)="onPaneTabKeydown($event)"
+            >
+              {{ tab.label }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <section
+      id="editor"
+      class="column editor-column"
+      aria-label="Compose file"
+      [attr.role]="compact() ? 'tabpanel' : null"
+      [attr.aria-labelledby]="compact() ? 'pane-tab-editor' : null"
+    >
       @let settled = state.settled();
       <app-editor #editor label="Docker Compose YAML">
         <h2 editorHeader class="editor-tab">docker-compose.yml</h2>
@@ -62,7 +94,14 @@
       </div>
     </section>
 
-    <section id="graph" class="column graph-column" tabindex="-1" aria-labelledby="graph-title">
+    <section
+      #graphPane
+      id="graph"
+      class="column graph-column"
+      tabindex="-1"
+      [attr.role]="compact() ? 'tabpanel' : null"
+      [attr.aria-labelledby]="compact() ? 'pane-tab-graph' : 'graph-title'"
+    >
       <h2 id="graph-title" class="sr-only">Service graph</h2>
       <app-rendering
         #canvas
