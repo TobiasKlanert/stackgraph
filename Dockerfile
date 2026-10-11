@@ -1,9 +1,10 @@
 # ---- Stage 1: Build ----
-FROM node:22-alpine AS build
+# Node-Version muss zu .nvmrc / package.json#engines passen (engine-strict prüft das)
+FROM node:24-alpine AS build
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 
 RUN npm ci
 
