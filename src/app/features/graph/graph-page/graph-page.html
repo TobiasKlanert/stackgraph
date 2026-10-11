@@ -103,6 +103,8 @@
       [attr.aria-labelledby]="compact() ? 'pane-tab-graph' : 'graph-title'"
     >
       <h2 id="graph-title" class="sr-only">Service graph</h2>
+      <!-- Displayed only in the compact layout, where the header has no room for the summary. -->
+      <p class="pane-summary">{{ summary() }}</p>
       <app-rendering
         #canvas
         [graph]="view.graph"

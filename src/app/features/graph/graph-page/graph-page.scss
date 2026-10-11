@@ -1,3 +1,5 @@
+@use '../../../../styles/a11y';
+
 /// Below this width the split view shows one pane at a time. Must match
 /// compactLayoutQuery in compact-layout.ts, which switches the tab semantics.
 $compact-below: 1024px;
@@ -180,10 +182,29 @@ app-home {
   overflow: hidden;
   background: var(--sg-bg-app);
 
+  // Compact: the summary line above the canvas gets its own row.
+  @media (width < $compact-below) {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
   // Focus from the skip link lands here; the ring would frame the whole
   // canvas, and the column is not an interactive control itself.
   &:focus {
     outline: none;
+  }
+}
+
+// The header's summary, moved above the graph where the header has no room
+// for it (mobile mockup). Exactly one of the two is displayed at a time, so
+// screen readers meet it once.
+.pane-summary {
+  display: none;
+  margin: 0;
+  padding: 10px 16px 0;
+  color: var(--sg-text-secondary);
+
+  @media (width < $compact-below) {
+    display: block;
   }
 }
 
@@ -223,12 +244,23 @@ app-home {
   font-size: var(--sg-font-size-sm);
   font-weight: 400;
   line-height: 1;
+
+  // Compact: no room next to the brand, and the editor header names the
+  // file. The heading stays for screen readers, so the page keeps its h1.
+  @media (width < $compact-below) {
+    @include a11y.visually-hidden;
+  }
 }
 
 .summary {
   margin: 0 10px 0 0;
   color: var(--sg-text-muted);
   white-space: nowrap;
+
+  // Compact: shown above the graph instead (.pane-summary)
+  @media (width < $compact-below) {
+    display: none;
+  }
 }
 
 // Skip link: off-screen until focused, then pinned over the header

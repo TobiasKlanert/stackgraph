@@ -523,6 +523,18 @@ describe('GraphPage', () => {
       await goCompact();
       expect(tab('editor')?.getAttribute('aria-selected')).toBe('true');
     });
+
+    it('keeps the file name as the page heading and repeats the summary above the graph', async () => {
+      await openGraph();
+      await goCompact();
+      const header: HTMLElement = fixture.nativeElement.querySelector('app-site-header');
+
+      // Only visually hidden in the compact header: the page keeps its h1.
+      expect(header.querySelector('h1')?.textContent).toBe('docker-compose.yml');
+      expect(pane('graph')?.querySelector('.pane-summary')?.textContent?.trim()).toBe(
+        '2 services, 1 network, 0 volumes'
+      );
+    });
   });
 
   it('returns to home when the brand is clicked', async () => {
