@@ -1,0 +1,23 @@
+<div class="tabs" role="tablist" aria-label="View">
+  @for (tab of tabs; track tab.pane) {
+    <button
+      #tabButton
+      type="button"
+      role="tab"
+      class="tab"
+      [id]="'pane-tab-' + tab.pane"
+      [attr.aria-controls]="tab.pane"
+      [attr.aria-selected]="selected() === tab.pane"
+      [tabIndex]="selected() === tab.pane ? 0 : -1"
+      (click)="selected.set(tab.pane)"
+      (keydown)="onKeydown($event)"
+    >
+      {{ tab.label }}
+      @if (errorIn() === tab.pane) {
+        <span class="sr-only"> has errors</span>
+        <!-- A dot, not colour on the label: a shape stays visible without colour. -->
+        <span class="error-dot" aria-hidden="true"></span>
+      }
+    </button>
+  }
+</div>
