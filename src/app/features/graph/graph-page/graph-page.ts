@@ -1,15 +1,19 @@
 import {
   Component,
+  ElementRef,
   Injector,
   afterNextRender,
   computed,
   inject,
   signal,
   viewChild,
+  viewChildren,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ComposeState, type ReadyState } from '../../../core/state/compose-state';
 import { WorkspaceView } from '../../../core/state/workspace-view';
+import { mediaQuery } from '../../../core/platform/media-query';
+import { type Pane, compactLayoutQuery, paneTabs } from '../compact-layout';
 import { Editor } from '../editor/editor';
 import { Rendering } from '../rendering/rendering';
 import { DetailPanel } from '../detail-panel/detail-panel';
@@ -25,6 +29,22 @@ import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
 
 function count(n: number, noun: string): string {
   return `${n} ${noun}${n === 1 ? '' : 's'}`;
+}
+
+/** Index of the tab a key moves to (WAI-ARIA tabs pattern), or null for other keys. */
+function tabIndexForKey(key: string, current: number, length: number): number | null {
+  switch (key) {
+    case 'ArrowLeft':
+      return (current - 1 + length) % length;
+    case 'ArrowRight':
+      return (current + 1) % length;
+    case 'Home':
+      return 0;
+    case 'End':
+      return length - 1;
+    default:
+      return null;
+  }
 }
 
 @Component({
@@ -55,6 +75,52 @@ export class GraphPage {
   private readonly workspace = inject(WorkspaceView);
   private readonly injector = inject(Injector);
   protected readonly selectedId = signal<string | null>(null);
+
+  /**
+   * Small screens show one pane at a time. The stylesheet does the layout on
+   * its own; this signal only switches the tab semantics, so wide screens get
+   * plain columns instead of tab panels without tabs.
+   */
+  protected readonly compact = mediaQuery(compactLayoutQuery);
+
+  /**
+   * The pane shown in the compact layout. The graph first: it is what the
+   * user came for. Both panes stay rendered, so switching keeps the editor's
+   * undo history and caret and the graph's zoom.
+   */
+  protected readonly pane = signal<Pane>('graph');
+  protected readonly paneTabs = paneTabs;
+  private readonly paneTabButtons = viewChildren<ElementRef<HTMLButtonElement>>('paneTab');
+  private readonly graphPane = viewChild<ElementRef<HTMLElement>>('graphPane');
+
+  /** Arrow keys, Home and End move between the tabs and select them. */
+  protected onPaneTabKeydown(event: KeyboardEvent): void {
+    const current = paneTabs.findIndex((tab) => tab.pane === this.pane());
+    const target = tabIndexForKey(event.key, current, paneTabs.length);
+    if (target === null) {
+      return;
+    }
+    const tab = paneTabs[target];
+    if (tab === undefined) {
+      return;
+    }
+    event.preventDefault();
+    this.pane.set(tab.pane);
+    this.paneTabButtons()[target]?.nativeElement.focus();
+  }
+
+  /**
+   * Behind the Editor tab the graph is not displayed and cannot take focus,
+   * so the fragment link alone would go nowhere. Show the graph, then focus it.
+   */
+  protected skipToGraph(event: MouseEvent): void {
+    if (this.pane() === 'graph') {
+      return;
+    }
+    event.preventDefault();
+    this.pane.set('graph');
+    afterNextRender(() => this.graphPane()?.nativeElement.focus(), { injector: this.injector });
+  }
 
   protected readonly selectedService = computed(() => {
     const id = this.selectedId();

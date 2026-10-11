@@ -1,26 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { FakeMediaQuery } from '../../../testing/fake-media-query';
 import { THEME_STORAGE, Theme, ThemeStorage } from './theme';
-
-/** Minimal stand-in for matchMedia. jsdom does not implement it. */
-class FakeMediaQuery {
-  private listener: ((event: MediaQueryListEvent) => void) | null = null;
-
-  constructor(public matches: boolean) {}
-
-  addEventListener(_type: 'change', listener: (event: MediaQueryListEvent) => void): void {
-    this.listener = listener;
-  }
-
-  removeEventListener(): void {
-    this.listener = null;
-  }
-
-  /** Simulates the user switching the OS theme. */
-  emit(matches: boolean): void {
-    this.matches = matches;
-    this.listener?.({ matches } as MediaQueryListEvent);
-  }
-}
 
 /** In-memory storage, independent of what the test runtime provides as localStorage. */
 function memoryStorage(): ThemeStorage & { data: Map<string, string> } {

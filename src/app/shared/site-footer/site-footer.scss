@@ -50,6 +50,10 @@
     &:hover {
       color: var(--sg-text);
     }
+
+    @media (pointer: coarse) {
+      block-size: 40px;
+    }
   }
 
   // Current page: underline as a cue that does not rely on colour alone

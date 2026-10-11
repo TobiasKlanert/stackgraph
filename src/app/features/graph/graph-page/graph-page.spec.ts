@@ -3,6 +3,8 @@ import { provideRouter } from '@angular/router';
 import { GraphPage } from './graph-page';
 import { ComposeState } from '../../../core/state/compose-state';
 import { SvgExport } from '../../../core/export/svg-export';
+import { FakeMediaQuery } from '../../../../testing/fake-media-query';
+import { compactLayoutQuery } from '../compact-layout';
 
 interface DownloadCall {
   svg: SVGSVGElement;
@@ -27,6 +29,8 @@ describe('GraphPage', () => {
   let fixture: ComponentFixture<GraphPage>;
   let state: ComposeState;
   let downloads: DownloadCall[];
+  /** The small-screen query. Wide by default; tests emit true to go compact. */
+  let compactQuery: FakeMediaQuery;
 
   function panel(): HTMLElement | null {
     return fixture.nativeElement.querySelector('app-detail-panel');
@@ -75,6 +79,11 @@ describe('GraphPage', () => {
 
   beforeEach(async () => {
     downloads = [];
+    compactQuery = new FakeMediaQuery(false);
+    // Other queries (the theme's) get their own fake, so going compact does not switch the theme.
+    vi.stubGlobal('matchMedia', (query: string) =>
+      query === compactLayoutQuery ? compactQuery : new FakeMediaQuery(false)
+    );
 
     const svgExportStub: Pick<SvgExport, 'download'> = {
       download: (svg, fileName) => {
@@ -91,6 +100,10 @@ describe('GraphPage', () => {
     fixture = TestBed.createComponent(GraphPage);
     fixture.detectChanges();
     await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('starts on the home screen', () => {
@@ -377,6 +390,138 @@ describe('GraphPage', () => {
       fixture.nativeElement.querySelector('app-zoom-controls .fit').click();
       await fixture.whenStable();
       expect(group()).toBe('translate(0,0) scale(1)');
+    });
+  });
+
+  // jsdom computes no layout, so these check semantics and state; which pane
+  // is displayed is up to the stylesheet and is checked in a real browser.
+  describe('compact layout', () => {
+    function main(): HTMLElement {
+      return fixture.nativeElement.querySelector('main');
+    }
+
+    function tab(name: string): HTMLButtonElement | null {
+      return fixture.nativeElement.querySelector(`[role="tab"][aria-controls="${name}"]`);
+    }
+
+    function pane(id: string): HTMLElement | null {
+      return fixture.nativeElement.querySelector(`#${id}`);
+    }
+
+    async function goCompact(): Promise<void> {
+      compactQuery.emit(true);
+      await fixture.whenStable();
+    }
+
+    function press(target: HTMLElement, key: string): void {
+      target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    }
+
+    it('shows plain columns without tabs on wide screens', async () => {
+      await openGraph();
+
+      expect(fixture.nativeElement.querySelector('[role="tablist"]')).toBeNull();
+      expect(pane('editor')?.hasAttribute('role')).toBe(false);
+      expect(pane('graph')?.hasAttribute('role')).toBe(false);
+      expect(pane('graph')?.getAttribute('aria-labelledby')).toBe('graph-title');
+    });
+
+    it('turns the columns into tab panels on small screens, graph first', async () => {
+      await openGraph();
+      await goCompact();
+
+      expect(main().dataset['pane']).toBe('graph');
+      expect(tab('graph')?.getAttribute('aria-selected')).toBe('true');
+      expect(tab('graph')?.tabIndex).toBe(0);
+      expect(tab('editor')?.getAttribute('aria-selected')).toBe('false');
+      expect(tab('editor')?.tabIndex).toBe(-1);
+
+      for (const id of ['editor', 'graph']) {
+        expect(pane(id)?.getAttribute('role')).toBe('tabpanel');
+        expect(pane(id)?.getAttribute('aria-labelledby')).toBe(tab(id)?.id);
+      }
+    });
+
+    it('switches panes with the tabs', async () => {
+      await openGraph();
+      await goCompact();
+
+      tab('editor')?.click();
+      await fixture.whenStable();
+
+      expect(main().dataset['pane']).toBe('editor');
+      expect(tab('editor')?.getAttribute('aria-selected')).toBe('true');
+      expect(tab('graph')?.getAttribute('aria-selected')).toBe('false');
+    });
+
+    it('moves between the tabs with the arrow keys, Home and End', async () => {
+      await openGraph();
+      await goCompact();
+      const graphTab = tab('graph');
+      const editorTab = tab('editor');
+      if (graphTab === null || editorTab === null) {
+        throw new Error('tabs missing');
+      }
+
+      graphTab.focus();
+      press(graphTab, 'ArrowLeft');
+      await fixture.whenStable();
+      expect(main().dataset['pane']).toBe('editor');
+      expect(document.activeElement).toBe(editorTab);
+
+      // Wraps around at the ends
+      press(editorTab, 'ArrowLeft');
+      await fixture.whenStable();
+      expect(main().dataset['pane']).toBe('graph');
+      expect(document.activeElement).toBe(graphTab);
+
+      press(graphTab, 'Home');
+      await fixture.whenStable();
+      expect(document.activeElement).toBe(editorTab);
+
+      press(editorTab, 'End');
+      await fixture.whenStable();
+      expect(document.activeElement).toBe(graphTab);
+    });
+
+    it('leaves other keys to the browser', async () => {
+      await openGraph();
+      await goCompact();
+      const graphTab = tab('graph');
+      const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+
+      graphTab?.dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(main().dataset['pane']).toBe('graph');
+    });
+
+    it('shows the graph before the skip link moves focus to it', async () => {
+      await openGraph();
+      await goCompact();
+      tab('editor')?.click();
+      await fixture.whenStable();
+
+      const skip: HTMLAnchorElement = fixture.nativeElement.querySelector('.skip-link');
+      skip.click();
+      await fixture.whenStable();
+
+      expect(main().dataset['pane']).toBe('graph');
+      expect(document.activeElement).toBe(pane('graph'));
+    });
+
+    it('keeps the chosen pane when the screen becomes wide and small again', async () => {
+      await openGraph();
+      await goCompact();
+      tab('editor')?.click();
+      await fixture.whenStable();
+
+      compactQuery.emit(false);
+      await fixture.whenStable();
+      expect(fixture.nativeElement.querySelector('[role="tablist"]')).toBeNull();
+
+      await goCompact();
+      expect(tab('editor')?.getAttribute('aria-selected')).toBe('true');
     });
   });
 
