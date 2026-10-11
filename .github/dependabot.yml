@@ -45,3 +45,11 @@ updates:
       # Angular supports only certain versions of TypeScript; `ng update` automatically updates TypeScript accordingly
       - dependency-name: 'typescript'
         update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: "angular-eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular-eslint/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitest/*"
+        update-types: ["version-update:semver-major"]
