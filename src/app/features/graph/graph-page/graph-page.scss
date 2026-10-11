@@ -62,47 +62,6 @@ app-home {
   }
 }
 
-// Segmented control above the pane (mobile mockup).
-.pane-switch {
-  padding: 10px 16px;
-  border-block-end: 1px solid var(--sg-border-subtle);
-  background: var(--sg-bg-panel);
-}
-
-.pane-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
-  padding: 3px;
-  border: 1px solid var(--sg-border);
-  border-radius: var(--sg-radius-lg);
-  background: var(--sg-bg-app);
-}
-
-.pane-tab {
-  // 40 px: touch target of the mobile layout (A11y review #12)
-  block-size: 40px;
-  border: 1px solid transparent;
-  border-radius: var(--sg-radius-md);
-  background: transparent;
-  color: var(--sg-text-secondary);
-  font-size: var(--sg-font-size-lg);
-  font-weight: 500;
-  cursor: pointer;
-
-  &:hover {
-    color: var(--sg-text);
-  }
-
-  // Selected: surface, border and weight, not colour alone
-  &[aria-selected='true'] {
-    border-color: var(--sg-border-strong);
-    background: var(--sg-bg-raised);
-    color: var(--sg-text);
-    font-weight: 600;
-  }
-}
-
 .column {
   min-inline-size: 0;
   min-block-size: 0;
@@ -185,13 +144,45 @@ app-home {
   @media (width < compact.$below) {
     --sg-canvas-inset-block-end: 56px;
     position: relative;
-    grid-template-rows: auto minmax(0, 1fr);
+    // Summary, error notice (empty without an error), canvas
+    grid-template-rows: auto auto minmax(0, 1fr);
   }
 
   // Focus from the skip link lands here; the ring would frame the whole
   // canvas, and the column is not an interactive control itself.
   &:focus {
     outline: none;
+  }
+}
+
+// Compact only: behind the Editor tab the error box is out of sight, so a
+// stale graph says so itself. Wide screens show the box next to the graph.
+.stale-status {
+  display: none;
+
+  @media (width < compact.$below) {
+    display: block;
+  }
+}
+
+.stale-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 16px 0;
+  padding: 8px 8px 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--sg-danger) 50%, transparent);
+  border-radius: var(--sg-radius-md);
+  background: var(--sg-danger-bg);
+  line-height: 1.35;
+
+  svg {
+    flex: none;
+    color: var(--sg-danger);
+  }
+
+  strong {
+    color: var(--sg-danger);
   }
 }
 

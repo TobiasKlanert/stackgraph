@@ -7,13 +7,13 @@ import {
   inject,
   signal,
   viewChild,
-  viewChildren,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ComposeState, type ReadyState } from '../../../core/state/compose-state';
 import { WorkspaceView } from '../../../core/state/workspace-view';
 import { mediaQuery } from '../../../core/platform/media-query';
-import { type Pane, compactLayoutQuery, paneTabs } from '../compact-layout';
+import { type Pane, compactLayoutQuery } from '../compact-layout';
+import { PaneTabs } from '../pane-tabs/pane-tabs';
 import { Editor } from '../editor/editor';
 import { Rendering } from '../rendering/rendering';
 import { DetailPanel } from '../detail-panel/detail-panel';
@@ -32,22 +32,6 @@ function count(n: number, noun: string): string {
   return `${n} ${noun}${n === 1 ? '' : 's'}`;
 }
 
-/** Index of the tab a key moves to (WAI-ARIA tabs pattern), or null for other keys. */
-function tabIndexForKey(key: string, current: number, length: number): number | null {
-  switch (key) {
-    case 'ArrowLeft':
-      return (current - 1 + length) % length;
-    case 'ArrowRight':
-      return (current + 1) % length;
-    case 'Home':
-      return 0;
-    case 'End':
-      return length - 1;
-    default:
-      return null;
-  }
-}
-
 @Component({
   selector: 'app-graph-page',
   imports: [
@@ -56,6 +40,7 @@ function tabIndexForKey(key: string, current: number, length: number): number | 
     Rendering,
     DetailPanel,
     DetailSheet,
+    PaneTabs,
     StackOverview,
     Home,
     ErrorBox,
@@ -91,8 +76,7 @@ export class GraphPage {
    * undo history and caret and the graph's zoom.
    */
   protected readonly pane = signal<Pane>('graph');
-  protected readonly paneTabs = paneTabs;
-  private readonly paneTabButtons = viewChildren<ElementRef<HTMLButtonElement>>('paneTab');
+  private readonly paneSwitch = viewChild(PaneTabs);
   private readonly graphPane = viewChild<ElementRef<HTMLElement>>('graphPane');
 
   /**
@@ -102,20 +86,14 @@ export class GraphPage {
    */
   protected readonly sheetExpanded = signal(false);
 
-  /** Arrow keys, Home and End move between the tabs and select them. */
-  protected onPaneTabKeydown(event: KeyboardEvent): void {
-    const current = paneTabs.findIndex((tab) => tab.pane === this.pane());
-    const target = tabIndexForKey(event.key, current, paneTabs.length);
-    if (target === null) {
-      return;
-    }
-    const tab = paneTabs[target];
-    if (tab === undefined) {
-      return;
-    }
-    event.preventDefault();
-    this.pane.set(tab.pane);
-    this.paneTabButtons()[target]?.nativeElement.focus();
+  /**
+   * From the notice above a stale graph to the editor, where the error box
+   * with "Go to line" waits. Focus goes to the Editor tab, not into the text
+   * field: that would open the on-screen keyboard over the error box.
+   */
+  protected showErrorInEditor(): void {
+    this.pane.set('editor');
+    afterNextRender(() => this.paneSwitch()?.focusSelected(), { injector: this.injector });
   }
 
   /**

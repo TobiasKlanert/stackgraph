@@ -1,0 +1,52 @@
+// Segmented control above the pane (mobile mockup)
+:host {
+  display: block;
+  padding: 10px 16px;
+  border-block-end: 1px solid var(--sg-border-subtle);
+  background: var(--sg-bg-panel);
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-lg);
+  background: var(--sg-bg-app);
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  // 40 px: touch target of the mobile layout (A11y review #12)
+  block-size: 40px;
+  border: 1px solid transparent;
+  border-radius: var(--sg-radius-md);
+  background: transparent;
+  color: var(--sg-text-secondary);
+  font-size: var(--sg-font-size-lg);
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--sg-text);
+  }
+
+  // Selected: surface, border and weight, not colour alone
+  &[aria-selected='true'] {
+    border-color: var(--sg-border-strong);
+    background: var(--sg-bg-raised);
+    color: var(--sg-text);
+    font-weight: 600;
+  }
+}
+
+.error-dot {
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 50%;
+  background: var(--sg-danger);
+}

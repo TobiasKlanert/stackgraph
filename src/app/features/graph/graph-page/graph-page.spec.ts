@@ -413,10 +413,6 @@ describe('GraphPage', () => {
       await fixture.whenStable();
     }
 
-    function press(target: HTMLElement, key: string): void {
-      target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
-    }
-
     it('shows plain columns without tabs on wide screens', async () => {
       await openGraph();
 
@@ -452,48 +448,6 @@ describe('GraphPage', () => {
       expect(main().dataset['pane']).toBe('editor');
       expect(tab('editor')?.getAttribute('aria-selected')).toBe('true');
       expect(tab('graph')?.getAttribute('aria-selected')).toBe('false');
-    });
-
-    it('moves between the tabs with the arrow keys, Home and End', async () => {
-      await openGraph();
-      await goCompact();
-      const graphTab = tab('graph');
-      const editorTab = tab('editor');
-      if (graphTab === null || editorTab === null) {
-        throw new Error('tabs missing');
-      }
-
-      graphTab.focus();
-      press(graphTab, 'ArrowLeft');
-      await fixture.whenStable();
-      expect(main().dataset['pane']).toBe('editor');
-      expect(document.activeElement).toBe(editorTab);
-
-      // Wraps around at the ends
-      press(editorTab, 'ArrowLeft');
-      await fixture.whenStable();
-      expect(main().dataset['pane']).toBe('graph');
-      expect(document.activeElement).toBe(graphTab);
-
-      press(graphTab, 'Home');
-      await fixture.whenStable();
-      expect(document.activeElement).toBe(editorTab);
-
-      press(editorTab, 'End');
-      await fixture.whenStable();
-      expect(document.activeElement).toBe(graphTab);
-    });
-
-    it('leaves other keys to the browser', async () => {
-      await openGraph();
-      await goCompact();
-      const graphTab = tab('graph');
-      const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
-
-      graphTab?.dispatchEvent(event);
-
-      expect(event.defaultPrevented).toBe(false);
-      expect(main().dataset['pane']).toBe('graph');
     });
 
     it('shows the graph before the skip link moves focus to it', async () => {
@@ -612,6 +566,54 @@ describe('GraphPage', () => {
       const legends = fixture.nativeElement.querySelectorAll('app-legend');
       expect(legends).toHaveLength(1);
       expect(legends[0].closest('app-detail-sheet')).not.toBeNull();
+    });
+
+    describe('while the YAML has an error', () => {
+      async function breakTheYaml(): Promise<void> {
+        state.source.set('services:\n  web: [');
+        await settleUntil(() => state.settled().status === 'error');
+      }
+
+      function notice(): HTMLElement | null {
+        return pane('graph')?.querySelector('.stale-note') ?? null;
+      }
+
+      it('marks the Editor tab and says above the graph that it is stale', async () => {
+        await openGraph();
+        await goCompact();
+        expect(notice()).toBeNull();
+
+        await breakTheYaml();
+
+        expect(tab('editor')?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Editor has errors');
+        expect(notice()?.textContent).toContain('The graph shows the last valid version.');
+        // A live region, in case the error settles while the graph tab is open
+        expect(notice()?.closest('[role="status"]')).not.toBeNull();
+      });
+
+      it('takes the user to the Editor tab, with focus on the tab', async () => {
+        await openGraph();
+        await goCompact();
+        await breakTheYaml();
+
+        notice()?.querySelector('button')?.click();
+        await fixture.whenStable();
+
+        expect(main().dataset['pane']).toBe('editor');
+        expect(document.activeElement).toBe(tab('editor'));
+      });
+
+      it('clears both when the YAML is valid again', async () => {
+        await openGraph();
+        await goCompact();
+        await breakTheYaml();
+
+        state.source.set(yaml);
+        await settleUntil(() => state.settled().status === 'ready');
+
+        expect(tab('editor')?.textContent?.trim()).toBe('Editor');
+        expect(notice()).toBeNull();
+      });
     });
 
     it('keeps only the legal links in the footer of the compact split view', async () => {
