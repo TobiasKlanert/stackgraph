@@ -23,24 +23,6 @@ h2 {
   margin-block-start: 40px;
 }
 
-// Browsers set <address> in italics; here it is plain contact data.
-address {
-  font-style: normal;
-}
-
-// Label and value side by side; the labels take only the width they need.
 .contact {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  gap: 4px 24px;
-  margin: 0;
-
-  dt {
-    color: var(--sg-text-muted);
-  }
-
-  dd {
-    margin: 0;
-    overflow-wrap: anywhere;
-  }
+  @include prose.contact-list;
 }

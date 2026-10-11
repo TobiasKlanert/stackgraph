@@ -59,6 +59,30 @@ $h3-size: 1.125rem;
     color: var(--sg-text);
     font-size: 0.875em;
   }
+
+  // Browsers set <address> in italics; on these pages it is plain contact data.
+  :where(address) {
+    font-style: normal;
+  }
+}
+
+/// Label/value list for contact data (Telefon, E-Mail), used by Impressum
+/// and Datenschutz. The labels take only the width they need; long values
+/// such as e-mail addresses wrap instead of widening the page.
+@mixin contact-list {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px 24px;
+  margin: 0;
+
+  dt {
+    color: var(--sg-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
 }
 
 /// Single centred column of a text page (Impressum, Datenschutz), with the

@@ -11,7 +11,8 @@ import { DOCUMENT } from '@angular/common';
 
 export type ThemeName = 'light' | 'dark';
 
-const storageKey = 'stackgraph.theme';
+/** localStorage key of a manual theme choice. Exported for the privacy policy, which names it. */
+export const themeStorageKey = 'stackgraph.theme';
 // Asks for light, not dark: a browser without a preference then counts as
 // dark, the same fallback the stylesheet uses.
 const lightQuery = '(prefers-color-scheme: light)';
@@ -102,7 +103,7 @@ export class Theme {
   // a convenience, so failures are swallowed.
   private readStoredOverride(): ThemeName | null {
     try {
-      const stored = this.storage?.getItem(storageKey);
+      const stored = this.storage?.getItem(themeStorageKey);
       return isThemeName(stored) ? stored : null;
     } catch {
       return null;
@@ -112,9 +113,9 @@ export class Theme {
   private writeStoredOverride(value: ThemeName | null): void {
     try {
       if (value === null) {
-        this.storage?.removeItem(storageKey);
+        this.storage?.removeItem(themeStorageKey);
       } else {
-        this.storage?.setItem(storageKey, value);
+        this.storage?.setItem(themeStorageKey, value);
       }
     } catch {
       // Not persisted; the choice still applies for this visit.

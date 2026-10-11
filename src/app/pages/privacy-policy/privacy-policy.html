@@ -1,1 +1,148 @@
-<p>privacy-policy works!</p>
+<article class="privacy" lang="de">
+  <h1>Datenschutzerklärung</h1>
+  <p class="subtitle" lang="en">Privacy policy, in German.</p>
+
+  <section>
+    <h2>1. Auf einen Blick</h2>
+    <p>
+      StackGraph läuft vollständig in Ihrem Browser. Ich setze keine Cookies ein, nutze keine
+      Analyse- oder Tracking-Werkzeuge und speichere keine IP-Adressen. Die Compose-Dateien, die Sie
+      in StackGraph einfügen, verlassen Ihren Browser nicht. Eine automatisierte
+      Entscheidungsfindung oder ein Profiling findet nicht statt.
+    </p>
+  </section>
+
+  <section>
+    <h2>2. Verantwortlicher</h2>
+    <address>
+      <p>
+        {{ operator.name }}<br />
+        {{ operator.address.street }}<br />
+        {{ operator.address.postalCode }} {{ operator.address.city }}<br />
+        {{ operator.address.country }}
+      </p>
+      <dl class="contact">
+        <dt>Telefon</dt>
+        <dd>
+          <a [href]="phoneHref">{{ operator.phone }}</a>
+        </dd>
+        <dt>E-Mail</dt>
+        <dd>
+          <a [href]="emailHref">{{ operator.email }}</a>
+        </dd>
+      </dl>
+    </address>
+  </section>
+
+  <section>
+    <h2>3. Hosting</h2>
+    <p>
+      Diese Website wird bei der Hetzner Online GmbH, Industriestr. 25, 91710 Gunzenhausen,
+      Deutschland, gehostet. Der Server steht in Nürnberg. Mit Hetzner besteht ein Vertrag über
+      Auftragsverarbeitung nach Art. 28 DSGVO; Hetzner verarbeitet Daten nur nach meiner Weisung.
+      Eine Übermittlung in Länder außerhalb der EU findet nicht statt.
+    </p>
+  </section>
+
+  <section>
+    <h2>4. Aufruf der Website</h2>
+    <p>
+      Wenn Sie StackGraph aufrufen, überträgt Ihr Browser technisch bedingt Daten an den Server:
+      Ihre IP-Adresse, Datum und Uhrzeit, die aufgerufene Adresse, gegebenenfalls die zuvor besuchte
+      Seite sowie Angaben zu Browser und Betriebssystem. Ich verarbeite diese Daten nur, um Ihnen
+      die Website auszuliefern. Gespeichert werden sie nicht: Der Server führt keine
+      Zugriffsprotokolle.
+    </p>
+    <p>
+      Tritt beim Ausliefern ein technischer Fehler auf, protokolliert der Server die Fehlermeldung
+      mit Zeitpunkt, aufgerufener Adresse und Statuscode, jedoch ohne IP-Adresse und ohne Angaben zu
+      Ihrem Browser. Diese Protokolle sind in ihrer Größe begrenzt und werden fortlaufend
+      überschrieben.
+    </p>
+    <p>
+      Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Mein berechtigtes Interesse liegt darin, Ihnen
+      die Website technisch fehlerfrei bereitzustellen. Die Verbindung ist per TLS verschlüsselt.
+    </p>
+  </section>
+
+  <section>
+    <h2>5. Ihre Compose-Dateien</h2>
+    <p>
+      Inhalte, die Sie in den Editor einfügen, werden ausschließlich in Ihrem Browser verarbeitet:
+      beim Auswerten, beim Darstellen als Graph und beim Export als SVG oder PNG. Sie werden weder
+      an meinen Server noch an Dritte übertragen und nicht gespeichert. Wenn Sie die Seite neu laden
+      oder schließen, sind sie verworfen.
+    </p>
+  </section>
+
+  <section>
+    <h2>6. Speicherung in Ihrem Browser</h2>
+    <p>
+      Wählen Sie über den Schalter in der Kopfzeile ein anderes Farbschema als das Ihres Systems,
+      speichert StackGraph diese Wahl im lokalen Speicher Ihres Browsers (localStorage) unter dem
+      Schlüssel <code>{{ themeStorageKey }}</code> mit dem Wert <code>light</code> oder
+      <code>dark</code>. So bleibt Ihre Wahl beim nächsten Besuch erhalten. Der Eintrag verlässt
+      Ihren Browser nicht. Schalten Sie zurück auf das Farbschema Ihres Systems, wird er gelöscht;
+      außerdem können Sie ihn jederzeit über die Einstellungen Ihres Browsers entfernen.
+    </p>
+    <p>
+      Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Die Speicherung ist unbedingt erforderlich, um
+      die von Ihnen ausdrücklich gewünschte Funktion bereitzustellen: das Merken Ihres Farbschemas.
+    </p>
+  </section>
+
+  <section>
+    <h2>7. Keine Inhalte von Drittanbietern</h2>
+    <p>
+      StackGraph lädt keine Inhalte von anderen Servern. Alle Dateien, auch die Schriftarten, werden
+      von meinem Server ausgeliefert.
+    </p>
+  </section>
+
+  <section>
+    <h2>8. Links zu anderen Websites</h2>
+    <p>
+      StackGraph enthält Links zu externen Websites, etwa zu GitHub und LinkedIn. Erst wenn Sie
+      einen solchen Link anklicken, verbindet sich Ihr Browser mit dem jeweiligen Anbieter; ab dann
+      gilt dessen Datenschutzerklärung.
+    </p>
+  </section>
+
+  <section>
+    <h2>9. Kontakt per E-Mail oder Telefon</h2>
+    <p>
+      Wenn Sie mich per E-Mail oder Telefon kontaktieren, verarbeite ich die Angaben, die Sie dabei
+      machen, um Ihr Anliegen zu bearbeiten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; mein
+      berechtigtes Interesse liegt in der Beantwortung Ihrer Anfrage. Ich lösche die Daten, sobald
+      Ihr Anliegen erledigt ist, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.
+    </p>
+    <p>
+      E-Mails empfange ich über ALL-INKL.COM – Neue Medien Münnich, Hauptstraße 68, 02742
+      Friedersdorf, Deutschland. Mit diesem Anbieter besteht ebenfalls ein Vertrag über
+      Auftragsverarbeitung nach Art. 28 DSGVO.
+    </p>
+  </section>
+
+  <section>
+    <h2>10. Ihre Rechte</h2>
+    <p>
+      Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17),
+      Einschränkung der Verarbeitung (Art. 18) und Datenübertragbarkeit (Art. 20). Schreiben Sie mir
+      dazu einfach an <a [href]="emailHref">{{ operator.email }}</a
+      >.
+    </p>
+    <!-- Art. 21 (4) GDPR: the right to object is shown clearly and separately. -->
+    <p class="objection">
+      <strong>Widerspruchsrecht:</strong> Soweit ich Daten auf Grundlage von Art. 6 Abs. 1 lit. f
+      DSGVO verarbeite, können Sie dieser Verarbeitung aus Gründen, die sich aus Ihrer besonderen
+      Situation ergeben, jederzeit widersprechen (Art. 21 DSGVO).
+    </p>
+    <p>
+      Außerdem haben Sie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren,
+      insbesondere in dem Mitgliedstaat Ihres Aufenthaltsorts, Ihres Arbeitsplatzes oder des Orts
+      des mutmaßlichen Verstoßes (Art. 77 DSGVO).
+    </p>
+  </section>
+
+  <p class="updated">Stand: Oktober 2026</p>
+</article>
