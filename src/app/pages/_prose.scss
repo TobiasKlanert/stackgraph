@@ -61,6 +61,15 @@ $h3-size: 1.125rem;
   }
 }
 
+/// Single centred column of a text page (Impressum, Datenschutz), with the
+/// page's outer spacing. The side padding is added to the width, so the
+/// text itself still gets the full measure.
+@mixin column {
+  max-inline-size: calc(#{$measure} + 32px);
+  margin-inline: auto;
+  padding: 56px 16px 96px;
+}
+
 /// Page title.
 @mixin h1 {
   margin: 0;

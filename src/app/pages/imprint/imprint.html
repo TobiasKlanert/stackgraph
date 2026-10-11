@@ -1,1 +1,26 @@
-<p>imprint works!</p>
+<article class="imprint" lang="de">
+  <h1>Impressum</h1>
+  <p class="subtitle" lang="en">Legal notice, required by German law.</p>
+
+  <!-- <address> may not contain headings, hence two blocks around the h2. -->
+  <address>
+    {{ operator.name }}<br />
+    {{ operator.address.street }}<br />
+    {{ operator.address.postalCode }} {{ operator.address.city }}<br />
+    {{ operator.address.country }}
+  </address>
+
+  <h2>Kontakt</h2>
+  <address>
+    <dl class="contact">
+      <dt>Telefon</dt>
+      <dd>
+        <a [href]="phoneHref">{{ operator.phone }}</a>
+      </dd>
+      <dt>E-Mail</dt>
+      <dd>
+        <a [href]="emailHref">{{ operator.email }}</a>
+      </dd>
+    </dl>
+  </address>
+</article>
