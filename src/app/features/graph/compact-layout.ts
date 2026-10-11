@@ -1,7 +1,8 @@
 /**
  * Below this width the split view shows one pane at a time, switched by
- * tabs. Must match `$compact-below` in graph-page.scss: the stylesheet lays
- * the panes out, this query only decides the tab semantics.
+ * tabs, and the details become a sheet. Must match `$below` in
+ * features/graph/_compact.scss: the stylesheets do the layout, this query
+ * only switches the semantics (tabs, sheet handle).
  */
 export const compactLayoutQuery = '(width < 1024px)';
 

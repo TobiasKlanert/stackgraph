@@ -127,8 +127,16 @@
       </div>
     </section>
 
-    <div class="column detail-column">
-      @if (selectedService(); as service) {
+    <!-- A column on wide screens, a sheet under the graph in the compact layout. -->
+    @let service = selectedService();
+    <app-detail-sheet
+      class="column detail-column"
+      [compact]="compact()"
+      [name]="service?.name ?? 'Stack overview'"
+      [kind]="service ? 'Service' : undefined"
+      [(expanded)]="sheetExpanded"
+    >
+      @if (service) {
         <app-detail-panel
           [service]="service"
           [model]="view.model"
@@ -138,7 +146,7 @@
       } @else {
         <app-stack-overview [model]="view.model" (serviceSelected)="selectFromPanel($event)" />
       }
-    </div>
+    </app-detail-sheet>
   } @else {
     <app-home (submitted)="openGraph()" />
   }

@@ -17,6 +17,7 @@ import { type Pane, compactLayoutQuery, paneTabs } from '../compact-layout';
 import { Editor } from '../editor/editor';
 import { Rendering } from '../rendering/rendering';
 import { DetailPanel } from '../detail-panel/detail-panel';
+import { DetailSheet } from '../detail-sheet/detail-sheet';
 import { StackOverview } from '../stack-overview/stack-overview';
 import { Home } from '../home/home';
 import { Legend } from '../legend/legend';
@@ -54,6 +55,7 @@ function tabIndexForKey(key: string, current: number, length: number): number | 
     Editor,
     Rendering,
     DetailPanel,
+    DetailSheet,
     StackOverview,
     Home,
     ErrorBox,
@@ -92,6 +94,13 @@ export class GraphPage {
   protected readonly paneTabs = paneTabs;
   private readonly paneTabButtons = viewChildren<ElementRef<HTMLButtonElement>>('paneTab');
   private readonly graphPane = viewChild<ElementRef<HTMLElement>>('graphPane');
+
+  /**
+   * Whether the details sheet of the compact layout is open. Collapsed at
+   * first, so the graph gets the room. Wide screens ignore it: there the
+   * details are a column of their own.
+   */
+  protected readonly sheetExpanded = signal(false);
 
   /** Arrow keys, Home and End move between the tabs and select them. */
   protected onPaneTabKeydown(event: KeyboardEvent): void {
@@ -153,6 +162,11 @@ export class GraphPage {
   /** Selecting the selected service again deselects it, as aria-pressed promises. */
   protected onNodeSelected(id: string): void {
     this.selectedId.update((current) => (current === id ? null : id));
+    // A service picked in the graph opens the sheet, so its details show
+    // without another tap. Focus stays in the graph, as on wide screens.
+    if (this.selectedService() !== null) {
+      this.sheetExpanded.set(true);
+    }
   }
 
   /** The panel's buttons name a target, they are no switches: select, never toggle. */
