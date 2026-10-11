@@ -17,6 +17,9 @@ $dark: (
   text-secondary: #aeb7c5,
   text-muted: #8b95a7,
   text-line-number: #7d879a,
+  // Scrollbar thumb: at least 3:1 against every background (WCAG 1.4.11),
+  // and no louder than that.
+  scrollbar: #5e687a,
   // Accent & Focus
   accent: #2dd4bf,
   on-accent: #042f2a,
@@ -59,6 +62,7 @@ $light: (
   text-secondary: #3e4550,
   text-muted: #59616e,
   text-line-number: #5f6672,
+  scrollbar: #7f8587,
   accent: #0f766e,
   on-accent: #ffffff,
   accent-glow: none,

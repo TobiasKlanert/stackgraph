@@ -61,6 +61,7 @@ textarea {
   overflow-wrap: normal;
   tab-size: 2;
   resize: none;
+  scrollbar-width: thin;
 
   // Firefox dims placeholders with opacity; the colour alone sets the contrast.
   &::placeholder {
