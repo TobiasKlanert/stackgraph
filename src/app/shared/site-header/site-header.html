@@ -1,7 +1,23 @@
 <header class="header">
   <div class="start">
     <a class="brand" routerLink="/" (click)="onBrandClick($event)">
-      <span class="mark" aria-hidden="true"></span>
+      <!-- Same shapes as public/favicon.svg; coloured by the theme tokens here. -->
+      <svg
+        class="mark"
+        viewBox="0 0 32 32"
+        width="20"
+        height="20"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          class="mark-edge"
+          d="M12 6H10a2.5 2.5 0 0 0-2.5 2.5V13M20 16h2a2.5 2.5 0 0 1 2.5 2.5V23"
+        />
+        <rect x="12" y="3" width="17" height="6" rx="2" />
+        <rect x="3" y="13" width="17" height="6" rx="2" />
+        <rect x="12" y="23" width="17" height="6" rx="2" />
+      </svg>
       <span class="name">StackGraph</span>
     </a>
     <ng-content select="[siteHeaderStart]" />

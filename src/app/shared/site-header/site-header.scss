@@ -46,22 +46,17 @@
 }
 
 .mark {
-  display: grid;
-  place-items: center;
-  inline-size: 20px;
-  block-size: 20px;
-  border: 1px solid var(--sg-border);
-  border-radius: var(--sg-radius-sm);
-  background: var(--sg-bg-raised);
+  flex: none;
+  // Three stacked services, linked end to end: the route draws an S.
+  fill: var(--sg-accent);
+}
 
-  &::before {
-    content: '';
-    inline-size: 7px;
-    block-size: 7px;
-    border-radius: 1px;
-    background: var(--sg-accent);
-    transform: rotate(45deg);
-  }
+.mark-edge {
+  fill: none;
+  stroke: var(--sg-edge);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .name {

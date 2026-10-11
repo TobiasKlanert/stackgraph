@@ -44,6 +44,14 @@ describe('SiteHeader', () => {
     expect(brand.textContent?.trim()).toBe('StackGraph');
   });
 
+  it('keeps the mark out of the link name, which the wordmark gives', () => {
+    const { brand } = setup();
+    const mark = brand.querySelector('svg.mark');
+
+    expect(mark?.getAttribute('aria-hidden')).toBe('true');
+    expect(mark?.querySelectorAll('rect')).toHaveLength(3);
+  });
+
   it('projects start and end content into their slots', () => {
     const { el } = setup();
 
