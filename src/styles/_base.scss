@@ -39,6 +39,15 @@ a {
   color: inherit;
 }
 
+// Scrollbars in the app's colours: thumb from the tokens, track see-through.
+// Standard properties only (Chrome and Edge 121+, Firefox 64+, Safari 26.2+);
+// older browsers keep their own. scrollbar-color is inherited, so the root
+// sets it for every scroll area. Inner areas pick the thin width themselves;
+// the page keeps the normal one, which is easier to grab.
+:root {
+  scrollbar-color: var(--sg-scrollbar) transparent;
+}
+
 :focus-visible {
   outline: 2px solid var(--sg-focus);
   outline-offset: 2px;

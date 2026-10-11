@@ -6,6 +6,7 @@
   // Several structure errors must not push the editor out of the column.
   max-block-size: 45%;
   overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .error {
