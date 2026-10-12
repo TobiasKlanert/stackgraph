@@ -129,7 +129,7 @@ trade-offs in detail.
 | Styling | SCSS with CSS custom properties as design tokens; no UI library |
 | Testing | [Vitest](https://vitest.dev/) (jsdom) |
 | Linting / formatting | ESLint (angular-eslint flat config) + Prettier |
-| Container | Multi-stage Docker build (`node:22-alpine` → `nginx:alpine`) |
+| Container | Multi-stage Docker build (`node:24-alpine` → `nginx:alpine`) |
 
 > **Why ELK and custom SVG instead of a graph library?** Keeping _layout_ (computing positions)
 > apart from _rendering and interaction_ (drawing SVG, zoom, selection) keeps each layer simple,
@@ -141,8 +141,7 @@ trade-offs in detail.
 
 ### Prerequisites
 
-- **Node.js 22 LTS** (matches the Docker build stage). Angular 21 supports Node `^20.19`, `^22.12`
-  or `^24`; newer versions may work but can be flagged as unsupported by the CLI.
+- **Node.js 24 LTS** (`^24.15.0`). The version is pinned in `.nvmrc` and enforced through `engines` with `engine-strict`, so `npm install` stops with a clear error on any other version. With a version manager such as fnm or nvm, `fnm use` or `nvm use` picks it up automatically. CI and the Docker build use the same version.
 - **npm 11+**, **Git**, and **Docker** for the container workflow.
 
 The Angular CLI runs through the npm scripts, so a global `@angular/cli` is optional.
@@ -170,7 +169,7 @@ The output in `dist/stackgraph/browser/` is plain static files for any web serve
 
 ## Running with Docker
 
-The `Dockerfile` builds the app with `node:22-alpine` and serves it with `nginx:alpine`, including
+The `Dockerfile` builds the app with `node:24-alpine` and serves it with `nginx:alpine`, including
 the SPA fallback, long-term caching for hashed assets and revalidation for the icons.
 
 ```bash
@@ -197,6 +196,8 @@ npm run format:check  # Prettier: check only
 
 CI runs lint, format check, tests and the production build for every pull request to `main` and
 every push to it.
+
+Dependabot proposes dependency updates weekly. Angular packages are grouped into one pull request, and major updates of Angular and its coupled tooling are left to `ng update`, which runs the migrations.
 
 The README images are rendered from a production build with
 [`scripts/readme-screenshots.mjs`](scripts/readme-screenshots.mjs); the file explains how to run it.
