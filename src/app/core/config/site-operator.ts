@@ -32,7 +32,7 @@ export const siteOperator: SiteOperator = {
     country: 'Deutschland',
   },
   email: 'kontakt@tobias-klanert.de',
-  phone: '+49 3476 8479321',
+  phone: '+49 1525 3562862',
 };
 
 /**
