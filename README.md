@@ -141,7 +141,7 @@ trade-offs in detail.
 
 ### Prerequisites
 
-- **Node.js 24 LTS** (`^24.15.0`). The version is pinned in `.nvmrc` and enforced through `engines` with `engine-strict`, so `npm install` stops with a clear error on any other version. With a version manager such as fnm or nvm, `fnm use` or `nvm use` picks it up automatically. CI and the Docker build use the same version.
+- **Node.js 24 LTS** (`^24.22.1`). The version is pinned in `.nvmrc` and enforced through `engines` with `engine-strict`, so `npm install` stops with a clear error on any other version. With a version manager such as fnm or nvm, `fnm use` or `nvm use` picks it up automatically. CI and the Docker build use the same version.
 - **npm 11+**, **Git**, and **Docker** for the container workflow.
 
 The Angular CLI runs through the npm scripts, so a global `@angular/cli` is optional.
