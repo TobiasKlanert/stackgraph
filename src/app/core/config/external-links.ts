@@ -1,3 +1,5 @@
+import { version } from '../../../../package.json';
+
 const repository = 'https://github.com/TobiasKlanert/stackgraph';
 
 /** External pages, linked from the footer and the About page. */
@@ -9,11 +11,11 @@ export const externalLinks = {
 } as const;
 
 /**
- * Release whose code the About page describes. Links into the source point
- * to this tag instead of main, so page and code always show the same state
- * and a moved file cannot break a link. Update it with the page.
+ * Git ref the source links point to. Derived from package.json, so
+ * `npm version` keeps the links in sync with the release tag.
+ * The tag must exist on GitHub, so set it right after merging a release.
  */
-export const sourceRef = 'v1.0.0';
+export const sourceRef = `v${version}`;
 
 /**
  * Link to a file or folder in the repository at `sourceRef`. Folders are

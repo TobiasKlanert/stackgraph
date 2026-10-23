@@ -10,4 +10,8 @@ describe('sourceAt', () => {
       `${externalLinks.github}/tree/${sourceRef}/src/app/core/parser`
     );
   });
+
+  it('derives sourceRef from the package version', () => {
+    expect(sourceRef).toMatch(/^v\d+\.\d+\.\d+$/);
+  });
 });
