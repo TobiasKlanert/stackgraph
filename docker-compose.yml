@@ -1,7 +1,10 @@
 services:
   app:
+    # The deploy script writes IMAGE_TAG=sha-<commit> into a .env file next to
+    # this file on the server, so it is always clear which build runs.
+    # Without a .env, latest is used.
+    image: ghcr.io/tobiasklanert/stackgraph:${IMAGE_TAG:-latest}
     container_name: stackgraph
-    image: ghcr.io/tobiasklanert/stackgraph:latest
     networks:
       - web
     restart: unless-stopped

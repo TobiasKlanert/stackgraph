@@ -28,6 +28,9 @@ coverage
 docs
 scripts
 
+# Server-side deploy script (installed on the VPS by hand)
+ops
+
 # Docker (not required in the build context)
 Dockerfile
 .dockerignore

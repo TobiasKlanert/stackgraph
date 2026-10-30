@@ -206,10 +206,21 @@ The README images are rendered from a production build with
 
 ## Deployment
 
-A push to `main` that passes CI builds the Docker image, pushes it to the GitHub Container Registry
-(`ghcr.io/tobiasklanert/stackgraph`, tagged `latest` and with the commit SHA), and deploys it over
-SSH: the server pulls the new image and restarts the container. There it runs behind Caddy, which
-handles TLS.
+A push to `main` runs the same workflow with two more jobs. `image` builds the Docker image and
+pushes it to the GitHub Container Registry (`ghcr.io/tobiasklanert/stackgraph`, tagged
+`sha-<commit>` and `latest`). `deploy` then connects to the server over SSH, verifies the server's
+host key and sends nothing but the tag to roll out. Only `image` may push packages, and only
+`deploy` sees the SSH key.
+
+On the server, the deploy key is bound to a forced command in `authorized_keys`: whatever the
+client asks for, sshd runs only [`ops/stackgraph-deploy.sh`](ops/stackgraph-deploy.sh), and the
+key allows no shell, tunnels or forwarding. The script accepts nothing but `sha-` followed by a
+full commit hash, pulls that image and starts it. If the container does not come up, it switches
+back to the previous image and the job fails. The pipeline cannot change the script; it is
+installed on the server by hand. There the app runs behind Caddy, which handles TLS.
+
+The actions in the workflow are pinned to commit hashes. Dependabot keeps them up to date and
+waits seven days after a release before proposing it.
 
 ---
 

@@ -6,19 +6,33 @@ on:
   push:
     branches: [main]
 
+# A new push to the same pull request cancels its outdated run. Runs on main
+# always finish, so a deploy is never cut off midway.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
+# Actions are pinned to commit hashes, Dependabot keeps them up to date.
+# The job ids are the check names: `ci` is required by the ruleset, so it
+# must not be renamed or given a `name:`.
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # This job never pushes, so the token is not kept in the checkout.
+          persist-credentials: false
 
-      - uses: actions/setup-node@v6
+      # Exact version from .nvmrc. npm caching is on automatically because
+      # package.json sets packageManager to npm.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
-          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
@@ -35,37 +49,40 @@ jobs:
       - name: Build
         run: npm run build
 
-  deploy:
+  # Builds the image and pushes it to GHCR. Only this job may write packages,
+  # and it never sees the SSH key.
+  image:
     needs: ci
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
-      packages: write
+      packages: write # push the image to GHCR
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@v4
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
-      - name: Log in to GHCR
-        uses: docker/login-action@v4
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract image metadata
-        id: meta
-        uses: docker/metadata-action@v6
+      # The server deploys sha-<commit>. latest always points to the newest
+      # image of main and is only there for orientation.
+      - id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value=latest
             type=sha,format=long
+            type=raw,value=latest
 
-      - name: Build and push image
-        uses: docker/build-push-action@v7
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           push: true
@@ -74,15 +91,33 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  # Rolls the new image out on the VPS. The SSH key exists only in the
+  # environment, and on the server it can do nothing but run the deploy script
+  # (ops/stackgraph-deploy.sh).
+  deploy:
+    needs: image
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    permissions: {}
+    steps:
       - name: Deploy on VPS
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT || 22 }}
-          script: |
-            cd /srv/apps/stackgraph
-            docker compose pull
-            docker compose up -d
-            docker image prune -f
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          TARGET: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
+          IMAGE_TAG: sha-${{ github.sha }}
+        run: |
+          umask 077
+          printf '%s\n' "$SSH_KEY" > "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$KNOWN_HOSTS" > "$RUNNER_TEMP/known_hosts"
+
+          # Strict host key check: connect only if the server presents the
+          # key stored in VPS_KNOWN_HOSTS. The only thing sent is the tag.
+          ssh -i "$RUNNER_TEMP/deploy_key" \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$RUNNER_TEMP/known_hosts" \
+            -o ConnectTimeout=20 \
+            "$TARGET" "$IMAGE_TAG"
