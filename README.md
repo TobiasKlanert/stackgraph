@@ -129,7 +129,7 @@ trade-offs in detail.
 | Styling | SCSS with CSS custom properties as design tokens; no UI library |
 | Testing | [Vitest](https://vitest.dev/) (jsdom) |
 | Linting / formatting | ESLint (angular-eslint flat config) + Prettier |
-| Container | Multi-stage Docker build (`node:24-alpine` → `nginx:alpine`) |
+| Container | Multi-stage Docker build (`node:24.22.2-alpine` → `nginx-unprivileged:1.30-alpine`): non-root, read-only file system, no capabilities, health check |
 
 > **Why ELK and custom SVG instead of a graph library?** Keeping _layout_ (computing positions)
 > apart from _rendering and interaction_ (drawing SVG, zoom, selection) keeps each layer simple,
@@ -169,18 +169,21 @@ The output in `dist/stackgraph/browser/` is plain static files for any web serve
 
 ## Running with Docker
 
-The `Dockerfile` builds the app with `node:24-alpine` and serves it with `nginx:alpine`, including
-the SPA fallback, long-term caching for hashed assets and revalidation for the icons.
+The `Dockerfile` builds the app with the Node version from `.nvmrc` and serves it with the
+unprivileged nginx image: nginx runs as a non-root user on port 8080, with the SPA fallback,
+long-term caching for hashed assets, revalidation for the icons and a health check.
 
 ```bash
 docker build -t stackgraph .
-docker run --rm -p 8080:80 stackgraph
+docker run --rm -p 8080:8080 --read-only --tmpfs /tmp --cap-drop ALL stackgraph
 ```
 
-Open **http://localhost:8080/** and stop the container with `Ctrl+C`.
+Open **http://localhost:8080/** and stop the container with `Ctrl+C`. The flags match the
+production hardening, so a local run shows whether the image still works under it.
 
 > The `docker-compose.yml` in this repository is the production deployment: it runs behind an
-> existing Caddy reverse proxy on an external Docker network named `web` and publishes no ports.
+> existing Caddy reverse proxy on an external Docker network named `web`, publishes no ports, and
+> runs the container with a read-only file system, no capabilities and `no-new-privileges`.
 > For a local run, use the commands above.
 
 ---

@@ -8,6 +8,17 @@ services:
     networks:
       - web
     restart: unless-stopped
+
+    # Hardening: nothing in here needs root rights, kernel capabilities or a
+    # writable file system. nginx only writes its pid and temp files to /tmp.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
     # Rotate what is still logged (startup, errors) instead of growing forever.
     logging:
       driver: json-file
