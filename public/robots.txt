@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://stackgraph.tobias-klanert.de/sitemap.xml
