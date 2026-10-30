@@ -5,6 +5,31 @@
     <title>StackGraph</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Paste a docker-compose.yml and see it as an interactive graph of services, dependencies, networks, volumes and ports. Runs in your browser, nothing is uploaded."
+    />
+    <!-- Link previews (LinkedIn, Slack, Mastodon, …). Crawlers don't run
+         JavaScript, so every route shares these tags. Image URLs must be absolute. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="StackGraph" />
+    <meta
+      property="og:title"
+      content="StackGraph: docker-compose.yml as an interactive service graph"
+    />
+    <meta
+      property="og:description"
+      content="Paste a docker-compose.yml and see services, dependencies, networks, volumes and ports as a graph. Runs in your browser, nothing is uploaded."
+    />
+    <meta property="og:url" content="https://stackgraph.tobias-klanert.de/" />
+    <meta property="og:image" content="https://stackgraph.tobias-klanert.de/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="The StackGraph split view: the compose file in the editor, the service graph in the middle and the details of the selected service on the right."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
     <!-- SVG for current browsers (follows the colour scheme), ICO for the rest;
          sizes="32x32" keeps browsers that know both from picking the ICO. -->
     <link rel="icon" href="favicon.ico" sizes="32x32" />
