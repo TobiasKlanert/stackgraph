@@ -1,5 +1,25 @@
 version: 2
 updates:
+  # Keeps the actions in .github/workflows up to date. Dependabot updates the
+  # pinned commit hashes together with their version comments.
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    target-branch: 'main'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '06:00'
+      timezone: 'Europe/Berlin'
+    # Wait a week after a release. A hijacked release is usually noticed and
+    # pulled within days, before it would end up here.
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: 'ci'
+    groups:
+      actions:
+        patterns: ['*']
+
   - package-ecosystem: 'npm'
     directory: '/'
     target-branch: 'main'
